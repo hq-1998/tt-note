@@ -1,11 +1,6 @@
 import { contextBridge } from 'electron'
-import { windowControl, dialog } from './api'
+import * as api from './api'
 import { electronAPI } from '@electron-toolkit/preload'
-
-const api = {
-  windowControl,
-  dialog
-}
 
 if (process.contextIsolated) {
   try {

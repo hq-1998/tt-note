@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, app } from 'electron'
 
 export const template: (mainWindow: BrowserWindow) => Electron.MenuItemConstructorOptions[] = (
   mainWindow
@@ -13,6 +13,12 @@ export const template: (mainWindow: BrowserWindow) => Electron.MenuItemConstruct
             a: 1,
             b: 2
           })
+        }
+      },
+      {
+        label: '重启',
+        click: () => {
+          app.relaunch()
         }
       }
     ]

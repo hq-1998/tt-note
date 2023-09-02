@@ -4,11 +4,12 @@ import ElectronWindow from './window/createWindow'
 import { INDEX, SETTING, WINDOW_OPTIONS } from './options/window'
 import { utils } from './window/utils'
 import IpcMain from './ipcMain'
-import { template } from './menu'
 import { join } from 'path'
+import store from './store'
 
 const webPreferences = {
   preload: join(__dirname, '../preload/index.js'),
+  nodeIntegrationInWorker: true,
   sandbox: false
 }
 
@@ -32,13 +33,15 @@ function createWindow(): void {
     setting[`${isExist ? 'show' : 'open'}`]()
   })
 
+  global.store = store
   IpcMain.listen()
-  const menuTemplate = Menu.buildFromTemplate(template(mainWindow.window))
-  Menu.setApplicationMenu(menuTemplate)
+  // const menuTemplate = Menu.buildFromTemplate(template(mainWindow.window))
+  Menu.setApplicationMenu(null)
   mainWindow.open()
 }
 
 app.whenReady().then(() => {
+  app.commandLine.appendSwitch('proxy-server', 'https://registry.npmjs.org/')
   electronApp.setAppUserModelId('com.electron')
 
   app.on('browser-window-created', (_, window) => {

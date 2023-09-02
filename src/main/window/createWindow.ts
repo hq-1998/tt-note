@@ -9,7 +9,7 @@ const getStaticPath = (path: string): string => join(__dirname, `../renderer/pag
 class ElectronWindow {
   private _window: BrowserWindow
   private _name: string | null
-  private _options: Electron.BrowserWindowConstructorOptions
+  _options: Electron.BrowserWindowConstructorOptions
   constructor(name: string, options: Electron.BrowserWindowConstructorOptions) {
     this._name = name
     this._options = options

@@ -9,7 +9,7 @@ export const WINDOW_OPTIONS = {
     autoHideMenuBar: true
   },
   [INDEX]: {
-    width: 900,
+    width: 1200,
     height: 670,
     show: false
   }

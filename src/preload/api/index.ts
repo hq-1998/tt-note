@@ -1,4 +1,4 @@
 import windowControl from './windowControl'
-import dialog from './dialog'
+import node from './node'
 
-export { windowControl, dialog }
+export { windowControl, node }
