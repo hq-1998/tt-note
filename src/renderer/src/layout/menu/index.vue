@@ -4,6 +4,9 @@
       <div class="avatar-wrapper">
         <a-avatar :size="collapsed ? 32 : 64">A</a-avatar>
       </div>
+      <!-- <a-button class="button-wrapper" shape="round">
+        <template #icon> <icon-plus></icon-plus></template>新建
+      </a-button> -->
       <div class="menu-list-wrapper">
         <a-menu
           v-model:collapsed="collapsed"
@@ -13,7 +16,7 @@
           @collapse="onCollapse"
         >
           <a-menu-item key="0">
-            <template #icon><icon-apps></icon-apps></template>
+            <template #icon><icon-apps></icon-apps> </template>
             最新
           </a-menu-item>
           <a-sub-menu key="1">
@@ -64,6 +67,9 @@ const onCollapse = (val) => {
     }
     .menu-list-wrapper {
       flex: 1;
+    }
+    .button-wrapper {
+      margin-bottom: 5px;
     }
   }
 }

@@ -1,0 +1,115 @@
+.modal {
+  .header {
+    height: 100%;
+    padding: 1.67rem 2.33rem;
+    font-size: 18px;
+    color: #252933;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(228, 230, 235, 0.5);
+  }
+
+  .auth-body {
+    position: relative;
+    padding: 1.67rem 2.33rem;
+    font-size: 1.167rem;
+    max-width: 100%;
+    box-sizing: border-box;
+    .content {
+      .login-main {
+        .title {
+          font-size: 1.33rem;
+          font-weight: 500;
+          margin: 0 0 1.33rem;
+          color: #252933;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .input-group {
+          margin-bottom: 0.5rem;
+
+          .send-vcode-btn {
+            color: #1e80ff;
+            font-weight: 500;
+            cursor: pointer;
+          }
+
+          .other-login-box {
+            display: flex;
+            color: #515767;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            .oauth-box {
+              display: flex;
+              align-items: center;
+              .oauth {
+                display: flex;
+                align-items: center;
+                .oauth-bg {
+                  width: 2rem;
+                  height: 2rem;
+                  border-radius: 50%;
+                  background-color: #f2f3f5;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  margin-right: 8px;
+                }
+              }
+            }
+
+            .clickable {
+              color: #515767;
+              cursor: pointer;
+            }
+          }
+        }
+      }
+
+      .auth-qrcode {
+        .title {
+          font-size: 1.33rem;
+          font-weight: 500;
+          margin: 0 0 1.33rem;
+          color: #252933;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .qrcode-img-wrap {
+          border-radius: 5px;
+          display: inline-block;
+          margin-bottom: 16px;
+          padding: 8px;
+          border: 1.5px solid #e4e6eb;
+        }
+
+        .qrcode-text {
+          font-size: 14px;
+          color: #515767;
+          line-height: 22px;
+
+          .app {
+            color: #1e80ff;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+
+    .agreement-box {
+      margin-top: 3.33rem;
+      color: #8a919f;
+      text-align: center;
+
+      a {
+        color: #1e80ff;
+        cursor: pointer;
+      }
+    }
+  }
+}

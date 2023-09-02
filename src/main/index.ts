@@ -1,7 +1,7 @@
 import { app, BrowserWindow, globalShortcut, Menu } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import ElectronWindow from './window/createWindow'
-import { INDEX, SETTING, WINDOW_OPTIONS } from './options/window'
+import { INDEX, LOGIN, SETTING, WINDOW_OPTIONS } from './options/window'
 import { utils } from './window/utils'
 import IpcMain from './ipcMain'
 import { join } from 'path'
@@ -13,7 +13,7 @@ const webPreferences = {
   sandbox: false
 }
 
-const mergeConfig = (config) => {
+export const mergeConfig = (config) => {
   return {
     ...config,
     webPreferences
@@ -21,7 +21,7 @@ const mergeConfig = (config) => {
 }
 
 function createWindow(): void {
-  const mainWindow = new ElectronWindow(INDEX, mergeConfig(WINDOW_OPTIONS[INDEX]))
+  const mainWindow = new ElectronWindow(LOGIN, mergeConfig(WINDOW_OPTIONS[LOGIN]))
   let setting = new ElectronWindow(SETTING, mergeConfig(WINDOW_OPTIONS[SETTING]))
 
   globalShortcut.register('CommandOrControl+T', () => {
@@ -43,6 +43,7 @@ function createWindow(): void {
 app.whenReady().then(() => {
   app.commandLine.appendSwitch('proxy-server', 'https://registry.npmjs.org/')
   electronApp.setAppUserModelId('com.electron')
+  process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

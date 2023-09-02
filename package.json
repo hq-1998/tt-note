@@ -25,7 +25,9 @@
     "@bytemd/vue-next": "^1.21.0",
     "@electron-toolkit/preload": "^2.0.0",
     "@electron-toolkit/utils": "^1.0.2",
+    "axios": "^1.5.0",
     "pinia": "^2.1.6",
+    "qrcode.vue": "^3.4.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

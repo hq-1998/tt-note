@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    BaseModal: typeof import('./src/components/base-modal/index.vue')['default']
     Content: typeof import('./src/components/content/index.vue')['default']
     DownloadTable: typeof import('./src/components/download-table/index.vue')['default']
     DownTable: typeof import('./src/components/down-table/index.vue')['default']

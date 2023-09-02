@@ -1,5 +1,6 @@
 export const SETTING = 'setting'
 export const INDEX = 'index'
+export const LOGIN = 'login'
 
 export const WINDOW_OPTIONS = {
   [SETTING]: {
@@ -11,6 +12,11 @@ export const WINDOW_OPTIONS = {
   [INDEX]: {
     width: 1200,
     height: 670,
+    show: false
+  },
+  [LOGIN]: {
+    width: 580,
+    height: 424,
     show: false
   }
 }

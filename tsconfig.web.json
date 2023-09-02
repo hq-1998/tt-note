@@ -5,10 +5,15 @@
     "src/renderer/src/**/*",
     "src/renderer/src/**/*.vue",
     "src/preload/*.d.ts",
-    "src/renderer/src/store/**/*"
+    "src/renderer/src/store/**/*",
+    "src/renderer/src/hooks/**/*",
+    "src/renderer/src/request/**/*",
+    "src/renderer/src/api/**/*",
   ],
   "compilerOptions": {
+    "types": ["vite/client"],
     "composite": true,
+    "module": "ESNext",
     "baseUrl": ".",
     "paths": {
       "@renderer/*": [

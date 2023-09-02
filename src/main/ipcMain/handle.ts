@@ -27,7 +27,8 @@ const events: {
   ...api.app,
   ...api.net,
   ...api.shell,
-  ...api.note
+  ...api.note,
+  ...api.windowControl
 }
 
 export default events
