@@ -41,6 +41,7 @@ const fns = {
     return await fse.rename(oldFileName, filename)
   },
   async getAllDirs(
+    _event,
     path = baseDir,
     options?:
       | BufferEncoding

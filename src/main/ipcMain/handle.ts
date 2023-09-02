@@ -1,29 +1,12 @@
-import { BrowserWindow, OpenDialogSyncOptions, dialog } from 'electron'
 import Electron from 'electron'
-import ElectronNotification from '../utils/notification'
 import * as api from '../api'
 
 const events: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: (event: Electron.IpcMainInvokeEvent, ...args: any[]) => any
 } = {
-  mainHandleTest: (_event) => {
-    return 'mainHandleTest'
-  },
-  showOpenDialogSync(
-    _event,
-    data: {
-      browserWindow: BrowserWindow
-      options: OpenDialogSyncOptions
-    }
-  ) {
-    const { browserWindow, options } = data
-    const res = dialog.showOpenDialogSync(browserWindow, options)
-    return res
-  },
-  getNotificationInstance(_event, options) {
-    const instance = new ElectronNotification(options)
-    instance.show()
-  },
+  ...api.dialog,
+  ...api.notification,
   ...api.app,
   ...api.net,
   ...api.shell,

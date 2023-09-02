@@ -22,6 +22,7 @@ class IpcMain {
       ipcMain.on(channel, listener)
     }
     for (const [channel, listener] of Object.entries(handleEvents)) {
+      console.log(channel, listener, 'aaaaa')
       ipcMain.handle(channel, listener)
     }
   }
