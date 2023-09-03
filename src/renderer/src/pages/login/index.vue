@@ -1,37 +1,36 @@
 <script setup lang="tsx">
 import { ref, computed } from 'vue'
 import ResetPassword from './components/ResetPassword/index.vue'
+import VerifyCode from '@renderer/components/verify-code/index.vue'
 import QrcodeVue from 'qrcode.vue'
 import { user } from '@renderer/api'
 import { reactive } from 'vue'
-import { FieldRule, Form } from '@arco-design/web-vue'
+import { FieldRule, Form, Message } from '@arco-design/web-vue'
 import { Validate, globalStorage } from '@renderer/utils'
-
-enum ELoginType {
-  verifyCode = 1,
-  passwordCode = 2
-}
+import { ELoginType } from '@renderer/api/user/data.d'
 
 const loginType = ref<ELoginType>(ELoginType.verifyCode)
 
+/** 切换登录态 */
 const toggleLoginType = () => {
   loginType.value =
     loginType.value === ELoginType.verifyCode ? ELoginType.passwordCode : ELoginType.verifyCode
 }
 
 /** 忘记密码 */
+const modalVisible = ref(false)
 const resetPwdRef = ref<{
   toggleModalVisible: () => void
 }>()
 
-/** 表单 */
-const formRef = ref<InstanceType<typeof Form>>()
-
-const modalVisible = ref(false)
 const resetPassword = () => {
   resetPwdRef.value!.toggleModalVisible()
 }
 
+/** 表单 */
+const formRef = ref<InstanceType<typeof Form>>()
+
+/** 第三方登录 */
 const loginIcons = [
   {
     title: '微博',
@@ -49,14 +48,12 @@ const loginIcons = [
 
 const loginVerifyMap = {
   title: '验证码登录',
-  placeholder: '请输入验证码',
-  btn: '获取验证码'
+  placeholder: '请输入验证码'
 }
 
 const loginPwdMap = {
   title: '密码登录',
-  placeholder: '请输入密码',
-  btn: '忘记密码'
+  placeholder: '请输入密码'
 }
 
 const loginMap = computed(() => {
@@ -76,13 +73,37 @@ const form = reactive({
 const formRules: Record<keyof typeof form, FieldRule | FieldRule[]> = {
   account: [Validate.required('请输入手机号'), Validate.match(Validate.mobile, '手机号格式不正确')],
   password: [
-    Validate.required('请输入密码'),
-    Validate.match(Validate.password, '密码格式不正确，仅支持英文数字至少包含两种字符类型')
+    Validate.required(loginType.value === ELoginType.verifyCode ? '请输入验证码' : '请输入密码'),
+    {
+      validator: (value, cb) => {
+        const isSendVerifyCode = loginType.value === ELoginType.verifyCode
+        return new Promise<void>((resolve) => {
+          if (isSendVerifyCode) {
+            if (!Validate.code.test(value)) {
+              cb('验证码格式错误')
+              return
+            }
+          } else {
+            if (!Validate.password.test(value)) {
+              cb('密码格式不正确，仅支持英文数字至少包含两种字符类型')
+              return
+            }
+          }
+          resolve()
+        })
+      }
+    }
   ]
 }
 
 const handleLogin = (values) => {
-  user.login(values).then((res) => {
+  const payload = {
+    type: loginType.value as ELoginType,
+    account: values.account,
+    password: values.password
+  }
+
+  user.login(payload).then((res) => {
     if (res.code === 0) {
       const { data } = res
       globalStorage.set('token', data.token)
@@ -91,6 +112,32 @@ const handleLogin = (values) => {
       window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
     }
   })
+}
+
+/** 验证码 */
+const handleTriggerValidate = () => {
+  formRef.value?.validateField('account')
+}
+
+const handleClick = () => {
+  const isSendVerifyCode = loginType.value === ELoginType.verifyCode
+  if (isSendVerifyCode) {
+    if (!Validate.mobile.test(form.account)) {
+      handleTriggerValidate()
+      return
+    }
+    user
+      .sendLoginCode({
+        account: form.account
+      })
+      .then((res) => {
+        if (res.code === 0) {
+          Message.success('验证码发送成功：' + res.data)
+        }
+      })
+  } else {
+    resetPassword()
+  }
 }
 </script>
 
@@ -130,7 +177,14 @@ const handleLogin = (values) => {
                     :placeholder="loginMap.placeholder"
                   >
                     <template #append>
-                      <a class="send-vcode-btn" @click="resetPassword">{{ loginMap.btn }}</a>
+                      <VerifyCode
+                        v-if="loginType === ELoginType.verifyCode"
+                        class="send-code-btn"
+                        :account="form.account"
+                        @send-code="handleClick"
+                        @trigger-validate="handleTriggerValidate"
+                      />
+                      <a v-else class="send-code-btn" @click="handleClick"> 忘记密码 </a>
                     </template></a-input
                   >
                 </a-form-item>

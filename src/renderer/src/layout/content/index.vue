@@ -106,7 +106,7 @@ const handleSave = async () => {
     flex: 1;
     overflow: hidden;
 
-    ::v-deep(.bytemd) {
+    :deep(.bytemd) {
       height: 100%;
     }
   }

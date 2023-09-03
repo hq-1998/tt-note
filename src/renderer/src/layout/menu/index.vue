@@ -8,22 +8,27 @@ const onCollapse = (val) => {
   emits('handleCollapse', val)
 }
 
-const handleSelect = () => {}
+/** 个人信息 */
+const modalVisible = ref(false)
+const userInfoRef = ref<{
+  toggleModalVisible: () => void
+}>()
+const toggleModalVisible = () => {
+  userInfoRef.value!.toggleModalVisible()
+}
 
 const doptionOptions = [
   {
     label: '消息通知',
     value: 'notify',
     icon: <icon-notification />,
-    click: () => {
-      console.log('1')
-    }
+    click: toggleModalVisible
   },
   {
     label: '个人信息',
     value: 'message',
     icon: <icon-user />,
-    click: () => {}
+    click: toggleModalVisible
   },
   {
     label: '退出登录',
@@ -41,11 +46,7 @@ const doptionOptions = [
   <div class="menu-wrapper">
     <div class="top-wrapper">
       <div class="avatar-wrapper">
-        <a-dropdown
-          show-arrow
-          :popup-translate="collapsed ? [35, 5] : [0, 10]"
-          @select="handleSelect"
-        >
+        <a-dropdown show-arrow :popup-translate="collapsed ? [35, 5] : [0, 10]">
           <a-avatar :size="collapsed ? 32 : 64"> <icon-gitlab /></a-avatar>
           <template #content>
             <a-doption v-for="item in doptionOptions" :key="item.value" @click="item.click">
@@ -81,6 +82,7 @@ const doptionOptions = [
         </a-menu>
       </div>
     </div>
+    <UserInfoModal ref="userInfoRef" title="个人信息" :modal-visible="modalVisible" />
   </div>
 </template>
 

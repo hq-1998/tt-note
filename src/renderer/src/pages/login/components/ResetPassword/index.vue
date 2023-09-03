@@ -18,23 +18,24 @@ const form = reactive({
 
 const rules = {
   mobile: [
-    { required: true, message: '手机号不能为空' },
-    { match: Validate.mobile, message: '手机号格式不正确' }
+    Validate.required('手机号不能为空'),
+    Validate.match(Validate.mobile, '手机号格式不正确')
   ],
   newPassword: [
-    { required: true, message: '新密码不能为空' },
-    { match: Validate.password, message: '密码格式不正确，至少包含英文数字两种类型' }
+    Validate.required('新密码不能为空'),
+    Validate.match(Validate.password, '密码格式不正确，至少包含英文数字两种类型')
   ],
-  code: [
-    { required: true, message: '验证码不能为空' },
-    { match: Validate.code, message: '验证码格式不正确' }
-  ]
+  code: [Validate.required('验证码不能为空'), Validate.match(Validate.code, '验证码格式不正确')]
 }
 
 const handleSubmit = async (_data) => {}
 
 const toggleModalVisible = () => {
-  modalVisible.value = !modalVisible.value
+  const oldVisible = modalVisible.value
+  modalVisible.value = !oldVisible
+  if (oldVisible) {
+    formRef.value.resetFields()
+  }
 }
 
 /** 获取验证码 */
@@ -64,11 +65,11 @@ defineExpose({
 </script>
 
 <template>
-  <BaseModal v-model:visible="modalVisible" width="376px">
+  <BaseModal v-model:visible="modalVisible" width="300px">
     <template #title>登录小站畅享更多权益</template>
     <h1 class="title">
-      手机重置密码
-      <span class="prompt-button clickable">邮箱重置密码</span>
+      手机号重置密码
+      <!-- <span class="prompt-button clickable">邮箱重置密码</span> -->
     </h1>
     <a-form
       ref="formRef"
@@ -96,7 +97,7 @@ defineExpose({
       </a-form-item>
     </a-form>
     <a-row justify="center">
-      <span class="back">返回登录</span>
+      <span class="back" @click="toggleModalVisible">返回登录</span>
     </a-row>
   </BaseModal>
 </template>

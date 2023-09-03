@@ -5,7 +5,9 @@ const baseConfig: AxiosRequestConfig = {
   baseURL: `${import.meta.env.RENDERER_VITE_API}`,
   headers: {
     'Content-Type': 'application/json;charset=UTF-8'
-  }
+  },
+  /** cors 不加session不生效 */
+  withCredentials: true
 }
 
 export { baseConfig }

@@ -24,10 +24,10 @@ class Request {
 
     this.instance.interceptors.response.use(
       (res: AxiosResponse) => {
-        console.log(res, '+++res+++')
         if (res.data.code !== 0) {
-          Message.error(res.data.message)
+          Message.error(res.data.message || res.data)
         }
+        console.log(res.data, '+++res+++')
         return res.data
       },
       (error) => {

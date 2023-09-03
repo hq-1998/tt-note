@@ -9,6 +9,8 @@
     "src/renderer/src/hooks/**/*",
     "src/renderer/src/request/**/*",
     "src/renderer/src/api/**/*",
+    "src/renderer/src/component/**/*",
+    "src/renderer/src/utils/**/*",
   ],
   "compilerOptions": {
     "types": ["vite/client"],

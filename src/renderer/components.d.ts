@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    BaseForm: typeof import('./src/components/base-form/index.vue')['default']
     BaseModal: typeof import('./src/components/base-modal/index.vue')['default']
     Content: typeof import('./src/components/content/index.vue')['default']
     DownloadTable: typeof import('./src/components/download-table/index.vue')['default']
@@ -15,7 +16,10 @@ declare module 'vue' {
     EditorElement: typeof import('./src/components/editor-element/index.vue')['default']
     Empty: typeof import('./src/components/empty/index.vue')['default']
     Sider: typeof import('./src/components/sider/index.vue')['default']
+    UploadAvatar: typeof import('./src/components/upload-avatar/index.vue')['default']
     UploadTable: typeof import('./src/components/upload-table/index.vue')['default']
+    UserInfoModal: typeof import('./src/components/user-info-modal/index.vue')['default']
+    VerifyCode: typeof import('./src/components/verify-code/index.vue')['default']
     Versions: typeof import('./src/components/Versions.vue')['default']
   }
 }
