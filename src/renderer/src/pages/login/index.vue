@@ -4,7 +4,7 @@ import ResetPassword from './components/ResetPassword/index.vue'
 import QrcodeVue from 'qrcode.vue'
 import { user } from '@renderer/api'
 import { reactive } from 'vue'
-import { FieldRule, Message, Form } from '@arco-design/web-vue'
+import { FieldRule, Form } from '@arco-design/web-vue'
 import { Validate, globalStorage } from '@renderer/utils'
 
 enum ELoginType {
@@ -74,25 +74,10 @@ const form = reactive({
 })
 
 const formRules: Record<keyof typeof form, FieldRule | FieldRule[]> = {
-  account: [
-    {
-      required: true,
-      message: '请输入手机号'
-    },
-    {
-      match: Validate.mobile,
-      message: '手机号格式不正确'
-    }
-  ],
+  account: [Validate.required('请输入手机号'), Validate.match(Validate.mobile, '手机号格式不正确')],
   password: [
-    {
-      required: true,
-      message: '请输入密码'
-    },
-    {
-      match: Validate.password,
-      message: '密码格式不正确，仅支持英文数字至少包含两种字符类型'
-    }
+    Validate.required('请输入密码'),
+    Validate.match(Validate.password, '密码格式不正确，仅支持英文数字至少包含两种字符类型')
   ]
 }
 
@@ -104,7 +89,6 @@ const handleLogin = (values) => {
       globalStorage.set('userInfo', data.userInfo)
       window.electron.ipcRenderer.invoke('closeWindow')
       window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
-      Message.success('登录成功')
     }
   })
 }
@@ -190,7 +174,6 @@ const handleLogin = (values) => {
         <a class="privacy">隐私政策</a>
       </footer>
     </div>
-
     <ResetPassword ref="resetPwdRef" :modal-visible="modalVisible" />
   </div>
 </template>

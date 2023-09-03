@@ -5,7 +5,19 @@ const Validate = {
   code: /^\d{6}$/,
   /** 密码正则 仅支持英文数字至少包含两种字符类型 */
   password:
-    /^(?![a-zA-z]+$)(?!\d+$)(?![!@#$%^&*()_"'+,-./:;<=>?[_\]{|}~\\]+$)[a-zA-Z\d!@#$%^&*()_"'+,-./:;<=>?[_\]`{|}~\\]+$/
+    /^(?![a-zA-z]+$)(?!\d+$)(?![!@#$%^&*()_"'+,-./:;<=>?[_\]{|}~\\]+$)[a-zA-Z\d!@#$%^&*()_"'+,-./:;<=>?[_\]`{|}~\\]+$/,
+  required: (message: string) => {
+    return {
+      required: true,
+      message
+    }
+  },
+  match: (regExp: RegExp, message: string) => {
+    return {
+      match: regExp,
+      message
+    }
+  }
 }
 
 export default Validate

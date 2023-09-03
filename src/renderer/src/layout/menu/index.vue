@@ -14,17 +14,25 @@ const doptionOptions = [
   {
     label: '消息通知',
     value: 'notify',
-    icon: <icon-notification />
+    icon: <icon-notification />,
+    click: () => {
+      console.log('1')
+    }
   },
   {
     label: '个人信息',
     value: 'message',
-    icon: <icon-user />
+    icon: <icon-user />,
+    click: () => {}
   },
   {
     label: '退出登录',
     value: 'exit',
-    icon: <icon-export />
+    icon: <icon-export />,
+    click: () => {
+      window.electron.ipcRenderer.invoke('closeWindow')
+      window.electron.ipcRenderer.invoke('openSingleWindow', 'login')
+    }
   }
 ]
 </script>
@@ -33,10 +41,14 @@ const doptionOptions = [
   <div class="menu-wrapper">
     <div class="top-wrapper">
       <div class="avatar-wrapper">
-        <a-dropdown show-arrow :popup-translate="[35, 5]" @select="handleSelect">
+        <a-dropdown
+          show-arrow
+          :popup-translate="collapsed ? [35, 5] : [0, 10]"
+          @select="handleSelect"
+        >
           <a-avatar :size="collapsed ? 32 : 64"> <icon-gitlab /></a-avatar>
           <template #content>
-            <a-doption v-for="item in doptionOptions" :key="item.value">
+            <a-doption v-for="item in doptionOptions" :key="item.value" @click="item.click">
               {{ item.label }}
               <template #icon> <component :is="item.icon" /> </template
             ></a-doption>
@@ -73,29 +85,5 @@ const doptionOptions = [
 </template>
 
 <style lang="less" scoped>
-.menu-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 15px 3px 0px 3px;
-  box-sizing: border-box;
-  height: 100%;
-
-  .top-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    .avatar-wrapper {
-      margin-bottom: 30px;
-    }
-    .menu-list-wrapper {
-      flex: 1;
-    }
-    .button-wrapper {
-      margin-bottom: 5px;
-    }
-  }
-}
+@import './style.less';
 </style>

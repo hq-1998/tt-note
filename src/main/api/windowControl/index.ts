@@ -18,6 +18,7 @@ const fns = {
   getAllWindows(): BrowserWindow[] {
     return BrowserWindow.getAllWindows()
   },
+  /** 关闭当前窗口 */
   closeWindow(): void {
     const currentWindow = BrowserWindow.getFocusedWindow()
     if (currentWindow) {
