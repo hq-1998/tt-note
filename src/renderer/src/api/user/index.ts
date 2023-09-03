@@ -1,14 +1,14 @@
 import http from '@renderer/request'
 
 const user = {
-  login: (params: { account: string; password: string }) => {
-    return http.instance.post('/users/login', {
+  login: (params: IUser) => {
+    return http.post<IUser, ILoginRes>('/users/login', {
       account: params.account,
       password: params.password
     })
   },
-  register: (params: { account: string; password: string }) => {
-    return http.instance.post('/users/register', {
+  register: (params: IUser) => {
+    return http.post('/users/register', {
       account: params.account,
       password: params.password
     })

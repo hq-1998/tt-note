@@ -2,8 +2,16 @@
 import { onMounted, reactive, ref, computed } from 'vue'
 import Sider from '@renderer/layout/sider/index.vue'
 import Content from '@renderer/layout/content/index.vue'
-import { useNoteStore } from './store'
+import { useNoteStore, useUserStore } from './store'
 import { v4 } from 'uuid'
+import { onBeforeMount } from 'vue'
+import { globalStorage } from './utils'
+
+const noteStore = useNoteStore()
+const userStore = useUserStore()
+
+const collapse = ref(true)
+const currentIndex = ref(0)
 
 const state = reactive({
   id: '',
@@ -12,11 +20,17 @@ const state = reactive({
   timeStamp: 0
 })
 
-const store = useNoteStore()
-const currentIndex = ref(0)
+onBeforeMount(() => {
+  const token = globalStorage.get('token')
+  const userInfo = globalStorage.get('userInfo')
+  if (token && userInfo) {
+    userStore.setToken(token)
+    userStore.setUserInfo(userInfo)
+  }
+})
 
 onMounted(async () => {
-  store.setActive(currentIndex.value)
+  noteStore.setActive(currentIndex.value)
   const _notes = await window.electron.ipcRenderer.invoke('getNotes')
   const notes = _notes.map((item) => {
     const [id, title, timeStamp] = item.split('__')
@@ -27,7 +41,7 @@ onMounted(async () => {
       timeStamp
     }
   })
-  store.setNotes(notes)
+  noteStore.setNotes(notes)
   const note = notes[currentIndex.value]
   if (note) {
     state.id = note.id
@@ -37,13 +51,13 @@ onMounted(async () => {
 })
 
 const handleAdd = () => {
-  store.addNote({ id: v4(), title: '', content: '', timeStamp: Date.now() })
+  noteStore.addNote({ id: v4(), title: '', content: '', timeStamp: Date.now() })
 }
 
-const collapse = ref(true)
 const dynamicSiderWidth = computed(() => {
   return collapse.value ? 254 : 400
 })
+
 const handleCollapse = (e) => {
   collapse.value = e
 }
@@ -56,7 +70,7 @@ const handleCollapse = (e) => {
         <Sider @handle-collapse="handleCollapse" />
       </a-layout-sider>
       <a-layout-content>
-        <Empty v-if="store.notes.length === 0">
+        <Empty v-if="noteStore.notes.length === 0">
           <template #extra>
             <a-button type="outline">
               <template #icon>

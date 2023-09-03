@@ -1,12 +1,48 @@
+<script lang="tsx" setup>
+import { ref } from 'vue'
+const emits = defineEmits(['handleCollapse'])
+const collapsed = ref(true)
+
+const onCollapse = (val) => {
+  collapsed.value = val
+  emits('handleCollapse', val)
+}
+
+const handleSelect = () => {}
+
+const doptionOptions = [
+  {
+    label: '消息通知',
+    value: 'notify',
+    icon: <icon-notification />
+  },
+  {
+    label: '个人信息',
+    value: 'message',
+    icon: <icon-user />
+  },
+  {
+    label: '退出登录',
+    value: 'exit',
+    icon: <icon-export />
+  }
+]
+</script>
+
 <template>
   <div class="menu-wrapper">
     <div class="top-wrapper">
       <div class="avatar-wrapper">
-        <a-avatar :size="collapsed ? 32 : 64">A</a-avatar>
+        <a-dropdown show-arrow :popup-translate="[35, 5]" @select="handleSelect">
+          <a-avatar :size="collapsed ? 32 : 64"> <icon-gitlab /></a-avatar>
+          <template #content>
+            <a-doption v-for="item in doptionOptions" :key="item.value">
+              {{ item.label }}
+              <template #icon> <component :is="item.icon" /> </template
+            ></a-doption>
+          </template>
+        </a-dropdown>
       </div>
-      <!-- <a-button class="button-wrapper" shape="round">
-        <template #icon> <icon-plus></icon-plus></template>新建
-      </a-button> -->
       <div class="menu-list-wrapper">
         <a-menu
           v-model:collapsed="collapsed"
@@ -35,17 +71,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts" setup>
-import { ref } from 'vue'
-const emits = defineEmits(['handleCollapse'])
-const collapsed = ref(true)
-
-const onCollapse = (val) => {
-  collapsed.value = val
-  emits('handleCollapse', val)
-}
-</script>
 
 <style lang="less" scoped>
 .menu-wrapper {

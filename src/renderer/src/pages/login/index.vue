@@ -4,7 +4,8 @@ import ResetPassword from './components/ResetPassword/index.vue'
 import QrcodeVue from 'qrcode.vue'
 import { user } from '@renderer/api'
 import { reactive } from 'vue'
-import { Message } from '@arco-design/web-vue'
+import { FieldRule, Message, Form } from '@arco-design/web-vue'
+import { Validate, globalStorage } from '@renderer/utils'
 
 enum ELoginType {
   verifyCode = 1,
@@ -22,6 +23,9 @@ const toggleLoginType = () => {
 const resetPwdRef = ref<{
   toggleModalVisible: () => void
 }>()
+
+/** 表单 */
+const formRef = ref<InstanceType<typeof Form>>()
 
 const modalVisible = ref(false)
 const resetPassword = () => {
@@ -69,12 +73,38 @@ const form = reactive({
   password: ''
 })
 
-const handleLogin = () => {
-  user.login(form).then((res) => {
+const formRules: Record<keyof typeof form, FieldRule | FieldRule[]> = {
+  account: [
+    {
+      required: true,
+      message: '请输入手机号'
+    },
+    {
+      match: Validate.mobile,
+      message: '手机号格式不正确'
+    }
+  ],
+  password: [
+    {
+      required: true,
+      message: '请输入密码'
+    },
+    {
+      match: Validate.password,
+      message: '密码格式不正确，仅支持英文数字至少包含两种字符类型'
+    }
+  ]
+}
+
+const handleLogin = (values) => {
+  user.login(values).then((res) => {
     if (res.code === 0) {
-      Message.success('登录成功')
+      const { data } = res
+      globalStorage.set('token', data.token)
+      globalStorage.set('userInfo', data.userInfo)
       window.electron.ipcRenderer.invoke('closeWindow')
       window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
+      Message.success('登录成功')
     }
   })
 }
@@ -91,38 +121,53 @@ const handleLogin = () => {
               {{ loginMap.title }}
             </h1>
             <div class="input-group">
-              <a-space direction="vertical" :size="24">
-                <a-input
-                  v-model="form.account"
-                  placeholder="请输入手机号"
-                  allow-clear
-                  :style="{ width: '277px' }"
-                ></a-input>
-                <a-input
-                  v-model="form.password"
-                  :placeholder="loginMap.placeholder"
-                  allow-clear
-                  :style="{ width: '277px' }"
-                >
-                  <template #append>
-                    <a class="send-vcode-btn" @click="resetPassword">{{ loginMap.btn }}</a>
-                  </template>
-                </a-input>
-                <a-button long type="primary" @click="handleLogin">登录</a-button>
-                <div class="other-login-box">
-                  <div class="oauth-box">
-                    <span>其他登录：</span>
-                    <div v-for="item in loginIcons" :key="item.title" class="oauth">
-                      <div class="oauth-bg">
-                        <component :is="item.icon" />
-                      </div>
+              <a-form
+                ref="formRef"
+                hide-label
+                :label-col-props="{ span: 0 }"
+                :wrapper-col-props="{ span: 24 }"
+                :model="form"
+                :rules="formRules"
+                @submit-success="handleLogin"
+              >
+                <a-form-item field="account">
+                  <a-input
+                    v-model="form.account"
+                    allow-clear
+                    :style="{ width: '277px' }"
+                    placeholder="请输入手机号"
+                  />
+                </a-form-item>
+                <a-form-item field="password">
+                  <a-input
+                    v-model="form.password"
+                    allow-clear
+                    :style="{ width: '277px' }"
+                    :placeholder="loginMap.placeholder"
+                  >
+                    <template #append>
+                      <a class="send-vcode-btn" @click="resetPassword">{{ loginMap.btn }}</a>
+                    </template></a-input
+                  >
+                </a-form-item>
+                <a-form-item>
+                  <a-button long type="primary" html-type="submit">登录</a-button>
+                </a-form-item>
+              </a-form>
+
+              <div class="other-login-box">
+                <div class="oauth-box">
+                  <span>其他登录：</span>
+                  <div v-for="item in loginIcons" :key="item.title" class="oauth">
+                    <div class="oauth-bg">
+                      <component :is="item.icon" />
                     </div>
                   </div>
-                  <span class="clickable" @click="toggleLoginType">{{
-                    loginType === 1 ? '密码登录' : '验证码登录'
-                  }}</span>
                 </div>
-              </a-space>
+                <span class="clickable" @click="toggleLoginType">{{
+                  loginType === 1 ? '密码登录' : '验证码登录'
+                }}</span>
+              </div>
             </div>
           </div>
           <div class="auth-qrcode">

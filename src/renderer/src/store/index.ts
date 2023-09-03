@@ -1,3 +1,4 @@
 import useNoteStore from './note'
+import useUserStore from './user'
 
-export { useNoteStore }
+export { useNoteStore, useUserStore }
