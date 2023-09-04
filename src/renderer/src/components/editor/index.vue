@@ -3,7 +3,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, withDefaults } from 'vue'
 import { Editor } from '@bytemd/vue-next'
 import gfm from '@bytemd/plugin-gfm'
 

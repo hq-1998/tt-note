@@ -4,6 +4,7 @@ interface Note {
   title: string
   content: string
   timeStamp?: number
+  isClickRename: boolean
   id: string
 }
 
@@ -33,9 +34,6 @@ const useNoteStore = defineStore('note', {
     },
     setNotes(payload: Note[]) {
       this.notes = payload
-    },
-    getNotes() {
-      return this.notes.sort((a, b) => b.timeStamp! - a.timeStamp!)
     },
     getNoteById(id: string) {
       return this.notes.find((note) => note.id === id)

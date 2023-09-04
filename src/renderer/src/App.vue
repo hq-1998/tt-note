@@ -33,10 +33,11 @@ onMounted(async () => {
   noteStore.setActive(currentIndex.value)
   const _notes = await window.electron.ipcRenderer.invoke('getNotes')
   const notes = _notes.map((item) => {
-    const [id, title, timeStamp] = item.split('__')
+    const [id, title, timeStampAndExt] = item.split('__')
+    const [timeStamp] = timeStampAndExt.split('.')
     return {
       id,
-      title: title,
+      title,
       content: '',
       timeStamp
     }
@@ -50,8 +51,16 @@ onMounted(async () => {
   }
 })
 
-const handleAdd = () => {
-  noteStore.addNote({ id: v4(), title: '', content: '', timeStamp: Date.now() })
+const handleAdd = async () => {
+  const payload = {
+    id: v4(),
+    title: '',
+    content: '',
+    timeStamp: Date.now(),
+    isClickRename: false
+  }
+  await window.electron.ipcRenderer.invoke('save', payload)
+  noteStore.addNote(payload)
 }
 
 const dynamicSiderWidth = computed(() => {

@@ -4,7 +4,7 @@
     class="div-editable"
     contenteditable="true"
     @input="changeText"
-    @focus="isChange = false"
+    @focus="handleFocus"
     @blur="blurFunc"
     v-html="innerText"
   ></div>
@@ -28,6 +28,10 @@ defineOptions({
 const innerText = ref(props.value)
 const isChange = ref(true)
 const divRef = ref<HTMLDivElement>()
+
+const handleFocus = () => {
+  isChange.value = false
+}
 
 watch(
   () => props.value,

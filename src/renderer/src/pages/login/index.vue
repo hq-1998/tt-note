@@ -9,12 +9,16 @@ import { FieldRule, Form, Message } from '@arco-design/web-vue'
 import { Validate, globalStorage } from '@renderer/utils'
 import { ELoginType } from '@renderer/api/user/data.d'
 
+const title = import.meta.env.RENDERER_VITE_APP_TITLE
 const loginType = ref<ELoginType>(ELoginType.verifyCode)
+const loading = ref<boolean>(false)
+
+const isSendVerifyCode = computed(() => loginType.value === ELoginType.verifyCode)
 
 /** 切换登录态 */
 const toggleLoginType = () => {
-  loginType.value =
-    loginType.value === ELoginType.verifyCode ? ELoginType.passwordCode : ELoginType.verifyCode
+  form.password = ''
+  loginType.value = isSendVerifyCode.value ? ELoginType.passwordCode : ELoginType.verifyCode
 }
 
 /** 忘记密码 */
@@ -63,8 +67,6 @@ const loginMap = computed(() => {
   }[loginType.value]
 })
 
-const title = import.meta.env.RENDERER_VITE_APP_TITLE
-
 const form = reactive({
   account: '',
   password: ''
@@ -73,12 +75,14 @@ const form = reactive({
 const formRules: Record<keyof typeof form, FieldRule | FieldRule[]> = {
   account: [Validate.required('请输入手机号'), Validate.match(Validate.mobile, '手机号格式不正确')],
   password: [
-    Validate.required(loginType.value === ELoginType.verifyCode ? '请输入验证码' : '请输入密码'),
     {
       validator: (value, cb) => {
-        const isSendVerifyCode = loginType.value === ELoginType.verifyCode
         return new Promise<void>((resolve) => {
-          if (isSendVerifyCode) {
+          if (!value) {
+            cb(isSendVerifyCode.value ? '请输入验证码' : '请输入密码')
+          }
+
+          if (isSendVerifyCode.value) {
             if (!Validate.code.test(value)) {
               cb('验证码格式错误')
             }
@@ -101,15 +105,21 @@ const handleLogin = (values) => {
     password: values.password
   }
 
-  user.login(payload).then((res) => {
-    if (res.code === 0) {
-      const { data } = res
-      globalStorage.set('token', data.token)
-      globalStorage.set('userInfo', data.userInfo)
-      window.electron.ipcRenderer.invoke('closeWindow')
-      window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
-    }
-  })
+  loading.value = true
+  user
+    .login(payload)
+    .then((res) => {
+      if (res.code === 0) {
+        const { data } = res
+        globalStorage.set('token', data.token)
+        globalStorage.set('userInfo', data.userInfo)
+        window.electron.ipcRenderer.invoke('closeWindow')
+        window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
+      }
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 验证码 */
@@ -119,8 +129,7 @@ const handleTriggerValidate = async (cb?) => {
 }
 
 const handleClick = async () => {
-  const isSendVerifyCode = loginType.value === ELoginType.verifyCode
-  if (isSendVerifyCode) {
+  if (isSendVerifyCode.value) {
     if (!Validate.mobile.test(form.account)) {
       await handleTriggerValidate()
       return
@@ -170,6 +179,7 @@ const handleClick = async () => {
                 </a-form-item>
                 <a-form-item field="password">
                   <a-input
+                    v-if="isSendVerifyCode"
                     v-model="form.password"
                     allow-clear
                     :style="{ width: '277px' }"
@@ -177,18 +187,29 @@ const handleClick = async () => {
                   >
                     <template #append>
                       <VerifyCode
-                        v-if="loginType === ELoginType.verifyCode"
                         :account="form.account"
                         class="send-code-btn"
                         @send-code="handleClick"
                         @trigger-validate="handleTriggerValidate"
-                      />
-                      <a v-else class="send-code-btn" @click="handleClick"> 忘记密码 </a>
-                    </template></a-input
+                      /> </template
+                  ></a-input>
+
+                  <a-input-password
+                    v-else
+                    v-model="form.password"
+                    allow-clear
+                    :style="{ width: '277px' }"
+                    :placeholder="loginMap.placeholder"
+                  >
+                    <template #append>
+                      <a class="send-code-btn" @click="handleClick"> 忘记密码 </a>
+                    </template></a-input-password
                   >
                 </a-form-item>
                 <a-form-item>
-                  <a-button long type="primary" html-type="submit">登录</a-button>
+                  <a-button :loading="loading" long type="primary" html-type="submit"
+                    >登录</a-button
+                  >
                 </a-form-item>
               </a-form>
 

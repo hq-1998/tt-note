@@ -79,4 +79,3 @@ const Render = () => {
 </script>
 
 <style lang="less" scoped></style>
-``` ../../../../store

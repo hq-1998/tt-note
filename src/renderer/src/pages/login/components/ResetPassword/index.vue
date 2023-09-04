@@ -5,13 +5,14 @@ import Validate from '@renderer/utils/validate'
 import VerifyCode from '@renderer/components/verify-code/index.vue'
 import { user } from '@renderer/api'
 import Message from '@arco-design/web-vue/es/message'
+import { Form } from '@arco-design/web-vue'
 
 const props = defineProps<{
   modalVisible: boolean
 }>()
 
 const modalVisible = ref(props.modalVisible)
-const formRef = ref()
+const formRef = ref<InstanceType<(typeof Form)['$props']>>()
 
 const form = reactive({
   account: '',
@@ -51,7 +52,7 @@ const toggleModalVisible = () => {
 /** 发送验证码 */
 const handleClick = async () => {
   user
-    .sendLoginCode({
+    .sendResetPasswordCode({
       account: form.account
     })
     .then((res) => {
@@ -63,8 +64,14 @@ const handleClick = async () => {
 
 /** 验证码校验 */
 const handleTriggerValidate = async (cb?) => {
-  const hasErrors = await formRef.value?.validateFields(['account', 'newPassword'])
+  const hasErrors = await formRef.value.validateField(['account', 'newPassword'])
   cb?.(!hasErrors)
+}
+
+/** 关闭弹窗 */
+const handleClose = () => {
+  formRef.value.resetFields()
+  modalVisible.value = false
 }
 
 defineExpose({
@@ -73,7 +80,12 @@ defineExpose({
 </script>
 
 <template>
-  <BaseModal v-model:visible="modalVisible" title="忘记密码" width="300px">
+  <BaseModal
+    v-model:visible="modalVisible"
+    title="忘记密码"
+    width="300px"
+    @handle-close="handleClose"
+  >
     <h1 class="title">手机号重置密码</h1>
     <a-form
       ref="formRef"
@@ -101,8 +113,9 @@ defineExpose({
               class="send-code-btn"
               @send-code="handleClick"
               @trigger-validate="handleTriggerValidate"
-            /> </template
-        ></a-input>
+            />
+          </template>
+        </a-input>
       </a-form-item>
       <a-form-item>
         <a-button type="primary" long html-type="submit">修改</a-button>

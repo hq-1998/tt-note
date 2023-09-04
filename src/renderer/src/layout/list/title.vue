@@ -1,5 +1,5 @@
 <template>
-  <span>{{ props.value }}</span>
+  <span>{{ props.value || '无标题笔记' }}</span>
 </template>
 
 <script setup lang="ts">
@@ -12,7 +12,7 @@ const props = withDefaults(
     value: string
   }>(),
   {
-    value: '无标题笔记'
+    value: ''
   }
 )
 </script>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 
 const emits = defineEmits(['send-code', 'trigger-validate'])
 
@@ -9,7 +9,6 @@ const isClicked = ref(false)
 
 const handleSendCode = () => {
   emits('trigger-validate', (valid) => {
-    console.log(valid, '+++')
     if (isClicked.value || !valid) return
     isClicked.value = true
     emits('send-code')
@@ -28,6 +27,12 @@ const handleSendCode = () => {
 
 /** 默认值大于0 不能作为禁用的依据 还需要判断是否点击 */
 const disabled = computed(() => counter.value > 0 && isClicked.value)
+
+onBeforeUnmount(() => {
+  btnText.value = '获取验证码'
+  counter.value = 60
+  isClicked.value = false
+})
 </script>
 
 <template>

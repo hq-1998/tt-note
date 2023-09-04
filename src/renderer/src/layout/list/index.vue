@@ -4,7 +4,7 @@
 
 <script lang="tsx" setup>
 import { useNoteStore } from '@renderer/store'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import Title from './title.vue'
 import Rename from './rename.vue'
 import dayjs from 'dayjs'
@@ -15,32 +15,19 @@ const store = useNoteStore()
 const oldTitle = ref('')
 const handleRename = (index: number, title: string) => {
   oldTitle.value = title
-  notes.value.forEach((note) => {
+  store.notes.forEach((note) => {
     note.isClickRename = false
   })
-  notes.value[index].isClickRename = true
+  store.notes[index].isClickRename = true
 }
 
-const notes = ref(
-  store.getNotes().map((item) => ({
-    ...item,
-    isClickRename: false
-  }))
-)
-
-watch(
-  () => store.getNotes(),
-  (val) => {
-    notes.value = val.map((item) => ({
-      ...item,
-      isClickRename: false
-    }))
-  }
-)
+// getNotes() {
+//       return this.notes.sort((a, b) => b.timeStamp! - a.timeStamp!)
+//     }
 
 const handleBlur = async (e, index: number) => {
-  notes.value[index].isClickRename = false
-  const item = { ...notes.value[index] }
+  store.notes[index].isClickRename = false
+  const item = { ...store.notes[index] }
   const value = e.target.value
   if (Object.is(value, oldTitle.value)) return
   store.updateNoteById(item.id, {
@@ -77,7 +64,7 @@ const Render = () => {
       <div class={styles.list}>
         <a-list bordered={false} hoverable>
           <div class={styles['list-wrapper']}>
-            {notes.value.map((item, index) => {
+            {store.notes.map((item, index) => {
               return (
                 <div key={item.id} class={styles['list-wrapper-item']}>
                   <div class={styles['list-top-wrapper']}>

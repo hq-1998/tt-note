@@ -32,6 +32,12 @@ const user = {
       account: params.account
     })
   },
+  /** 发送验证码 修改密码 */
+  sendResetPasswordCode: (params: IVerifyCode) => {
+    return http.post<IVerifyCode, number>('/users/sendResetPasswordCode', {
+      account: params.account
+    })
+  },
   /** 忘记密码 */
   resetPassword: (params: IResetPassword) => {
     return http.post<IResetPassword>('/users/resetPassword', {
