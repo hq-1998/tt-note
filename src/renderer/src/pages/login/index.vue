@@ -81,12 +81,10 @@ const formRules: Record<keyof typeof form, FieldRule | FieldRule[]> = {
           if (isSendVerifyCode) {
             if (!Validate.code.test(value)) {
               cb('验证码格式错误')
-              return
             }
           } else {
             if (!Validate.password.test(value)) {
               cb('密码格式不正确，仅支持英文数字至少包含两种字符类型')
-              return
             }
           }
           resolve()
@@ -115,15 +113,16 @@ const handleLogin = (values) => {
 }
 
 /** 验证码 */
-const handleTriggerValidate = () => {
-  formRef.value?.validateField('account')
+const handleTriggerValidate = async (cb?) => {
+  const hasErrors = await formRef.value?.validateField('account')
+  cb?.(!hasErrors)
 }
 
-const handleClick = () => {
+const handleClick = async () => {
   const isSendVerifyCode = loginType.value === ELoginType.verifyCode
   if (isSendVerifyCode) {
     if (!Validate.mobile.test(form.account)) {
-      handleTriggerValidate()
+      await handleTriggerValidate()
       return
     }
     user
@@ -179,8 +178,8 @@ const handleClick = () => {
                     <template #append>
                       <VerifyCode
                         v-if="loginType === ELoginType.verifyCode"
-                        class="send-code-btn"
                         :account="form.account"
+                        class="send-code-btn"
                         @send-code="handleClick"
                         @trigger-validate="handleTriggerValidate"
                       />

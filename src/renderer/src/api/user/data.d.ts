@@ -1,17 +1,23 @@
+export enum ELoginType {
+  verifyCode = 1,
+  passwordCode = 2
+}
+
 export type IUserPwd = {
   type: ELoginType
   account: string
   password: string
 }
 
-export enum ELoginType {
-  verifyCode = 1,
-  passwordCode = 2
-}
-
 export interface IUserCode {
   type: ELoginType
   account: string
+  code: number
+}
+
+export interface IResetPassword {
+  account: string
+  newPassword: string
   code: number
 }
 

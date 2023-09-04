@@ -1,5 +1,12 @@
 import http from '@renderer/request'
-import { type IUser, type ILoginRes, type IVerifyCode, type IUserPwd, ELoginType } from './data.d'
+import {
+  type IUser,
+  type ILoginRes,
+  type IVerifyCode,
+  type IUserPwd,
+  ELoginType,
+  IResetPassword
+} from './data.d'
 
 const user = {
   /** 登录 */
@@ -23,6 +30,14 @@ const user = {
   sendLoginCode: (params: IVerifyCode) => {
     return http.post<IVerifyCode, number>('/users/sendLoginCode', {
       account: params.account
+    })
+  },
+  /** 忘记密码 */
+  resetPassword: (params: IResetPassword) => {
+    return http.post<IResetPassword>('/users/resetPassword', {
+      account: params.account,
+      newPassword: params.newPassword,
+      code: params.code
     })
   }
 }

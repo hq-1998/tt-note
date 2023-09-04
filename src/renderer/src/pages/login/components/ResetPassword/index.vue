@@ -2,6 +2,9 @@
 import { ref, reactive } from 'vue'
 import BaseModal from '@renderer/components/base-modal/index.vue'
 import Validate from '@renderer/utils/validate'
+import VerifyCode from '@renderer/components/verify-code/index.vue'
+import { user } from '@renderer/api'
+import Message from '@arco-design/web-vue/es/message'
 
 const props = defineProps<{
   modalVisible: boolean
@@ -9,15 +12,15 @@ const props = defineProps<{
 
 const modalVisible = ref(props.modalVisible)
 const formRef = ref()
-const codeMessage = ref('获取验证码')
+
 const form = reactive({
-  mobile: '',
+  account: '',
   newPassword: '',
   code: ''
 })
 
 const rules = {
-  mobile: [
+  account: [
     Validate.required('手机号不能为空'),
     Validate.match(Validate.mobile, '手机号格式不正确')
   ],
@@ -28,7 +31,14 @@ const rules = {
   code: [Validate.required('验证码不能为空'), Validate.match(Validate.code, '验证码格式不正确')]
 }
 
-const handleSubmit = async (_data) => {}
+const handleSubmit = (values) => {
+  user.resetPassword(values).then((res) => {
+    if (res.code === 0) {
+      Message.success('修改成功')
+      toggleModalVisible()
+    }
+  })
+}
 
 const toggleModalVisible = () => {
   const oldVisible = modalVisible.value
@@ -38,25 +48,23 @@ const toggleModalVisible = () => {
   }
 }
 
-/** 获取验证码 */
-let isClickBtn = false
-const handleGetCode = async () => {
-  const errors = await formRef.value.validateField('mobile')
-  if (!errors && !isClickBtn) {
-    isClickBtn = true
-    let count = 60
-    codeMessage.value = `${count}秒后重新获取`
-    const timer = setInterval(() => {
-      if (count > 0) {
-        count--
-        codeMessage.value = `${count}秒后重新获取`
-      } else {
-        isClickBtn = false
-        clearInterval(timer)
-        codeMessage.value = '获取验证码'
+/** 发送验证码 */
+const handleClick = async () => {
+  user
+    .sendLoginCode({
+      account: form.account
+    })
+    .then((res) => {
+      if (res.code === 0) {
+        Message.success('验证码发送成功：' + res.data)
       }
-    }, 1000)
-  }
+    })
+}
+
+/** 验证码校验 */
+const handleTriggerValidate = async (cb?) => {
+  const hasErrors = await formRef.value?.validateFields(['account', 'newPassword'])
+  cb?.(!hasErrors)
 }
 
 defineExpose({
@@ -65,32 +73,36 @@ defineExpose({
 </script>
 
 <template>
-  <BaseModal v-model:visible="modalVisible" width="300px">
-    <template #title>登录小站畅享更多权益</template>
-    <h1 class="title">
-      手机号重置密码
-      <!-- <span class="prompt-button clickable">邮箱重置密码</span> -->
-    </h1>
+  <BaseModal v-model:visible="modalVisible" title="忘记密码" width="300px">
+    <h1 class="title">手机号重置密码</h1>
     <a-form
       ref="formRef"
       :model="form"
       :label-col-props="{ span: 0 }"
       :wrapper-col-props="{ span: 24 }"
       :rules="rules"
-      @submit="handleSubmit"
+      @submit-success="handleSubmit"
     >
-      <a-form-item field="mobile" label="">
-        <a-input v-model="form.mobile" :max-length="11" placeholder="请输入手机号" />
+      <a-form-item field="account" label="">
+        <a-input v-model="form.account" :max-length="11" placeholder="请输入手机号" />
       </a-form-item>
       <a-form-item field="newPassword" label="">
         <a-input v-model="form.newPassword" placeholder="请输入新密码" />
       </a-form-item>
       <a-form-item field="code" label="">
-        <a-input v-model="form.code" placeholder="请输入验证码">
-          <template #append>
-            <a class="code" type="text" @click="handleGetCode">{{ codeMessage }}</a>
-          </template></a-input
+        <a-input
+          v-model="form.code"
+          allow-clear
+          :style="{ width: '277px' }"
+          placeholder="请输入验证码"
         >
+          <template #append>
+            <VerifyCode
+              class="send-code-btn"
+              @send-code="handleClick"
+              @trigger-validate="handleTriggerValidate"
+            /> </template
+        ></a-input>
       </a-form-item>
       <a-form-item>
         <a-button type="primary" long html-type="submit">修改</a-button>
