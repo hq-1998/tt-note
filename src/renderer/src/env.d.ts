@@ -8,8 +8,8 @@ declare module '*.vue' {
 }
 
 interface ImportMetaEnv {
-  readonly RENDERER_VITE_APP_TITLE: string
   readonly RENDERER_VITE_API: string
+  readonly RENDERER_VITE_WS_API: string
 }
 
 interface ImportMeta {
