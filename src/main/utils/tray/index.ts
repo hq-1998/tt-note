@@ -1,12 +1,13 @@
 import { app, Menu, Tray, nativeImage } from 'electron'
 import icon from '../../../../resources/icon.png?asset'
 import { windowControl } from '../../api'
+import { LOGIN } from '../../options/window'
 
 const appIcon = nativeImage.createFromPath(icon)
 
 class ElectronTray {
   tray: Tray | null = null
-  url = ''
+  url = LOGIN
   initTray() {
     this.tray = new Tray(appIcon)
     this.tray.setToolTip('小腾笔记')

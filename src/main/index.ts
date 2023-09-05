@@ -47,7 +47,6 @@ app.whenReady().then(() => {
   process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
   electronTray.initTray()
-  electronTray.setTrayUrl(LOGIN)
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
