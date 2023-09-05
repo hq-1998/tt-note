@@ -1,6 +1,6 @@
 const Electron_Store_Key = 'Electron_Store_Key'
 
-type StoreObserver = (value: any) => void
+type StoreObserver = (value: unknown) => void
 
 class Store {
   private observers: Map<string, StoreObserver[]> = new Map()
@@ -10,7 +10,7 @@ class Store {
   init() {
     global[Electron_Store_Key] = {}
   }
-  setState(key: string, value: any) {
+  setState(key: string, value: unknown) {
     global[Electron_Store_Key][key] = value
     this.notifyObservers(key, value)
   }

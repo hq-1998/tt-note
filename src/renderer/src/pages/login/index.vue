@@ -8,6 +8,9 @@ import { reactive } from 'vue'
 import { FieldRule, Form, Message } from '@arco-design/web-vue'
 import { Validate, globalStorage } from '@renderer/utils'
 import { ELoginType } from '@renderer/api/user/data.d'
+import github from '@renderer/assets/images/icons/github.png'
+import wechat from '@renderer/assets/images/icons/wechat.png'
+import weibo from '@renderer/assets/images/icons/weibo.png'
 
 const title = import.meta.env.RENDERER_VITE_APP_TITLE
 const loginType = ref<ELoginType>(ELoginType.verifyCode)
@@ -38,15 +41,15 @@ const formRef = ref<InstanceType<typeof Form>>()
 const loginIcons = [
   {
     title: '微博',
-    icon: <icon-weibo-circle-fill />
+    icon: weibo
   },
   {
     title: '微信',
-    icon: <icon-wechat />
+    icon: wechat
   },
   {
     title: 'GitHub',
-    icon: <icon-github />
+    icon: github
   }
 ]
 
@@ -115,6 +118,7 @@ const handleLogin = (values) => {
         globalStorage.set('userInfo', data.userInfo)
         window.electron.ipcRenderer.invoke('closeWindow')
         window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
+        window.electron.ipcRenderer.invoke('setTray', { url: 'index' })
       }
     })
     .finally(() => {
@@ -218,7 +222,7 @@ const handleClick = async () => {
                   <span>其他登录：</span>
                   <div v-for="item in loginIcons" :key="item.title" class="oauth">
                     <div class="oauth-bg">
-                      <component :is="item.icon" />
+                      <img :src="item.icon" />
                     </div>
                   </div>
                 </div>

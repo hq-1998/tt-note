@@ -10,6 +10,7 @@ import Rename from './rename.vue'
 import dayjs from 'dayjs'
 import styles from './style.module.less'
 import { Message } from '@arco-design/web-vue'
+import document from '@renderer/assets/images/icons/document.png'
 
 const store = useNoteStore()
 const oldTitle = ref('')
@@ -68,11 +69,15 @@ const Render = () => {
               return (
                 <div key={item.id} class={styles['list-wrapper-item']}>
                   <div class={styles['list-top-wrapper']}>
-                    {item.isClickRename ? (
-                      <Rename onBlur={(e) => handleBlur(e, index)} v-model={item.title} />
-                    ) : (
-                      <Title value={item.title} />
-                    )}
+                    <div class={styles['list-title-wrapper']}>
+                      <img class={styles['title-icon']} src={document} />
+                      {item.isClickRename ? (
+                        <Rename onBlur={(e) => handleBlur(e, index)} v-model={item.title} />
+                      ) : (
+                        <Title value={item.title} />
+                      )}
+                    </div>
+
                     <a-popover
                       content-style={{ padding: '0' }}
                       arrow-style={{ visibility: 'hidden' }}
