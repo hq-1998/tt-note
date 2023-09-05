@@ -1,3 +1,4 @@
+import { IUser } from '@renderer/api/user/data'
 import { defineStore } from 'pinia'
 
 const useUserStore = defineStore('user', {
