@@ -2,18 +2,18 @@ enum EWebSocketStatus {
   CONNECTING = 0,
   OPEN = 1,
   CLOSING = 2,
-  CLOSED = 3,
+  CLOSED = 3
 }
 
-type Callback = (...args: any[]) => void
+type Callback = (...args: unknown[]) => void
 
 /** 返回数据通用格式 */
 interface IMessage {
   event: string
-  data: any
+  data: unknown
 }
 
-const RECONNECT_INTERVAL = 3 * 1000;
+const RECONNECT_INTERVAL = 3 * 1000
 
 class GlobalWebsocket {
   url: string
@@ -21,9 +21,9 @@ class GlobalWebsocket {
   readyState: number = EWebSocketStatus.CONNECTING
   events: Map<string, Set<Callback>> = new Map()
   reconnectInterval: number = RECONNECT_INTERVAL
-  reconnectTimer: number | null = null
+  reconnectTimer: NodeJS.Timeout | null = null
   constructor(url: string) {
-    this.url = url;
+    this.url = url
   }
   connect() {
     if (!this.url) {
@@ -42,7 +42,7 @@ class GlobalWebsocket {
   }
   /** 清除定时器 */
   clear() {
-    clearInterval(this.reconnectInterval);
+    clearInterval(this.reconnectInterval)
   }
   /** websocket收到消息 */
   onMessage(event) {
@@ -53,27 +53,27 @@ class GlobalWebsocket {
   /** websocket错误 */
   onError(e) {
     console.log('websocket接收到错误', e)
-    this.clear();
-    this.onClose();
-    this.reconnect();
+    this.clear()
+    this.onClose()
+    this.reconnect()
   }
   /** websocket关闭 */
   onClose() {
-    console.log('websocket关闭');
-    this.clear();
-    this.socket.close();
-    this.readyState = EWebSocketStatus.CLOSED;
-    this.reconnect();
+    console.log('websocket关闭')
+    this.clear()
+    this.socket!.close()
+    this.readyState = EWebSocketStatus.CLOSED
+    this.reconnect()
   }
   /** 发送消息给服务端 */
   sendMessage(data) {
     if (this.readyState === EWebSocketStatus.OPEN) {
-       this.socket.send(JSON.stringify(data));
+      this.socket!.send(JSON.stringify(data))
     }
   }
   /** 重连 */
   reconnect() {
-    this.clear();
+    this.clear()
     this.reconnectTimer = setTimeout(() => {
       this.connect()
     }, this.reconnectInterval)
@@ -83,24 +83,24 @@ class GlobalWebsocket {
     if (!this.events.has(event)) {
       this.events.set(event, new Set())
     }
-    const subEvent = this.events.get(event);
-    subEvent.add(callback);
+    const subEvent = this.events.get(event)
+    subEvent!.add(callback)
   }
   /** 取消订阅消息 */
   unsubscribe(event: string, callback?: Callback) {
     if (!this.events.has(event)) {
-      return;
+      return
     }
     if (!callback) {
-      this.events.delete(event);
-      return;
+      this.events.delete(event)
+      return
     }
-    const subEvent = this.events.get(event);
-    subEvent.delete(callback);
+    const subEvent = this.events.get(event)
+    subEvent!.delete(callback)
   }
   /** 触发订阅消息 */
-  notify(event: string, data: any) {
-    const subEvent = this.events.get(event);
+  notify(event: string, data: unknown) {
+    const subEvent = this.events.get(event)
     if (subEvent) {
       subEvent.forEach((callback: Callback) => {
         callback(data)
