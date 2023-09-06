@@ -1,6 +1,7 @@
 import { ProgressInfo, autoUpdater } from 'electron-updater'
 import { app } from 'electron'
 import path from 'node:path'
+import { windows } from '../window/createWindow'
 
 class AppUpdater {
   initUpdater() {
@@ -38,7 +39,10 @@ class AppUpdater {
   /** 下载进度 */
   handleDownloadProgress(res: ProgressInfo) {
     console.log('下载监听：' + res)
-    // win.webContents.send('downloadProgress', res)
+    const mainWindow = windows.get('index')
+    if (mainWindow) {
+      mainWindow.webContents.send('downloadProgress', res)
+    }
   }
   /** 下载完成 */
   handleUploadDownload() {

@@ -119,7 +119,7 @@ const handleLogin = (values) => {
         globalStorage.set('userInfo', data.userInfo)
         window.electron.ipcRenderer.invoke('closeWindow')
         window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
-        window.electron.ipcRenderer.invoke('setTray', { url: 'index' })
+        window.electron.ipcRenderer.invoke('setTrayUrl', { url: 'index' })
       }
     })
     .finally(() => {

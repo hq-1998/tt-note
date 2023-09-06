@@ -18,27 +18,30 @@ const RECONNECT_INTERVAL = 3 * 1000
 class GlobalWebsocket {
   url: string
   socket: WebSocket | null = null
-  readyState: number = EWebSocketStatus.CONNECTING
   events: Map<string, Set<Callback>> = new Map()
   reconnectInterval: number = RECONNECT_INTERVAL
   reconnectTimer: NodeJS.Timeout | null = null
+  userId: number | null = null
   constructor(url: string) {
     this.url = url
   }
-  connect() {
+  connect(id?: number) {
+    if (id) {
+      this.userId = id
+    }
     if (!this.url) {
       throw new Error('websocket url is null')
     }
-    this.socket = new WebSocket(this.url)
+    this.socket = new WebSocket(`${this.url}?userId=${this.userId}`)
     this.socket.addEventListener('open', this.onOpen)
-    this.socket.addEventListener('message', this.onMessage)
+    /** this指向调用者socket */
+    this.socket.addEventListener('message', (event) => this.onMessage(event))
     this.socket.addEventListener('error', this.onError)
-    this.socket.addEventListener('close', this.onClose)
+    this.socket.addEventListener('close', () => this.onClose())
   }
   /** websocket打开 */
   onOpen() {
     console.log('websocket建立连接')
-    this.readyState = EWebSocketStatus.OPEN
   }
   /** 清除定时器 */
   clear() {
@@ -62,12 +65,11 @@ class GlobalWebsocket {
     console.log('websocket关闭')
     this.clear()
     this.socket!.close()
-    this.readyState = EWebSocketStatus.CLOSED
     this.reconnect()
   }
   /** 发送消息给服务端 */
   sendMessage(data) {
-    if (this.readyState === EWebSocketStatus.OPEN) {
+    if (this.socket && this.socket.readyState === EWebSocketStatus.OPEN) {
       this.socket!.send(JSON.stringify(data))
     }
   }
@@ -85,6 +87,9 @@ class GlobalWebsocket {
     }
     const subEvent = this.events.get(event)
     subEvent!.add(callback)
+    return () => {
+      this.unsubscribe(event, callback)
+    }
   }
   /** 取消订阅消息 */
   unsubscribe(event: string, callback?: Callback) {

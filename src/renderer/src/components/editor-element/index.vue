@@ -12,6 +12,7 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
+
 const props = withDefaults(
   defineProps<{
     value: string
@@ -25,12 +26,7 @@ defineOptions({
   name: 'DivEditable'
 })
 
-<<<<<<< HEAD
-const value = defineModel('value')
-const innerText = ref(value.value)
-=======
 const innerText = ref(props.value)
->>>>>>> parent of 74b6388 (feat: 新语言尝试 组件v-model改为defineModel宏)
 const isChange = ref(true)
 const divRef = ref<HTMLDivElement>()
 
@@ -47,11 +43,7 @@ watch(
   }
 )
 
-<<<<<<< HEAD
-const emit = defineEmits(['blurFunc'])
-=======
 const emit = defineEmits(['update:value', 'blurFunc'])
->>>>>>> parent of 74b6388 (feat: 新语言尝试 组件v-model改为defineModel宏)
 
 const changeText = () => {
   emit('update:value', divRef.value!.innerHTML)

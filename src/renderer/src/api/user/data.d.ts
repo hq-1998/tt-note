@@ -23,6 +23,13 @@ export interface IResetPassword {
 
 export type IUser = IUserPwd | IUserCode
 
+export interface IUserInfo {
+  /** 用户id */
+  id: number
+  /** 用户账号 */
+  account: string
+}
+
 export interface ILoginRes {
   token: string
   userInfo: {

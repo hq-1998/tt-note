@@ -1,4 +1,4 @@
-import { IUser } from '@renderer/api/user/data'
+import { IUserInfo } from '@renderer/api/user/data'
 import { defineStore } from 'pinia'
 
 const useUserStore = defineStore('user', {
@@ -12,7 +12,7 @@ const useUserStore = defineStore('user', {
     setToken(token: string) {
       this.token = token
     },
-    setUserInfo(userInfo: IUser) {
+    setUserInfo(userInfo: IUserInfo) {
       this.userInfo = userInfo
     }
   }

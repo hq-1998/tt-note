@@ -5,7 +5,8 @@ import {
   type IVerifyCode,
   type IUserPwd,
   ELoginType,
-  IResetPassword
+  IResetPassword,
+  IUserInfo
 } from './data.d'
 
 const user = {
@@ -47,6 +48,10 @@ const user = {
       newPassword: params.newPassword,
       code: params.code
     })
+  },
+  /** 获取个人信息 */
+  getUserInfo: (userId: number) => {
+    return http.get<IUserInfo>(`/users/getUserInfo?userId=${userId}`)
   }
 }
 

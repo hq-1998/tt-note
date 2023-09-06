@@ -24,7 +24,8 @@ export const WINDOW_OPTIONS = {
   [INDEX]: {
     width: 1200,
     height: 670,
-    ...BASE_WINDOW_OPTIONS
+    ...BASE_WINDOW_OPTIONS,
+    alwaysOnTop: false
   },
   [LOGIN]: {
     width: 580,

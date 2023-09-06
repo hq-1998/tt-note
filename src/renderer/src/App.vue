@@ -6,6 +6,8 @@ import { useNoteStore, useUserStore } from './store'
 import { v4 } from 'uuid'
 import { onBeforeMount } from 'vue'
 import { globalStorage } from './utils'
+import { globalWebSocket, Events } from '@renderer/websocket'
+import { user } from './api'
 
 const noteStore = useNoteStore()
 const userStore = useUserStore()
@@ -26,6 +28,12 @@ onBeforeMount(() => {
   if (token && userInfo) {
     userStore.setToken(token)
     userStore.setUserInfo(userInfo)
+    globalWebSocket.connect(userInfo.id)
+    user.getUserInfo(userInfo.id).then((res) => {
+      if (res.code === 0) {
+        userStore.setUserInfo(res.data)
+      }
+    })
   }
 })
 
@@ -49,6 +57,15 @@ onMounted(async () => {
     state.title = note.title
     state.timeStamp = note.timeStamp
   }
+
+  const unsubscribe = globalWebSocket.subscribe(Events.OTHER, (data) => {
+    console.log(data, '==data==')
+    window.electron.ipcRenderer.invoke('sendNotification', {
+      title: '欢迎光临',
+      body: '这是您首次登录小腾笔记，请享受您的笔记之旅'
+    })
+    unsubscribe?.()
+  })
 })
 
 const handleAdd = async () => {

@@ -39,7 +39,7 @@ class Request {
   request(config: AxiosRequestConfig): Promise<AxiosResponse> {
     return this.instance.request(config)
   }
-  get<U = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<Result<U>>> {
+  get<U = unknown>(url: string, config?: AxiosRequestConfig): Promise<Result<U>> {
     return this.instance.get(url, config)
   }
   post<T = unknown, U = unknown>(

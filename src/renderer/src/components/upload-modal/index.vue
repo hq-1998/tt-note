@@ -22,6 +22,8 @@ const toggleModalVisible = () => {
 defineExpose({
   toggleModalVisible
 })
+
+const newVersions = ['增加版本提醒功能', '更好地支持苹果/Android手机操作系统', '修复已知问题']
 </script>
 
 <template>

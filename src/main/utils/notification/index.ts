@@ -1,4 +1,10 @@
-import { Notification } from 'electron'
+import { Notification, nativeImage } from 'electron'
+// import icon from '../../../../resources/icon.png?asset'
+// const appIcon = nativeImage.createFromPath(icon)
+
+const BASE_OPTIONS = {
+  // icon: appIcon
+}
 
 class ElectronNotification {
   notification: Notification
@@ -6,7 +12,7 @@ class ElectronNotification {
     if (!this.isSupport) {
       throw new Error('不支持Notification')
     }
-    this.notification = new Notification(options)
+    this.notification = new Notification({ ...BASE_OPTIONS, ...options })
   }
   get isSupport() {
     return Notification.isSupported()
