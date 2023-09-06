@@ -1,4 +1,4 @@
-import { app, Menu, Tray, nativeImage } from 'electron'
+import { app, Menu, Tray, nativeImage, NativeImage } from 'electron'
 import icon from '../../../../resources/icon.png?asset'
 import { windowControl } from '../../api'
 import { LOGIN } from '../../options/window'
@@ -34,12 +34,17 @@ class ElectronTray {
   setTrayUrl(url: string) {
     this.url = url
   }
+  destroyTray() {
+    this.tray?.destroy()
+  }
+  setImage(image: NativeImage | string) {
+    this.tray?.setImage(image)
+  }
   showMainWindow() {
     if (!this.url) {
       console.log('请先设置trayUrl')
       return
     }
-    console.log(this.url, '====url====')
     windowControl.openSingleWindow(null, this.url)
   }
 }

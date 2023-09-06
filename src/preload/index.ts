@@ -2,6 +2,12 @@ import { contextBridge } from 'electron'
 import * as api from './api'
 import { electronAPI } from '@electron-toolkit/preload'
 
+declare global {
+  interface Window {
+    jsBridge: typeof api
+  }
+}
+
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
