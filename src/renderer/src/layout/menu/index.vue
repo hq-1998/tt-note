@@ -2,6 +2,10 @@
 import { ref } from 'vue'
 import UserInfoModal from '@renderer/components/user-info-modal/index.vue'
 import UploadModal from '@renderer/components/upload-modal/index.vue'
+import document from '@renderer/assets/images/icons/document.png'
+import directory from '@renderer/assets/images/icons/directory.png'
+import { v4 } from 'uuid'
+import { useNoteStore } from '@renderer/store'
 
 const emits = defineEmits(['handleCollapse'])
 const collapsed = ref(true)
@@ -60,6 +64,33 @@ const doptionOptions = [
     }
   }
 ]
+
+const noteStore = useNoteStore()
+
+const createDoptionOptions = [
+  {
+    label: 'MarkDown',
+    value: 'notify',
+    icon: <img width={14} height={14} src={document} />,
+    click: async () => {
+      const payload = {
+        id: v4(),
+        title: '',
+        content: '',
+        timeStamp: Date.now(),
+        isClickRename: false
+      }
+      await window.electron.ipcRenderer.invoke('save', payload)
+      noteStore.addNote(payload)
+    }
+  },
+  {
+    label: '新建文件夹',
+    value: 'message',
+    icon: <img width={14} height={14} src={directory} />,
+    click: () => {}
+  }
+]
 </script>
 
 <template>
@@ -77,12 +108,20 @@ const doptionOptions = [
             </template>
           </a-dropdown>
         </div>
-        <div class="create-wrapper">
-          <a-button long class="create"
-            ><template #icon> <icon-plus /> </template>
-            <span v-if="!collapsed">新建</span>
-          </a-button>
-        </div>
+        <a-dropdown show-arrow :popup-translate="collapsed ? [35, 5] : [0, 10]">
+          <div class="create-wrapper">
+            <a-button long class="create"
+              ><template #icon> <icon-plus /> </template>
+              <span v-if="!collapsed">新建</span>
+            </a-button>
+          </div>
+          <template #content>
+            <a-doption v-for="item in createDoptionOptions" :key="item.value" @click="item.click">
+              {{ item.label }}
+              <template #icon> <component :is="item.icon" /> </template
+            ></a-doption>
+          </template>
+        </a-dropdown>
       </div>
 
       <div class="menu-list-wrapper">
