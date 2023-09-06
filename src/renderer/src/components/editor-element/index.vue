@@ -17,6 +17,8 @@ defineOptions({
   name: 'DivEditable'
 })
 
+const value = defineModel('value')
+const innerText = ref(value.value)
 const isChange = ref(true)
 const divRef = ref<HTMLDivElement>()
 
@@ -33,8 +35,6 @@ watch(
   }
 )
 
-const value = defineModel('value')
-const innerText = ref(value.value)
 const emit = defineEmits(['blurFunc'])
 
 const changeText = () => {

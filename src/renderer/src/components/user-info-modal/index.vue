@@ -33,7 +33,7 @@ const toggleModalVisible = () => {
   const oldVisible = modalVisible.value
   modalVisible.value = !oldVisible
   if (oldVisible) {
-    formRef.value!.resetFields()
+    formRef.value?.resetFields()
   }
 }
 
