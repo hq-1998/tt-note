@@ -1,7 +1,7 @@
 <template>
   <a-input
     ref="inputRef"
-    :value="props.value"
+    :value="value"
     class="input-wrapper"
     @blur="handleBlur"
     @input="handleInput"
@@ -15,21 +15,14 @@ defineOptions({
 })
 
 const inputRef = ref<HTMLInputElement | null>(null)
-const emits = defineEmits(['update:value', 'blur'])
+const value = defineModel('value')
+const emits = defineEmits(['blur'])
 const handleInput = (e) => {
-  emits('update:value', e)
+  value.value = e
 }
 const handleBlur = (e) => {
   emits('blur', e)
 }
-const props = withDefaults(
-  defineProps<{
-    value: string
-  }>(),
-  {
-    value: ''
-  }
-)
 
 onMounted(() => {
   inputRef.value?.focus()

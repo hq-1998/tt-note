@@ -12,20 +12,11 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
-const props = withDefaults(
-  defineProps<{
-    value: string
-  }>(),
-  {
-    value: ''
-  }
-)
 
 defineOptions({
   name: 'DivEditable'
 })
 
-const innerText = ref(props.value)
 const isChange = ref(true)
 const divRef = ref<HTMLDivElement>()
 
@@ -34,18 +25,20 @@ const handleFocus = () => {
 }
 
 watch(
-  () => props.value,
+  () => value.value,
   () => {
     if (isChange.value) {
-      innerText.value = props.value
+      innerText.value = value.value
     }
   }
 )
 
-const emit = defineEmits(['update:value', 'blurFunc'])
+const value = defineModel('value')
+const innerText = ref(value.value)
+const emit = defineEmits(['blurFunc'])
 
 const changeText = () => {
-  emit('update:value', divRef.value!.innerHTML)
+  value.value = divRef.value!.innerHTML
 }
 const blurFunc = () => {
   isChange.value = true
