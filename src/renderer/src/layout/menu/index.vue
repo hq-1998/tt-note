@@ -1,5 +1,8 @@
 <script lang="tsx" setup>
 import { ref } from 'vue'
+import UserInfoModal from '@renderer/components/user-info-modal/index.vue'
+import UploadModal from '@renderer/components/upload-modal/index.vue'
+
 const emits = defineEmits(['handleCollapse'])
 const collapsed = ref(true)
 
@@ -13,8 +16,19 @@ const modalVisible = ref(false)
 const userInfoRef = ref<{
   toggleModalVisible: () => void
 }>()
+
+/** 检测更新 */
+const uploadModalVisible = ref(false)
+const uploadRef = ref<{
+  toggleModalVisible: () => void
+}>()
+
 const toggleModalVisible = () => {
   userInfoRef.value!.toggleModalVisible()
+}
+
+const toggleUploadModalVisible = () => {
+  uploadRef.value!.toggleModalVisible()
 }
 
 const doptionOptions = [
@@ -29,6 +43,12 @@ const doptionOptions = [
     value: 'message',
     icon: <icon-user />,
     click: toggleModalVisible
+  },
+  {
+    label: '检测更新',
+    value: 'update',
+    icon: <icon-user />,
+    click: toggleUploadModalVisible
   },
   {
     label: '退出登录',
@@ -92,6 +112,7 @@ const doptionOptions = [
       </div>
     </div>
     <UserInfoModal ref="userInfoRef" title="个人信息" :modal-visible="modalVisible" />
+    <UploadModal ref="uploadRef" title="检测更新" :modal-visible="uploadModalVisible" />
   </div>
 </template>
 
