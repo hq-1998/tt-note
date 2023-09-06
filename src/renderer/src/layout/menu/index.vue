@@ -45,17 +45,26 @@ const doptionOptions = [
 <template>
   <div class="menu-wrapper">
     <div class="top-wrapper">
-      <div class="avatar-wrapper">
-        <a-dropdown show-arrow :popup-translate="collapsed ? [35, 5] : [0, 10]">
-          <a-avatar :size="collapsed ? 32 : 64"> <icon-gitlab /></a-avatar>
-          <template #content>
-            <a-doption v-for="item in doptionOptions" :key="item.value" @click="item.click">
-              {{ item.label }}
-              <template #icon> <component :is="item.icon" /> </template
-            ></a-doption>
-          </template>
-        </a-dropdown>
+      <div :class="['user-wrapper', collapsed && 'remove-padding']">
+        <div class="avatar-wrapper">
+          <a-dropdown show-arrow :popup-translate="collapsed ? [35, 5] : [0, 10]">
+            <a-avatar :size="collapsed ? 32 : 64"> <icon-gitlab /></a-avatar>
+            <template #content>
+              <a-doption v-for="item in doptionOptions" :key="item.value" @click="item.click">
+                {{ item.label }}
+                <template #icon> <component :is="item.icon" /> </template
+              ></a-doption>
+            </template>
+          </a-dropdown>
+        </div>
+        <div class="create-wrapper">
+          <a-button long class="create"
+            ><template #icon> <icon-plus /> </template>
+            <span v-if="!collapsed">新建</span>
+          </a-button>
+        </div>
       </div>
+
       <div class="menu-list-wrapper">
         <a-menu
           v-model:collapsed="collapsed"

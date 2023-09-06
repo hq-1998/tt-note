@@ -13,21 +13,51 @@
     .arco-menu-inline-header {
       background-color: #f8f9fa;
     }
+
+    .arco-btn-size-medium:not(.arco-btn-only-icon) .arco-btn-icon {
+       margin-right: 0px;
+    }
   }
+
 
   .top-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 100%;
     flex: 1;
-    .avatar-wrapper {
-      margin-bottom: 30px;
-    }
+
     .menu-list-wrapper {
       flex: 1;
     }
-    .button-wrapper {
-      margin-bottom: 5px;
+
+    .remove-padding {
+      padding: 0px 5px !important;
+    }
+
+    .user-wrapper {
+      padding: 0 24px;
+      box-sizing: border-box;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      .avatar-wrapper {
+        margin-bottom: 24px;
+      }
+
+      .button-wrapper {
+        margin-bottom: 5px;
+      }
+      .create-wrapper {
+        width: 100%;
+        margin-bottom: 16px;
+        .create {
+          color: #ffffff;
+          background-color: #5d7af9;
+          border-radius: 5px;
+        }
+      }
     }
   }
 }
