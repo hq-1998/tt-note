@@ -21,6 +21,7 @@ const isSendVerifyCode = computed(() => loginType.value === ELoginType.verifyCod
 /** 切换登录态 */
 const toggleLoginType = () => {
   form.password = ''
+  formRef.value?.clearValidate()
   loginType.value = isSendVerifyCode.value ? ELoginType.passwordCode : ELoginType.verifyCode
 }
 
@@ -132,7 +133,7 @@ const handleTriggerValidate = async (cb?) => {
   cb?.(!hasErrors)
 }
 
-const handleClick = async () => {
+const handleClick = async (callback) => {
   if (isSendVerifyCode.value) {
     if (!Validate.mobile.test(form.account)) {
       await handleTriggerValidate()
@@ -145,6 +146,7 @@ const handleClick = async () => {
       .then((res) => {
         if (res.code === 0) {
           Message.success('验证码发送成功：' + res.data)
+          callback?.()
         }
       })
   } else {

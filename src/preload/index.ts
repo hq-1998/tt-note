@@ -1,10 +1,11 @@
 import { contextBridge } from 'electron'
 import * as api from './api'
-import { electronAPI } from '@electron-toolkit/preload'
+import { electronAPI, ElectronAPI } from '@electron-toolkit/preload'
 
 declare global {
   interface Window {
     jsBridge: typeof api
+    electron: ElectronAPI
   }
 }
 
@@ -16,8 +17,6 @@ if (process.contextIsolated) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
   window.electron = electronAPI
-  // @ts-ignore (define in dts)
   window.jsBridge = api
 }

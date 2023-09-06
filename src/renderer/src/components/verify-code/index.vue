@@ -11,17 +11,18 @@ const handleSendCode = () => {
   emits('trigger-validate', (valid) => {
     if (isClicked.value || !valid) return
     isClicked.value = true
-    emits('send-code')
-    const timer = setInterval(() => {
-      if (counter.value > 0) {
-        counter.value--
-        btnText.value = `${counter.value}秒后重试`
-      } else {
-        clearInterval(timer)
-        isClicked.value = false
-        btnText.value = '获取验证码'
-      }
-    }, 1000)
+    emits('send-code', () => {
+      const timer = setInterval(() => {
+        if (counter.value > 0) {
+          counter.value--
+          btnText.value = `${counter.value}秒后重试`
+        } else {
+          clearInterval(timer)
+          isClicked.value = false
+          btnText.value = '获取验证码'
+        }
+      }, 1000)
+    })
   })
 }
 

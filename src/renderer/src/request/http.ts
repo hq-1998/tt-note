@@ -31,6 +31,7 @@ class Request {
         return res.data
       },
       (error) => {
+        Message.error(error?.message || '系统异常，请稍后再试')
         return Promise.reject(new Error(error))
       }
     )

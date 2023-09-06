@@ -50,7 +50,7 @@ const toggleModalVisible = () => {
 }
 
 /** 发送验证码 */
-const handleClick = async () => {
+const handleClick = async (callback) => {
   user
     .sendResetPasswordCode({
       account: form.account
@@ -58,6 +58,7 @@ const handleClick = async () => {
     .then((res) => {
       if (res.code === 0) {
         Message.success('验证码发送成功：' + res.data)
+        callback?.()
       }
     })
 }
