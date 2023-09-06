@@ -21,6 +21,23 @@ export const mergeConfig = (config) => {
   }
 }
 
+/** 获取单实例锁 */
+const lock = app.requestSingleInstanceLock()
+if (!lock) {
+  /** 获取不到单实例锁 标识应用程序已经打开 */
+  app.quit()
+} else {
+  /** 获取到单实例锁的情况下，创建新窗口 */
+  app.on('second-instance', () => {
+    console.log('second-instance')
+    const win = utils.getAllWindows()?.at(0)
+    if (win) {
+      if (win.isMinimized()) win.restore()
+      win.focus()
+    }
+  })
+}
+
 function createWindow(): void {
   const mainWindow = new ElectronWindow(LOGIN, mergeConfig(WINDOW_OPTIONS[LOGIN]))
   let setting = new ElectronWindow(SETTING, mergeConfig(WINDOW_OPTIONS[SETTING]))

@@ -6,6 +6,8 @@ import { bindEvent } from './event'
 const getDevPath = (path: string): string => `${process.env['ELECTRON_RENDERER_URL']}/${path}.html`
 const getStaticPath = (path: string): string => join(__dirname, `../renderer/pages/${path}.html}`)
 
+// 储存窗口对象 key 窗口名称 value electronWindow实例
+export const windows = new Map<string, BrowserWindow>()
 class ElectronWindow {
   private _window: BrowserWindow
   private _name: string | null
@@ -14,6 +16,10 @@ class ElectronWindow {
     this._name = name
     this._options = options
     this._window = new BrowserWindow(options)
+    const windowIsExist = windows.get(name)
+    if (!windowIsExist) {
+      windows.set(name, this._window)
+    }
     bindEvent(this)
   }
   get window(): BrowserWindow {
