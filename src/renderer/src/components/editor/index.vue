@@ -1,5 +1,5 @@
 <template>
-  <Editor class="editor-wrapper" :value="value" :plugins="plugins" @change="handleChange" />
+  <Editor class="editor-wrapper" :value="props.value" :plugins="plugins" @change="handleChange" />
 </template>
 
 <script lang="ts" setup>
@@ -10,10 +10,18 @@ import gfm from '@bytemd/plugin-gfm'
 
 const plugins = [gfm()]
 
-const value = defineModel('value')
+const emit = defineEmits(['update:value'])
+const props = withDefaults(
+  defineProps<{
+    value: string
+  }>(),
+  {
+    value: ''
+  }
+)
 
 const handleChange = (v) => {
-  value.value = v
+  emit('update:value', v)
 }
 </script>
 

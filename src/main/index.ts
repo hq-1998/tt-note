@@ -30,6 +30,7 @@ if (!lock) {
 } else {
   /** 获取到单实例锁的情况下，创建新窗口 */
   app.on('second-instance', () => {
+    console.log('second-instance')
     const win = utils.getAllWindows()?.at(0)
     if (win) {
       if (win.isMinimized()) win.restore()

@@ -15,6 +15,7 @@ declare module 'vue' {
     Empty: typeof import('./src/components/empty/index.vue')['default']
     UploadAvatar: typeof import('./src/components/upload-avatar/index.vue')['default']
     UploadModal: typeof import('./src/components/upload-modal/index.vue')['default']
+    UploadTable: typeof import('./src/components/upload-table/index.vue')['default']
     UserInfoModal: typeof import('./src/components/user-info-modal/index.vue')['default']
     VerifyCode: typeof import('./src/components/verify-code/index.vue')['default']
   }

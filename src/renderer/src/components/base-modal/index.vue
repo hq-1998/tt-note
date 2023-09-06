@@ -21,15 +21,6 @@ interface IProps {
 
 type ModalProps = Omit<InstanceType<typeof Modal>['$props'], 'width'> & { width?: ModalSize }
 
-withDefaults(
-  defineProps<{
-    visible: boolean
-  }>(),
-  {
-    visible: false
-  }
-)
-
 const emit = defineEmits(['update:visible', 'handleClose'])
 
 const Render = (props: IProps & ModalProps) => {
@@ -54,7 +45,7 @@ const Render = (props: IProps & ModalProps) => {
       footer={false}
       onCancel={() => {
         emit('handleClose')
-        emit('update:visible', false)
+        emit('update:visible')
       }}
       v-slots={{
         title: () => titleSlot?.(),
