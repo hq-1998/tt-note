@@ -18,9 +18,9 @@ const handleDownload = async (record) => {
   path.value = downloadPath
   console.log(downloadPath, '===')
 
-  store.subscribe(downloadPath, (value) => {
-    console.log(value)
-  })
+  // store.subscribe(downloadPath, (value) => {
+  //   console.log(value)
+  // })
   setTimeout(() => {
     window.jsBridge.node.download(url, downloadPath)
   }, 1000)

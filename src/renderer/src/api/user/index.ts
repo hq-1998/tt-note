@@ -10,8 +10,8 @@ import {
 
 const user = {
   /** 登录 */
+  // TODO 优化
   login: (params: IUserPwd) => {
-    // TODO 优化
     const payload: Record<string, unknown> = {
       type: params.type,
       account: params.account
@@ -20,11 +20,13 @@ const user = {
     return http.post<IUser, ILoginRes>('/users/login', payload as IUser)
   },
   /** 注册 */
-  register: (params: IUser) => {
-    return http.post('/users/register', {
-      account: params.account,
-      password: params.password
-    })
+  register: (params: IUserPwd) => {
+    const payload: Record<string, unknown> = {
+      type: params.type,
+      account: params.account
+    }
+    payload[params.type === ELoginType.passwordCode ? 'password' : 'code'] = params.password
+    return http.post<IUser, ILoginRes>('/users/register', payload as IUser)
   },
   /** 发送登录验证码 */
   sendLoginCode: (params: IVerifyCode) => {

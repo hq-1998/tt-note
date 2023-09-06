@@ -2,9 +2,11 @@ import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { BrowserWindow } from 'electron'
 import { bindEvent } from './event'
+import appFns from '../api/app'
 
 const getDevPath = (path: string): string => `${process.env['ELECTRON_RENDERER_URL']}/${path}.html`
-const getStaticPath = (path: string): string => join(__dirname, `../renderer/pages/${path}.html}`)
+const getStaticPath = (path: string): string =>
+  join(appFns.getAppPath(), `out/renderer/${path}.html`)
 
 // 储存窗口对象 key 窗口名称 value electronWindow实例
 export const windows = new Map<string, BrowserWindow>()

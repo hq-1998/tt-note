@@ -5,10 +5,10 @@ import defaultAvatar from '@renderer/assets/images/common/default-avatar.png'
 const uploadRef = ref()
 const files = ref([])
 
-const submit = (e) => {
-  e.stopPropagation()
-  uploadRef.value.submit()
-}
+// const submit = (e) => {
+//   e.stopPropagation()
+//   uploadRef.value.submit()
+// }
 
 const onChange = (fileList) => {
   files.value = fileList

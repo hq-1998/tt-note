@@ -14,11 +14,6 @@ const getAllDirs = async () => {
   return dirs
 }
 
-const getAllFiles = async (dirname: string) => {
-  const files = await fse.readFile(dirname)
-  return files
-}
-
 const getFileName = (id: string, title: string, timeStamp: number) => {
   const filename = path.join(baseDir, id + '__' + title + '__' + timeStamp + '.md')
   return filename

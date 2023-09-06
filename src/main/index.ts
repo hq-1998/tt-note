@@ -1,7 +1,7 @@
 import { app, BrowserWindow, globalShortcut, Menu } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import ElectronWindow from './window/createWindow'
-import { INDEX, LOGIN, SETTING, WINDOW_OPTIONS } from './options/window'
+import { LOGIN, SETTING, WINDOW_OPTIONS } from './options/window'
 import { utils } from './window/utils'
 import IpcMain from './ipcMain'
 import { join } from 'path'

@@ -7,7 +7,7 @@ import { ArcoResolver } from 'unplugin-vue-components/resolvers'
 import { vitePluginForArco } from '@arco-plugins/vite-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(() => {
   return {
     main: {
       plugins: [externalizeDepsPlugin()]
@@ -25,9 +25,9 @@ export default defineConfig(({ mode }) => {
       build: {
         rollupOptions: {
           input: {
-            index: resolve(__dirname, './src/renderer/index.html'),
-            setting: resolve(__dirname, './src/renderer/setting.html'),
-            login: resolve(__dirname, './src/renderer/login.html')
+            index: resolve(__dirname, 'src/renderer/index.html'),
+            setting: resolve(__dirname, 'src/renderer/setting.html'),
+            login: resolve(__dirname, 'src/renderer/login.html')
           }
         }
       },
