@@ -6,5 +6,6 @@ import windowControl from './windowControl'
 import dialog from './dialog'
 import notification from './notification'
 import tray from './tray'
+import updater from './updater'
 
-export { net, app, tray, shell, note, windowControl, dialog, notification }
+export { net, app, updater, tray, shell, note, windowControl, dialog, notification }

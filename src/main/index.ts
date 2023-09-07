@@ -1,7 +1,7 @@
 import { app, BrowserWindow, globalShortcut, Menu } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import ElectronWindow from './window/createWindow'
-import { LOGIN, SETTING, WINDOW_OPTIONS } from './options/window'
+import { INDEX, SETTING, WINDOW_OPTIONS } from './options/window'
 import { utils } from './window/utils'
 import IpcMain from './ipcMain'
 import { join } from 'path'
@@ -30,7 +30,6 @@ if (!lock) {
 } else {
   /** 获取到单实例锁的情况下，创建新窗口 */
   app.on('second-instance', () => {
-    console.log('second-instance')
     const win = utils.getAllWindows()?.at(0)
     if (win) {
       if (win.isMinimized()) win.restore()
@@ -40,7 +39,7 @@ if (!lock) {
 }
 
 function createWindow(): void {
-  const mainWindow = new ElectronWindow(LOGIN, mergeConfig(WINDOW_OPTIONS[LOGIN]))
+  const mainWindow = new ElectronWindow(INDEX, mergeConfig(WINDOW_OPTIONS[INDEX]))
   let setting = new ElectronWindow(SETTING, mergeConfig(WINDOW_OPTIONS[SETTING]))
 
   globalShortcut.register('CommandOrControl+T', () => {
@@ -61,6 +60,8 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   app.commandLine.appendSwitch('proxy-server', 'https://registry.npmjs.org/')
+  app.commandLine.appendSwitch('--no-proxy-server')
+
   electronApp.setAppUserModelId('com.electron')
   process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 

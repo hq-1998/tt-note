@@ -1,0 +1,3 @@
+provider: generic,
+url: 'https://hq-cll-1259560137.cos.ap-nanjing.myqcloud.com/dist/'
+updaterCacheDirName: update-cache

@@ -1,4 +1,4 @@
-import { Notification, nativeImage } from 'electron'
+import { Notification } from 'electron'
 // import icon from '../../../../resources/icon.png?asset'
 // const appIcon = nativeImage.createFromPath(icon)
 

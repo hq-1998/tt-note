@@ -12,7 +12,8 @@ const events: {
   ...api.shell,
   ...api.note,
   ...api.windowControl,
-  ...api.tray
+  ...api.tray,
+  ...api.updater
 }
 
 export default events

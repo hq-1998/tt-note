@@ -157,7 +157,7 @@ const handleClick = async (callback) => {
 
 <template>
   <div class="modal">
-    <header class="header">登录{{ title }}畅享更多权益</header>
+    <header class="header">登录{{ title }}畅享更多权益111</header>
     <div class="auth-body">
       <div class="content">
         <a-row justify="space-between" :wrap="false">

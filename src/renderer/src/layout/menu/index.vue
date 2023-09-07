@@ -6,6 +6,7 @@ import document from '@renderer/assets/images/icons/document.png'
 import directory from '@renderer/assets/images/icons/directory.png'
 import { v4 } from 'uuid'
 import { useNoteStore } from '@renderer/store'
+import { Message } from '@arco-design/web-vue'
 
 const emits = defineEmits(['handleCollapse'])
 const collapsed = ref(true)
@@ -31,8 +32,15 @@ const toggleModalVisible = () => {
   userInfoRef.value!.toggleModalVisible()
 }
 
-const toggleUploadModalVisible = () => {
-  uploadRef.value!.toggleModalVisible()
+const toggleUploadModalVisible = async () => {
+  const existUpdate = await window.electron.ipcRenderer.invoke('patchUrlAndDownload', {
+    url: 'https://hq-cll-1259560137.cos.ap-nanjing.myqcloud.com/dist1/electron-app-1.0.2-setup.exe'
+  })
+  if (existUpdate) {
+    uploadRef.value!.toggleModalVisible()
+  } else {
+    Message.warning('当前已是最新版本')
+  }
 }
 
 const doptionOptions = [
@@ -51,7 +59,7 @@ const doptionOptions = [
   {
     label: '检测更新',
     value: 'update',
-    icon: <icon-user />,
+    icon: <icon-sync />,
     click: toggleUploadModalVisible
   },
   {
@@ -109,11 +117,9 @@ const createDoptionOptions = [
           </a-dropdown>
         </div>
         <a-dropdown show-arrow :popup-translate="collapsed ? [35, 5] : [0, 10]">
-          <div class="create-wrapper">
-            <a-button long class="create"
-              ><template #icon> <icon-plus /> </template>
-              <span v-if="!collapsed">新建</span>
-            </a-button>
+          <div class="create">
+            <icon-plus class="plus-icon" />
+            <span v-if="!collapsed" class="create-text">新建</span>
           </div>
           <template #content>
             <a-doption v-for="item in createDoptionOptions" :key="item.value" @click="item.click">
@@ -151,7 +157,7 @@ const createDoptionOptions = [
       </div>
     </div>
     <UserInfoModal ref="userInfoRef" title="个人信息" :modal-visible="modalVisible" />
-    <UploadModal ref="uploadRef" title="检测更新" :modal-visible="uploadModalVisible" />
+    <UploadModal ref="uploadRef" :modal-visible="uploadModalVisible" />
   </div>
 </template>
 

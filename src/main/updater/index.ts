@@ -8,6 +8,9 @@ class AppUpdater {
     /** 取消自动下载 */
     autoUpdater.autoDownload = false
     autoUpdater.autoRunAppAfterInstall = false
+    if (!app.isPackaged) {
+      autoUpdater.updateConfigPath = path.join(process.cwd(), 'dev-app-update.yml')
+    }
     autoUpdater.on('update-available', this.handleUpdateAvailable)
     autoUpdater.on('update-not-available', this.handleUpdateNotAvailable)
     autoUpdater.on('download-progress', this.handleDownloadProgress)
@@ -18,7 +21,7 @@ class AppUpdater {
   private setCheckUrl(url: string) {
     autoUpdater.setFeedURL({
       provider: 'generic',
-      url: 'https://hq-cll-1259560137.cos.ap-nanjing.myqcloud.com/dist'
+      url
     })
   }
   /** 比对服务端url下载逻辑 */
@@ -33,12 +36,12 @@ class AppUpdater {
     console.log(`${app.getVersion()}有可用更新`)
   }
   /** 没有可用于更新的版本 */
-  handleUpdateNotAvailable(res) {
-    console.log(`没有可用于更新的版本：${res}`)
+  handleUpdateNotAvailable() {
+    console.log('not available')
   }
   /** 下载进度 */
   handleDownloadProgress(res: ProgressInfo) {
-    console.log('下载监听：' + res)
+    console.log(JSON.stringify(res))
     const mainWindow = windows.get('index')
     if (mainWindow) {
       mainWindow.webContents.send('downloadProgress', res)
@@ -46,11 +49,11 @@ class AppUpdater {
   }
   /** 下载完成 */
   handleUploadDownload() {
-    console.log('下载完成')
+    console.log('downloaded')
   }
   /** 更新出错 */
   handleError() {
-    console.log('更新错误')
+    console.log('downloadError')
   }
 }
 
