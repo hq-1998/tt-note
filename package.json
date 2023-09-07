@@ -30,7 +30,8 @@
     "log4js": "^6.9.1",
     "pinia": "^2.1.6",
     "qrcode.vue": "^3.4.1",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@arco-design/web-vue": "^2.50.1",

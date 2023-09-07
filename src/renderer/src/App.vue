@@ -114,4 +114,8 @@ const handleCollapse = (e) => {
   </a-layout>
 </template>
 
-<style lang="less"></style>
+<style lang="less">
+.arco-drawer-body {
+  padding: 0px;
+}
+</style>

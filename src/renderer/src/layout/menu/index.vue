@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import UserInfoModal from '@renderer/components/user-info-modal/index.vue'
 import UploadModal from '@renderer/components/upload-modal/index.vue'
+import DrawerComponent from '@renderer/components/drawer/index.vue'
+import VirtualScrollList from '@renderer/components/virtual-scroll-list/index.vue'
 import document from '@renderer/assets/images/icons/document.png'
 import directory from '@renderer/assets/images/icons/directory.png'
 import { v4 } from 'uuid'
@@ -28,8 +30,15 @@ const uploadRef = ref<{
   toggleModalVisible: () => void
 }>()
 
+/** 消息中心 */
+const messageDrawerVisible = ref(false)
+
 const toggleModalVisible = () => {
   userInfoRef.value!.toggleModalVisible()
+}
+
+const toggleDrawerVisible = () => {
+  messageDrawerVisible.value = !messageDrawerVisible.value
 }
 
 const toggleUploadModalVisible = async () => {
@@ -48,7 +57,7 @@ const doptionOptions = [
     label: '消息通知',
     value: 'notify',
     icon: <icon-notification />,
-    click: toggleModalVisible
+    click: toggleDrawerVisible
   },
   {
     label: '个人信息',
@@ -106,7 +115,7 @@ const createDoptionOptions = [
     <div class="top-wrapper">
       <div :class="['user-wrapper', collapsed && 'remove-padding']">
         <div class="avatar-wrapper">
-          <a-dropdown show-arrow :popup-translate="collapsed ? [35, 5] : [0, 10]">
+          <a-dropdown show-arrow :popup-translate="collapsed ? [32, 5] : [0, 10]">
             <a-avatar :size="collapsed ? 32 : 64"> <icon-gitlab /></a-avatar>
             <template #content>
               <a-doption v-for="item in doptionOptions" :key="item.value" @click="item.click">
@@ -116,7 +125,7 @@ const createDoptionOptions = [
             </template>
           </a-dropdown>
         </div>
-        <a-dropdown show-arrow :popup-translate="collapsed ? [35, 5] : [0, 10]">
+        <a-dropdown show-arrow :popup-translate="collapsed ? [42, 5] : [0, 10]">
           <div class="create">
             <icon-plus class="plus-icon" />
             <span v-if="!collapsed" class="create-text">新建</span>
@@ -139,7 +148,7 @@ const createDoptionOptions = [
           @collapse="onCollapse"
         >
           <a-menu-item key="0">
-            <template #icon><icon-apps></icon-apps> </template>
+            <template #icon><icon-apps /></template>
             最新
           </a-menu-item>
           <a-sub-menu key="1">
@@ -150,6 +159,10 @@ const createDoptionOptions = [
             <a-menu-item key="1_2">文件夹-3</a-menu-item>
           </a-sub-menu>
           <a-menu-item key="2">
+            <template #icon><icon-star /></template>
+            加星
+          </a-menu-item>
+          <a-menu-item key="3">
             <template #icon><icon-delete></icon-delete></template>
             回收站
           </a-menu-item>
@@ -158,6 +171,18 @@ const createDoptionOptions = [
     </div>
     <UserInfoModal ref="userInfoRef" title="个人信息" :modal-visible="modalVisible" />
     <UploadModal ref="uploadRef" :modal-visible="uploadModalVisible" />
+    <DrawerComponent v-model:visible="messageDrawerVisible" :footer="false">
+      <template #header>
+        <div class="drawer-header">
+          <span class="header-title">消息</span>
+          <div class="read-close">
+            <span>全部已读</span>
+            <icon-close @click="toggleDrawerVisible" />
+          </div>
+        </div>
+      </template>
+      <VirtualScrollList />
+    </DrawerComponent>
   </div>
 </template>
 
