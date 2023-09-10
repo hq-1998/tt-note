@@ -2,13 +2,17 @@
 import { onMounted, reactive, ref, computed } from 'vue'
 import Sider from '@renderer/layout/sider/index.vue'
 import Content from '@renderer/layout/content/index.vue'
-import { useNoteStore, useUserStore } from './store'
+import { useNoteStore, useUserStore, useAreaStore } from './store'
 import { v4 } from 'uuid'
 import { onBeforeMount } from 'vue'
-import { globalStorage } from './utils'
+import { globalStorage, generateNote, shallowMergeObject } from './utils'
 import { globalWebSocket, Events } from '@renderer/websocket'
-import { user } from './api'
+import { user, area } from './api'
+import { ENoteType, IBaseNote } from './store/note'
+import { IUserInfo } from './api/user/data'
+import { IProvince } from './api/area/data'
 
+const areaStore = useAreaStore()
 const noteStore = useNoteStore()
 const userStore = useUserStore()
 
@@ -16,10 +20,13 @@ const collapse = ref(true)
 const currentIndex = ref(0)
 
 const state = reactive({
-  id: '',
-  title: '',
-  content: '',
-  timeStamp: 0
+  data: {
+    id: '',
+    title: '',
+    content: '',
+    suffix: '',
+    timeStamp: 0
+  }
 })
 
 onBeforeMount(() => {
@@ -27,11 +34,15 @@ onBeforeMount(() => {
   const userInfo = globalStorage.get('userInfo')
   if (token && userInfo) {
     userStore.setToken(token)
-    userStore.setUserInfo(userInfo)
     globalWebSocket.connect(userInfo.id)
-    user.getUserInfo(userInfo.id).then((res) => {
-      if (res.code === 0) {
-        userStore.setUserInfo(res.data)
+    const promises = [user.getUserInfo(userInfo.id), area.getProvince()]
+    Promise.all(promises).then((res) => {
+      const [userInfo, province] = res
+      if (userInfo.code === 0) {
+        userStore.setUserInfo(userInfo.data as IUserInfo)
+      }
+      if (province.code === 0) {
+        areaStore.setProvince(province.data as IProvince[])
       }
     })
   }
@@ -39,27 +50,14 @@ onBeforeMount(() => {
 
 onMounted(async () => {
   noteStore.setActive(currentIndex.value)
-  const _notes = await window.electron.ipcRenderer.invoke('getNotes')
-  const notes = _notes.map((item) => {
-    const [id, title, timeStampAndExt] = item.split('__')
-    const [timeStamp] = timeStampAndExt.split('.')
-    return {
-      id,
-      title,
-      content: '',
-      timeStamp
-    }
-  })
+  const notes = await generateNote()
   noteStore.setNotes(notes)
-  const note = notes[currentIndex.value]
+  const note = notes[ENoteType.MARKDOWN][currentIndex.value]
   if (note) {
-    state.id = note.id
-    state.title = note.title
-    state.timeStamp = note.timeStamp
+    state.data = shallowMergeObject(state.data, note) as IBaseNote
   }
 
-  const unsubscribe = globalWebSocket.subscribe(Events.OTHER, (data) => {
-    console.log(data, '==data==')
+  const unsubscribe = globalWebSocket.subscribe(Events.OTHER, () => {
     window.electron.ipcRenderer.invoke('sendNotification', {
       title: '欢迎光临',
       body: '这是您首次登录小腾笔记，请享受您的笔记之旅'
@@ -74,6 +72,8 @@ const handleAdd = async () => {
     title: '',
     content: '',
     timeStamp: Date.now(),
+    type: ENoteType.MARKDOWN,
+    suffix: `.${ENoteType.MARKDOWN}`,
     isClickRename: false
   }
   await window.electron.ipcRenderer.invoke('save', payload)
@@ -96,7 +96,7 @@ const handleCollapse = (e) => {
         <Sider @handle-collapse="handleCollapse" />
       </a-layout-sider>
       <a-layout-content>
-        <Empty v-if="noteStore.notes.length === 0">
+        <Empty v-if="(noteStore.notes[noteStore.activeType] || []).length === 0">
           <template #extra>
             <a-button type="outline">
               <template #icon>

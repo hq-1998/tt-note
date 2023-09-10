@@ -16,7 +16,6 @@ const handleDownload = async (record) => {
   const filePath = await window.electron.ipcRenderer.invoke('getPath', 'appData')
   const downloadPath = window.jsBridge.node.join(filePath, 'Downloader')
   path.value = downloadPath
-  console.log(downloadPath, '===')
 
   // store.subscribe(downloadPath, (value) => {
   //   console.log(value)

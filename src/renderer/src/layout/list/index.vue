@@ -11,12 +11,14 @@ import dayjs from 'dayjs'
 import styles from './style.module.less'
 import { Message } from '@arco-design/web-vue'
 import document from '@renderer/assets/images/icons/document.png'
+import { ENoteType } from '@renderer/store/note'
 
 const store = useNoteStore()
 const oldTitle = ref('')
+const emits = defineEmits(['handelClickListItem'])
 const handleRename = (index: number, title: string) => {
   oldTitle.value = title
-  store.notes.forEach((note) => {
+  store.notes[store.activeType]!.forEach((note) => {
     note.isClickRename = false
   })
   store.notes[index].isClickRename = true
@@ -32,7 +34,8 @@ const handleBlur = async (e, index: number) => {
   const value = e.target.value
   if (Object.is(value, oldTitle.value)) return
   store.updateNoteById(item.id, {
-    title: value
+    title: value,
+    type: ENoteType.MARKDOWN
   })
   await window.electron.ipcRenderer.invoke('rename', {
     id: item.id,
@@ -40,6 +43,14 @@ const handleBlur = async (e, index: number) => {
     timeStamp: Date.now()
   })
   Message.success('重命名成功')
+}
+
+const handelClickListItem = (item, index) => {
+  store.setActive(index)
+  emits('handelClickListItem', {
+    ...item,
+    index
+  })
 }
 
 const Render = () => {
@@ -65,9 +76,13 @@ const Render = () => {
       <div class={styles.list}>
         <a-list bordered={false} hoverable>
           <div class={styles['list-wrapper']}>
-            {store.notes.map((item, index) => {
+            {(store.notes[store.activeType] || []).map((item, index) => {
               return (
-                <div key={item.id} class={styles['list-wrapper-item']}>
+                <div
+                  onClick={() => handelClickListItem(item, index)}
+                  key={item.id}
+                  class={styles['list-wrapper-item']}
+                >
                   <div class={styles['list-top-wrapper']}>
                     <div class={styles['list-title-wrapper']}>
                       <img class={styles['title-icon']} src={document} />

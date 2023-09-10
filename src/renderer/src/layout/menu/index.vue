@@ -6,12 +6,15 @@ import DrawerComponent from '@renderer/components/drawer/index.vue'
 import VirtualScrollList from '@renderer/components/virtual-scroll-list/index.vue'
 import document from '@renderer/assets/images/icons/document.png'
 import directory from '@renderer/assets/images/icons/directory.png'
-import { v4 } from 'uuid'
-import { useNoteStore } from '@renderer/store'
+import { useNoteStore, useUserStore } from '@renderer/store'
 import { Message } from '@arco-design/web-vue'
+import { ENoteType } from '@renderer/store/note'
+import PAYLOAD from './constants'
+import { user } from '@renderer/api'
 
 const emits = defineEmits(['handleCollapse'])
 const collapsed = ref(true)
+const visible = ref(false)
 
 const onCollapse = (val) => {
   collapsed.value = val
@@ -63,7 +66,15 @@ const doptionOptions = [
     label: '个人信息',
     value: 'message',
     icon: <icon-user />,
-    click: toggleModalVisible
+    click: () => {
+      user.getUserInfo(userStore.userInfo.id).then((res) => {
+        if (res.code === 0) {
+          userStore.setUserInfo(res.data)
+          console.log(res.data, '====res.data===')
+          toggleModalVisible()
+        }
+      })
+    }
   },
   {
     label: '检测更新',
@@ -83,6 +94,7 @@ const doptionOptions = [
 ]
 
 const noteStore = useNoteStore()
+const userStore = useUserStore()
 
 const createDoptionOptions = [
   {
@@ -90,13 +102,7 @@ const createDoptionOptions = [
     value: 'notify',
     icon: <img width={14} height={14} src={document} />,
     click: async () => {
-      const payload = {
-        id: v4(),
-        title: '',
-        content: '',
-        timeStamp: Date.now(),
-        isClickRename: false
-      }
+      const payload = PAYLOAD[ENoteType.MARKDOWN]
       await window.electron.ipcRenderer.invoke('save', payload)
       noteStore.addNote(payload)
     }
@@ -105,7 +111,11 @@ const createDoptionOptions = [
     label: '新建文件夹',
     value: 'message',
     icon: <img width={14} height={14} src={directory} />,
-    click: () => {}
+    click: async () => {
+      const payload = PAYLOAD[ENoteType.DIR]
+      await window.electron.ipcRenderer.invoke('createDir', payload)
+      noteStore.addNoteDir(payload)
+    }
   }
 ]
 </script>
@@ -115,8 +125,21 @@ const createDoptionOptions = [
     <div class="top-wrapper">
       <div :class="['user-wrapper', collapsed && 'remove-padding']">
         <div class="avatar-wrapper">
-          <a-dropdown show-arrow :popup-translate="collapsed ? [32, 5] : [0, 10]">
-            <a-avatar :size="collapsed ? 32 : 64"> <icon-gitlab /></a-avatar>
+          <a-dropdown trigger="hover" show-arrow :popup-translate="collapsed ? [32, 5] : [0, 10]">
+            <!-- <a-image-preview-group
+              v-model:visible="visible"
+              :current="0"
+              class="preview"
+              :src-list="userStore.userInfo.avatar ? [userStore.userInfo.avatar] : []"
+            > -->
+            <a-avatar
+              :size="collapsed ? 32 : 64"
+              :image-url="userStore.userInfo?.avatar || ''"
+              @click="visible = true"
+              ><icon-gitlab
+            /></a-avatar>
+            <!-- </a-image-preview-group> -->
+
             <template #content>
               <a-doption v-for="item in doptionOptions" :key="item.value" @click="item.click">
                 {{ item.label }}

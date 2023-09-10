@@ -1,9 +1,3 @@
-const data = {
-  Beijing: ['Haidian', 'Chaoyang', 'Changping'],
-  Sichuan: ['Chengdu', 'Mianyang', 'Aba'],
-  Guangdong: ['Guangzhou', 'Shenzhen', 'Shantou']
-}
-
 const genderOptions = [
   {
     label: '男',
@@ -15,8 +9,8 @@ const genderOptions = [
   },
   {
     label: '保密',
-    value: 3
+    value: 0
   }
 ]
 
-export { data, genderOptions }
+export { genderOptions }

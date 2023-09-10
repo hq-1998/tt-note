@@ -52,6 +52,10 @@ const user = {
   /** 获取个人信息 */
   getUserInfo: (userId: number) => {
     return http.get<IUserInfo>(`/users/getUserInfo?userId=${userId}`)
+  },
+  /** 更新个人信息 */
+  updateUserInfo: (params: IUserInfo) => {
+    return http.post<IUserInfo, number>(`/users/updateUserInfo`, params)
   }
 }
 

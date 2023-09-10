@@ -7,7 +7,6 @@ const fns = {
   /** 打开新窗口 */
   openSingleWindow(_event, name: string): void {
     const maybeExistWindow = windows.get(name)
-    console.log(maybeExistWindow, maybeExistWindow?.isDestroyed(), 'maybeExistWindow')
     if (maybeExistWindow && !maybeExistWindow?.isDestroyed()) {
       maybeExistWindow.show()
     } else {

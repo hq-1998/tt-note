@@ -13,7 +13,7 @@
 import Menu from '../menu/index.vue'
 import List from '../list/index.vue'
 
-const emits = defineEmits(['handleCollapse'])
+const emits = defineEmits(['handleCollapse', 'handelClickListItem'])
 const handleCollapse = (e) => {
   emits('handleCollapse', e)
 }

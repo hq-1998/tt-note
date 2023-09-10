@@ -5,7 +5,7 @@ const useUserStore = defineStore('user', {
   state: () => {
     return {
       token: '',
-      userInfo: {}
+      userInfo: {} as IUserInfo
     }
   },
   actions: {

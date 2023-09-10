@@ -21,7 +21,7 @@ import { useNoteStore } from '@renderer/store'
 
 const store = useNoteStore()
 
-const currentItem = computed(() => store.getNoteByIndex(store.active))
+const currentItem = computed(() => store.getNoteByIndex(store.active, store.activeType))
 
 const handleUpdateTitle = (v) => {
   store.updateNoteById(currentItem.value.id, { title: v })
@@ -44,7 +44,7 @@ const handleSave = async () => {
 }
 
 watch(
-  () => currentItem,
+  () => currentItem.value.id,
   async () => {
     const content = await window.electron.ipcRenderer.invoke(
       'getNoteById',

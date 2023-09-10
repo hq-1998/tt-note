@@ -16,6 +16,17 @@ export default defineConfig(() => {
       plugins: [externalizeDepsPlugin()]
     },
     renderer: {
+      // https://api.hq-cll.vip/users/login'
+      server: {
+        cors: true,
+        proxy: {
+          '/api': {
+            target: 'https://api.hq-cll.vip',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/api/, '')
+          }
+        }
+      },
       resolve: {
         alias: {
           '@renderer': resolve('src/renderer/src'),
@@ -32,7 +43,11 @@ export default defineConfig(() => {
         }
       },
       plugins: [
-        vue(),
+        vue({
+          script: {
+            defineModel: true
+          }
+        }),
         vueJsx(),
         AutoImport({
           resolvers: [ArcoResolver()]

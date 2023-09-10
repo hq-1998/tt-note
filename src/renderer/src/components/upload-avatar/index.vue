@@ -1,39 +1,44 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { Message } from '@arco-design/web-vue'
 import defaultAvatar from '@renderer/assets/images/common/default-avatar.png'
+import BaseUpload from '@renderer/components/base-upload/index.vue'
 
-const uploadRef = ref()
-const files = ref([])
+defineOptions({
+  name: 'UploadAvatar'
+})
 
-// const submit = (e) => {
-//   e.stopPropagation()
-//   uploadRef.value.submit()
-// }
+const modelValue = defineModel('modelValue')
 
-const onChange = (fileList) => {
-  files.value = fileList
-  console.log(fileList)
+const handleSuccess = (data: string) => {
+  if (data) {
+    modelValue.value = data
+    Message.success('上传成功')
+  }
 }
 </script>
 
 <template>
-  <a-upload ref="uploadRef" action="/" :multiple="false" @change="onChange">
-    <template #upload-button>
+  <BaseUpload @success="handleSuccess">
+    <template #uploadButton>
       <a-space align="center">
-        <img class="avatar" :src="defaultAvatar" />
+        <a-image
+          width="55"
+          height="55"
+          class="avatar"
+          :src="modelValue || defaultAvatar"
+          @click.stop
+        />
         <div class="upload-wrapper">
           <div class="upload-new-avatar">上传新头像</div>
           <div class="upload-support">支持JPG、PNG、GIF格式，小于2MB</div>
         </div>
       </a-space>
     </template>
-  </a-upload>
+  </BaseUpload>
 </template>
 
 <style lang="less" scoped>
 .avatar {
-  width: 55px;
-  height: 55px;
   border-radius: 50%;
   cursor: pointer;
   position: relative;

@@ -3,6 +3,16 @@ import { app } from 'electron'
 import { ObjectEncodingOptions, ensureDir, readFileSync } from 'fs-extra'
 import path from 'node:path'
 
+enum ENoteType {
+  FILE = 'file',
+  DIR = 'dir'
+}
+
+type INotes = {
+  [ENoteType.FILE]: string[]
+  [ENoteType.DIR]: string[]
+}
+
 const baseDir = app.getPath('userData') + '/notes'
 const getIds = async () => {
   const dirs = await fse.readdir(baseDir)
@@ -14,8 +24,8 @@ const getAllDirs = async () => {
   return dirs
 }
 
-const getFileName = (id: string, title: string, timeStamp: number) => {
-  const filename = path.join(baseDir, id + '__' + title + '__' + timeStamp + '.md')
+const getFileName = (id: string, title: string, timeStamp: number, suffix = '.md') => {
+  const filename = path.join(baseDir, `${id}__${title}__${timeStamp}${suffix}`)
   return filename
 }
 
@@ -64,15 +74,27 @@ const fns = {
     const dirs = await fse.readdir(path, options)
     return dirs
   },
-  async getNotes() {
+  async getNotes(): Promise<INotes> {
     await ensureDir(baseDir)
-    const files = await fse.readdir(baseDir)
-    return files
+    const all: string[] = await fse.readdir(baseDir)
+    const files: string[] = []
+    const dirs: string[] = []
+    for (const item of all) {
+      const stat = await fse.stat(path.join(baseDir, item))
+      if (stat.isDirectory()) {
+        dirs.push(item)
+      } else {
+        files.push(item)
+      }
+    }
+    return {
+      [ENoteType.FILE]: files,
+      [ENoteType.DIR]: dirs
+    }
   },
   async getNoteById(_event, { id, title, timeStamp }) {
     const filename = getFileName(id, title, timeStamp)
     const content = readFileSync(filename, 'utf-8')
-    console.log(content, filename, '+++content+++')
     return content
   },
   /** 移除文件 回收站里点击移除 */
@@ -89,8 +111,9 @@ const fns = {
     await fse.rmdir(path.join(baseDir, dirName), options)
   },
   /** 新建文件夹 */
-  async createDir(_event, { dirName }) {
-    await fse.mkdir(path.join(baseDir, dirName))
+  async createDir(_event, { id, title, timeStamp }) {
+    const dirName = getFileName(id, title, timeStamp, '')
+    await fse.mkdir(dirName)
   }
 }
 

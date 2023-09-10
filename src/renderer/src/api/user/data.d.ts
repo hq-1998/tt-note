@@ -23,11 +23,29 @@ export interface IResetPassword {
 
 export type IUser = IUserPwd | IUserCode
 
+export enum EGender {
+  MAN = 1,
+  WOMAN = 2,
+  UNKNOWN = 3
+}
+
 export interface IUserInfo {
   /** 用户id */
   id: number
   /** 用户账号 */
-  account: string
+  account?: string
+  /** 用户昵称 */
+  nickName?: string
+  /** 用户头像 */
+  avatar?: string
+  /** 用户性别 */
+  gender: EGender
+  /** 省 */
+  province: number
+  /** 市 */
+  city: number
+  /** 签名 */
+  signature: string
 }
 
 export interface ILoginRes {

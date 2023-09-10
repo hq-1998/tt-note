@@ -41,7 +41,6 @@ export default defineComponent({
   },
   emits: ['update:visible'],
   setup(props: IDrawer, context) {
-    console.log(context.attrs)
     const handleToggleVisible = () => {
       context.emit('update:visible', !props.visible)
     }

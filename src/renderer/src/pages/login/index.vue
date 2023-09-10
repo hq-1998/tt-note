@@ -114,12 +114,15 @@ const handleLogin = (values) => {
     .login(payload)
     .then((res) => {
       if (res.code === 0) {
-        const { data } = res
-        globalStorage.set('token', data.token)
-        globalStorage.set('userInfo', data.userInfo)
-        window.electron.ipcRenderer.invoke('closeWindow')
-        window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
-        window.electron.ipcRenderer.invoke('setTrayUrl', { url: 'index' })
+        Message.success('登录成功')
+        setTimeout(() => {
+          const { data } = res
+          globalStorage.set('token', data.token)
+          globalStorage.set('userInfo', data.userInfo)
+          window.electron.ipcRenderer.invoke('closeWindow')
+          window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
+          window.electron.ipcRenderer.invoke('setTrayUrl', { url: 'index' })
+        }, 300)
       }
     })
     .finally(() => {
