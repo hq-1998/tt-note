@@ -1,39 +1,9 @@
 stages:
-  - install
-  - prettier
-  - build
-  - deploy
+  - echo
 
-cache:
-  paths:
-    - node_modules/
-    - dist
-
-install-job:
+echo-job:
   tags:
     - xt
-  stage: install
+  stage: echo
   script:
-    - npm install
-
-prettier-job:
-  tags:
-    - xt
-  stage: prettier
-  script:
-    - npm run prettier
-
-build-job:
-  tags:
-    - xt
-  stage: build
-  script:
-    - npm run build
-
-deploy-job:
-  tags:
-    - xt
-  stage: deploy
-  script:
-    - sshpass -p $DEPLOY_PASSWORD scp -r ./dist $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
-    - ssh $DEPLOY_USER@$DEPLOY_HOST "base /sh/upload.sh"
+    - echo "Hello, world!"
