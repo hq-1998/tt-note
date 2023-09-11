@@ -1,5 +1,6 @@
 stages:
   - echo
+  - build
 
 echo-job:
   tags:
@@ -11,3 +12,15 @@ echo-job:
     - test
     - pre
     - release
+
+build-job:
+  tags:
+    - xt
+  stage: build
+  script:
+    - echo "Building version ${HOST}..."
+  only:
+    - test
+    - pre
+    - release
+```
