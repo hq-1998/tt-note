@@ -7,3 +7,7 @@ echo-job:
   stage: echo
   script:
     - echo "Hello, world213!"
+  only:
+    - test
+    - pre
+    - release
