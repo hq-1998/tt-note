@@ -64,7 +64,7 @@ const uploadHeaders = computed(() => {
 
 const handleData = (fileItem: FileItem) => {
   return {
-    fileType: fileItem.file.name.split('.')[1],
+    fileType: fileItem.file!.name.split('.')[1],
     userId: store.userInfo.id
   }
 }
@@ -72,7 +72,6 @@ const handleData = (fileItem: FileItem) => {
 
 <template>
   <a-upload
-    v-if="!url"
     ref="uploadRef"
     :accept="accept"
     :action="action"
