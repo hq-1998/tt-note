@@ -13,6 +13,7 @@ import PAYLOAD from './constants'
 import { user } from '@renderer/api'
 import { useRouter } from 'vue-router'
 import { menuKey } from '@renderer/router/menuKey'
+import BaseMore, { type IOption } from '@renderer/components/base-more'
 
 const emits = defineEmits(['handleCollapse'])
 const collapsed = ref(true)
@@ -98,7 +99,7 @@ const doptionOptions = [
 const noteStore = useNoteStore()
 const userStore = useUserStore()
 
-const createDoptionOptions = [
+const createDoptionOptions: IOption[] = [
   {
     label: 'MarkDown',
     value: 'notify',
@@ -126,7 +127,6 @@ const noteDirs = computed(() => {
 })
 
 const onMenuClick = (key: string) => {
-  console.log('onMenuClick', key)
   router.push(`/${key}`)
 }
 </script>
@@ -189,8 +189,18 @@ const onMenuClick = (key: string) => {
           <a-sub-menu :key="menuKey.FOLDERS" selectable>
             <template #icon><icon-folder /></template>
             <template #title>我的文件夹</template>
-            <a-menu-item v-for="item in noteDirs" :key="`${menuKey.FOLDERS}/${item.id}`">
-              {{ item.title || '新建文件夹' }}
+            <a-menu-item
+              v-for="item in noteDirs"
+              :key="`${menuKey.FOLDERS}/${item.id}`"
+              class="folder"
+            >
+              <span>{{ item.title || '新建文件夹' }}</span>
+              <BaseMore
+                class="icon-more"
+                position="bl"
+                :options="createDoptionOptions"
+                @click.stop
+              />
             </a-menu-item>
           </a-sub-menu>
           <a-menu-item :key="menuKey.STAR">

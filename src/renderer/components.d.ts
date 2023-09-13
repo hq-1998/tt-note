@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     BaseForm: typeof import('./src/components/base-form/index.vue')['default']
     BaseModal: typeof import('./src/components/base-modal/index.vue')['default']
+    BaseMore: typeof import('./src/components/base-more/index.vue')['default']
     BaseUpload: typeof import('./src/components/base-upload/index.vue')['default']
     DownloadTable: typeof import('./src/components/download-table/index.vue')['default']
     Drawer: typeof import('./src/components/drawer/index.vue')['default']

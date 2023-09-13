@@ -9,7 +9,8 @@
     "src/renderer/src/hooks/**/*",
     "src/renderer/src/request/**/*",
     "src/renderer/src/api/**/*",
-    "src/renderer/src/component/**/*",
+    "src/renderer/src/component/**/*.tsx",
+    "src/renderer/src/component/**/*.vue",
     "src/renderer/src/utils/**/*",
     "src/renderer/src/websocket/**/*"
   ],
@@ -23,6 +24,7 @@
       "@renderer/*": [
         "src/renderer/src/*"
       ]
-    }
+    },
+    "allowImportingTsExtensions": true
   }
 }

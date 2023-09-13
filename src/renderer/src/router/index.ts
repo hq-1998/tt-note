@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import { menuKey } from './menuKey'
 
 const generateMenu = (name: string) => {
@@ -43,7 +43,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 })
 
