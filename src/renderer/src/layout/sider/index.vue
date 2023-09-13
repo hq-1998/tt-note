@@ -4,14 +4,13 @@
       <Menu @handle-collapse="handleCollapse" />
     </div>
     <div class="right-wrapper">
-      <List />
+      <slot name="content" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import Menu from '../menu/index.vue'
-import List from '../list/index.vue'
 
 const emits = defineEmits(['handleCollapse', 'handelClickListItem'])
 const handleCollapse = (e) => {

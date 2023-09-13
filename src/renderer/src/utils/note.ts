@@ -5,6 +5,7 @@
 /** { md: [], ...: [], dir: [] } */
 const generateNote = async () => {
   const _notes = await window.electron.ipcRenderer.invoke('getNotes')
+  console.log(_notes, '===notes===')
   const notes = Object.entries(_notes).reduce((pre, cur) => {
     const [key, value] = cur
     if (!pre[key]) pre[key] = []

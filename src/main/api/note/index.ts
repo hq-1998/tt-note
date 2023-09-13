@@ -113,6 +113,7 @@ const fns = {
   /** 新建文件夹 */
   async createDir(_event, { id, title, timeStamp }) {
     const dirName = getFileName(id, title, timeStamp, '')
+    console.log(dirName, 'dirName')
     await fse.mkdir(dirName)
   }
 }

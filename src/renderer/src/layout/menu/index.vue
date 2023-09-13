@@ -11,10 +11,13 @@ import { Message } from '@arco-design/web-vue'
 import { ENoteType } from '@renderer/store/note'
 import PAYLOAD from './constants'
 import { user } from '@renderer/api'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 const emits = defineEmits(['handleCollapse'])
 const collapsed = ref(true)
 const visible = ref(false)
+const router = useRouter()
 
 const onCollapse = (val) => {
   collapsed.value = val
@@ -70,7 +73,6 @@ const doptionOptions = [
       user.getUserInfo(userStore.userInfo.id).then((res) => {
         if (res.code === 0) {
           userStore.setUserInfo(res.data)
-          console.log(res.data, '====res.data===')
           toggleModalVisible()
         }
       })
@@ -118,6 +120,15 @@ const createDoptionOptions = [
     }
   }
 ]
+
+const noteDirs = computed(() => {
+  return noteStore.notes?.dir || []
+})
+
+const onMenuClick = (key: string) => {
+  console.log('onMenuClick', key)
+  router.push(`/${key}`)
+}
 </script>
 
 <template>
@@ -167,25 +178,26 @@ const createDoptionOptions = [
           v-model:collapsed="collapsed"
           show-collapse-button
           :style="{ width: '200px', height: '100%' }"
-          :default-open-keys="['0']"
+          :default-open-keys="['new']"
+          @menu-item-click="onMenuClick"
           @collapse="onCollapse"
         >
-          <a-menu-item key="0">
+          <a-menu-item key="new">
             <template #icon><icon-apps /></template>
             最新
           </a-menu-item>
-          <a-sub-menu key="1">
-            <template #icon><icon-file /></template>
+          <a-sub-menu key="folders" selectable>
+            <template #icon><icon-folder /></template>
             <template #title>我的文件夹</template>
-            <a-menu-item key="1_0">文件夹-1</a-menu-item>
-            <a-menu-item key="1_1">文件夹-2</a-menu-item>
-            <a-menu-item key="1_2">文件夹-3</a-menu-item>
+            <a-menu-item v-for="item in noteDirs" :key="'folders/' + item.id">
+              {{ item.title || '新建文件夹' }}
+            </a-menu-item>
           </a-sub-menu>
-          <a-menu-item key="2">
+          <a-menu-item key="star">
             <template #icon><icon-star /></template>
             加星
           </a-menu-item>
-          <a-menu-item key="3">
+          <a-menu-item key="trash">
             <template #icon><icon-delete></icon-delete></template>
             回收站
           </a-menu-item>

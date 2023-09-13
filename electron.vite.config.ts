@@ -30,7 +30,8 @@ export default defineConfig(() => {
       resolve: {
         alias: {
           '@renderer': resolve('src/renderer/src'),
-          '@src': resolve('src')
+          '@src': resolve('src'),
+          '@views': resolve('src/renderer/src/views')
         }
       },
       build: {
