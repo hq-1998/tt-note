@@ -1,5 +1,5 @@
 <script lang="tsx" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import UserInfoModal from '@renderer/components/user-info-modal/index.vue'
 import UploadModal from '@renderer/components/upload-modal/index.vue'
 import DrawerComponent from '@renderer/components/drawer/index.vue'
@@ -11,8 +11,8 @@ import { Message } from '@arco-design/web-vue'
 import { ENoteType } from '@renderer/store/note'
 import PAYLOAD from './constants'
 import { user } from '@renderer/api'
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { menuKey } from '@renderer/router/menuKey'
 
 const emits = defineEmits(['handleCollapse'])
 const collapsed = ref(true)
@@ -182,22 +182,22 @@ const onMenuClick = (key: string) => {
           @menu-item-click="onMenuClick"
           @collapse="onCollapse"
         >
-          <a-menu-item key="new">
+          <a-menu-item :key="menuKey.NEW">
             <template #icon><icon-apps /></template>
             最新
           </a-menu-item>
-          <a-sub-menu key="folders" selectable>
+          <a-sub-menu :key="menuKey.FOLDERS" selectable>
             <template #icon><icon-folder /></template>
             <template #title>我的文件夹</template>
-            <a-menu-item v-for="item in noteDirs" :key="'folders/' + item.id">
+            <a-menu-item v-for="item in noteDirs" :key="`${menuKey.FOLDERS}/${item.id}`">
               {{ item.title || '新建文件夹' }}
             </a-menu-item>
           </a-sub-menu>
-          <a-menu-item key="star">
+          <a-menu-item :key="menuKey.STAR">
             <template #icon><icon-star /></template>
             加星
           </a-menu-item>
-          <a-menu-item key="trash">
+          <a-menu-item :key="menuKey.TRASH">
             <template #icon><icon-delete></icon-delete></template>
             回收站
           </a-menu-item>

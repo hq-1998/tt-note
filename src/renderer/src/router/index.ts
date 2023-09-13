@@ -1,15 +1,22 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { menuKey } from './menuKey'
+
+const generateMenu = (name: string) => {
+  return {
+    path: `/${name}`,
+    name
+  }
+}
 
 const routes: Readonly<RouteRecordRaw[]> = [
+  /** 最新 */
   {
-    path: '/new',
-    name: 'new',
+    ...generateMenu(menuKey.NEW),
     component: () => import('@renderer/views/new/index.vue')
   },
   /** 我的文件夹 */
   {
-    path: '/folders',
-    name: 'folders',
+    ...generateMenu(menuKey.FOLDERS),
     component: () => import('@renderer/views/folders/index.vue'),
     children: [
       {
@@ -20,13 +27,12 @@ const routes: Readonly<RouteRecordRaw[]> = [
   },
   // /** 加星 */
   {
-    path: '/star',
-    name: 'star',
+    ...generateMenu(menuKey.STAR),
     component: () => import('@renderer/views/star/index.vue')
   },
   // /** 回收站 */
   {
-    path: '/trash',
+    ...generateMenu(menuKey.TRASH),
     component: () => import('@renderer/views/trash/index.vue')
   },
   /** 最新 */
@@ -43,8 +49,8 @@ const router = createRouter({
 
 router.isReady().then(() => {
   const path = window.location.pathname
-  if (path === '/index.html' || path === '/') {
-    router.replace('/')
+  if (path === '/index.html' || path === menuKey.default) {
+    router.replace(menuKey.default)
   }
 })
 
