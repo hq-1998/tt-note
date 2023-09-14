@@ -137,20 +137,12 @@ const onMenuClick = (key: string) => {
       <div :class="['user-wrapper', collapsed && 'remove-padding']">
         <div class="avatar-wrapper">
           <a-dropdown trigger="hover" show-arrow :popup-translate="collapsed ? [32, 5] : [0, 10]">
-            <!-- <a-image-preview-group
-              v-model:visible="visible"
-              :current="0"
-              class="preview"
-              :src-list="userStore.userInfo.avatar ? [userStore.userInfo.avatar] : []"
-            > -->
             <a-avatar
               :size="collapsed ? 32 : 64"
               :image-url="userStore.userInfo?.avatar || ''"
               @click="visible = true"
               ><icon-gitlab
             /></a-avatar>
-            <!-- </a-image-preview-group> -->
-
             <template #content>
               <a-doption v-for="item in doptionOptions" :key="item.value" @click="item.click">
                 {{ item.label }}

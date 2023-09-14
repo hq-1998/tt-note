@@ -11,6 +11,7 @@ import { user, area } from '../api'
 import { ENoteType, IBaseNote } from '../store/note'
 import { IUserInfo } from '../api/user/data'
 import { IProvince } from '../api/area/data'
+import BaseEmpty from '@renderer/components/base-empty'
 
 const areaStore = useAreaStore()
 const noteStore = useNoteStore()
@@ -52,7 +53,7 @@ onMounted(async () => {
   noteStore.setActive(currentIndex.value)
   const notes = await generateNote()
   noteStore.setNotes(notes)
-  const note = notes[ENoteType.MARKDOWN][currentIndex.value]
+  const note = notes[ENoteType.MARKDOWN]?.[currentIndex.value]
   if (note) {
     state.data = shallowMergeObject(state.data, note) as IBaseNote
   }
@@ -100,9 +101,9 @@ const handleCollapse = (e) => {
         </Sider>
       </a-layout-sider>
       <a-layout-content>
-        <Empty v-if="(noteStore.notes[noteStore.activeType] || []).length === 0">
+        <BaseEmpty v-if="(noteStore.notes[noteStore.activeType] || []).length === 0">
           <template #extra>
-            <a-button type="outline">
+            <a-button size="medium" class="add-note" type="primary">
               <template #icon>
                 <icon-plus />
               </template>
@@ -110,7 +111,7 @@ const handleCollapse = (e) => {
                 <div @click="handleAdd">新建笔记</div>
               </template>
             </a-button>
-          </template></Empty
+          </template></BaseEmpty
         >
         <Content v-else />
       </a-layout-content>
@@ -121,5 +122,9 @@ const handleCollapse = (e) => {
 <style lang="less">
 .arco-drawer-body {
   padding: 0px;
+}
+
+.add-note {
+  margin-top: 10px;
 }
 </style>

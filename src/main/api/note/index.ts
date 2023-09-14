@@ -76,6 +76,7 @@ const fns = {
   },
   async getNotes(): Promise<INotes> {
     await ensureDir(baseDir)
+    console.log(app.getPath('userData'), "app.getPath('userData')")
     const all: string[] = await fse.readdir(baseDir)
     const files: string[] = []
     const dirs: string[] = []
@@ -87,6 +88,7 @@ const fns = {
         files.push(item)
       }
     }
+    console.log(files, '---files---')
     return {
       [ENoteType.FILE]: files,
       [ENoteType.DIR]: dirs

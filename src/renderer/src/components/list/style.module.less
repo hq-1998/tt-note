@@ -1,4 +1,7 @@
 .wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   .search-wrapper {
     padding: 15px;
     display: flex;
@@ -13,9 +16,14 @@
   }
 
   .list {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     .list-wrapper {
       display: flex;
       flex-direction: column;
+      flex: 1;
 
       .list-wrapper-item {
         padding: 12px 20px;

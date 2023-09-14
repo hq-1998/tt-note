@@ -12,6 +12,7 @@ import styles from './style.module.less'
 import { Message } from '@arco-design/web-vue'
 import document from '@renderer/assets/images/icons/document.png'
 import { ENoteType } from '@renderer/store/note'
+import BaseEmpty from '@renderer/components/base-empty'
 
 const store = useNoteStore()
 const oldTitle = ref('')
@@ -68,6 +69,45 @@ const Render = () => {
     }
   }
 
+  const ListRender = () => {
+    return (
+      <div>
+        {(store.notes[store.activeType] || []).map((item, index) => {
+          return (
+            <div
+              onClick={() => handelClickListItem(item, index)}
+              key={item.id}
+              class={styles['list-wrapper-item']}
+            >
+              <div class={styles['list-top-wrapper']}>
+                <div class={styles['list-title-wrapper']}>
+                  <img class={styles['title-icon']} src={document} />
+                  {item.isClickRename ? (
+                    <Rename onBlur={(e) => handleBlur(e, index)} v-model={item.title} />
+                  ) : (
+                    <Title value={item.title} />
+                  )}
+                </div>
+
+                <a-popover
+                  content-style={{ padding: '0' }}
+                  arrow-style={{ visibility: 'hidden' }}
+                  position="rt"
+                  v-slots={{
+                    content: ContentSlots.content(index, item.title)
+                  }}
+                >
+                  <icon-more class={styles['icon-more']} />
+                </a-popover>
+              </div>
+              <div class={styles['list-bottom-wrapper']}>{dayjs().format('YYYY-MM-DD')}</div>
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
   return (
     <div class={styles['wrapper']}>
       <div class={styles['search-wrapper']}>
@@ -76,38 +116,7 @@ const Render = () => {
       <div class={styles.list}>
         <a-list bordered={false} hoverable>
           <div class={styles['list-wrapper']}>
-            {(store.notes[store.activeType] || []).map((item, index) => {
-              return (
-                <div
-                  onClick={() => handelClickListItem(item, index)}
-                  key={item.id}
-                  class={styles['list-wrapper-item']}
-                >
-                  <div class={styles['list-top-wrapper']}>
-                    <div class={styles['list-title-wrapper']}>
-                      <img class={styles['title-icon']} src={document} />
-                      {item.isClickRename ? (
-                        <Rename onBlur={(e) => handleBlur(e, index)} v-model={item.title} />
-                      ) : (
-                        <Title value={item.title} />
-                      )}
-                    </div>
-
-                    <a-popover
-                      content-style={{ padding: '0' }}
-                      arrow-style={{ visibility: 'hidden' }}
-                      position="rt"
-                      v-slots={{
-                        content: ContentSlots.content(index, item.title)
-                      }}
-                    >
-                      <icon-more class={styles['icon-more']} />
-                    </a-popover>
-                  </div>
-                  <div class={styles['list-bottom-wrapper']}>{dayjs().format('YYYY-MM-DD')}</div>
-                </div>
-              )
-            })}
+            {store.notes[store.activeType]?.length ? <ListRender /> : <BaseEmpty />}
           </div>
         </a-list>
       </div>
