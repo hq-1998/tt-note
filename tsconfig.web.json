@@ -9,8 +9,8 @@
     "src/renderer/src/hooks/**/*",
     "src/renderer/src/request/**/*",
     "src/renderer/src/api/**/*",
-    "src/renderer/src/component/**/*.tsx",
-    "src/renderer/src/component/**/*.vue",
+    "src/renderer/src/components/**/*.tsx",
+    "src/renderer/src/components/**/*.vue",
     "src/renderer/src/utils/**/*",
     "src/renderer/src/websocket/**/*"
   ],

@@ -18,18 +18,24 @@
   .list {
     flex: 1;
     display: flex;
-    justify-content: center;
-    align-items: center;
     .list-wrapper {
       display: flex;
       flex-direction: column;
-      flex: 1;
+
+      .active {
+        background-color: #f3f4f6;
+      }
 
       .list-wrapper-item {
-        padding: 12px 20px;
+        width: 170px;
+        padding: 12px 8px;
+        margin: 0 15px;
+        box-sizing: border-box;
+        border-radius: 5px;
 
         &:hover {
           cursor: pointer;
+          background-color: #f3f4f6;
 
           .list-top-wrapper {
             .icon-more {
@@ -46,12 +52,6 @@
           .list-title-wrapper {
             display: flex;
             align-items: center;
-
-            .title-icon {
-              width: 20px;
-              height: 20px;
-              margin-right: 5px;
-            }
           }
 
           .icon-more {
@@ -64,6 +64,7 @@
         .list-bottom-wrapper {
           color: #999999;
           font-size: 12px;
+          margin-top: 5px;
         }
       }
     }

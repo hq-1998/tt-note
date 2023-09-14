@@ -10,7 +10,6 @@ import Rename from './rename.vue'
 import dayjs from 'dayjs'
 import styles from './style.module.less'
 import { Message } from '@arco-design/web-vue'
-import document from '@renderer/assets/images/icons/document.png'
 import { ENoteType } from '@renderer/store/note'
 import BaseEmpty from '@renderer/components/base-empty'
 
@@ -40,8 +39,7 @@ const handleBlur = async (e, index: number) => {
   })
   await window.electron.ipcRenderer.invoke('rename', {
     id: item.id,
-    title: value,
-    timeStamp: Date.now()
+    title: value
   })
   Message.success('重命名成功')
 }
@@ -71,17 +69,18 @@ const Render = () => {
 
   const ListRender = () => {
     return (
-      <div>
+      <div class={styles['list-wrapper']}>
         {(store.notes[store.activeType] || []).map((item, index) => {
           return (
             <div
               onClick={() => handelClickListItem(item, index)}
               key={item.id}
-              class={styles['list-wrapper-item']}
+              class={`${styles['list-wrapper-item']} ${
+                index === store.active ? styles.active : ''
+              }`}
             >
               <div class={styles['list-top-wrapper']}>
                 <div class={styles['list-title-wrapper']}>
-                  <img class={styles['title-icon']} src={document} />
                   {item.isClickRename ? (
                     <Rename onBlur={(e) => handleBlur(e, index)} v-model={item.title} />
                   ) : (
@@ -115,9 +114,7 @@ const Render = () => {
       </div>
       <div class={styles.list}>
         <a-list bordered={false} hoverable>
-          <div class={styles['list-wrapper']}>
-            {store.notes[store.activeType]?.length ? <ListRender /> : <BaseEmpty />}
-          </div>
+          {store.notes[store.activeType]?.length ? <ListRender /> : <BaseEmpty />}
         </a-list>
       </div>
     </div>

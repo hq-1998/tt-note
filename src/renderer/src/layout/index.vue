@@ -81,8 +81,8 @@ const handleAdd = async () => {
   noteStore.addNote(payload)
 }
 
-const dynamicSiderWidth = computed(() => {
-  return collapse.value ? 254 : 400
+const dynamicSideWidth = computed(() => {
+  return collapse.value ? 255 : 400
 })
 
 const handleCollapse = (e) => {
@@ -93,7 +93,7 @@ const handleCollapse = (e) => {
 <template>
   <a-layout style="height: 100vh">
     <a-layout>
-      <a-layout-sider breakpoint="lg" :width="dynamicSiderWidth">
+      <a-layout-sider breakpoint="lg" :width="dynamicSideWidth">
         <Sider @handle-collapse="handleCollapse">
           <template #content>
             <RouterView />

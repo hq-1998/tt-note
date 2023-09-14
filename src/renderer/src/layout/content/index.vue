@@ -3,8 +3,7 @@
     <div class="title-wrapper">
       <DivEditable :value="currentItem.title || '无标题笔记'" @update:value="handleUpdateTitle" />
       <div class="title-btns">
-        <a-button size="medium" type="outline" status="success" @click="handleSave">保存</a-button>
-        <a-button size="medium" type="outline">分享</a-button>
+        <a-button size="medium" @click="handleSave">保存</a-button>
       </div>
     </div>
     <div class="editor">
