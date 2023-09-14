@@ -43,12 +43,16 @@ const handleSave = async () => {
 
 watch(
   () => currentItem.value.id,
-  async () => {
+  async (id) => {
+    if (!id) return
     const content = await window.electron.ipcRenderer.invoke(
       'getNoteById',
       toRaw(currentItem.value)
     )
     store.updateNoteById(currentItem.value.id, { content })
+  },
+  {
+    immediate: true
   }
 )
 </script>

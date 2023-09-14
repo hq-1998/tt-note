@@ -1,5 +1,6 @@
 import fse from 'node:fs/promises'
 import { app } from 'electron'
+import dayjs from 'dayjs'
 import { ObjectEncodingOptions, ensureDir, readFileSync } from 'fs-extra'
 import path from 'node:path'
 
@@ -8,13 +9,21 @@ enum ENoteType {
   DIR = 'dir'
 }
 
+type Info = {
+  // 名称
+  name: string
+  // 修改时间
+  mtime: string
+}
+
 type INotes = {
-  [ENoteType.FILE]: string[]
-  [ENoteType.DIR]: string[]
+  [ENoteType.FILE]: Info[]
+  [ENoteType.DIR]: Info[]
 }
 
 const baseDir = app.getPath('userData') + '/notes'
-console.log(baseDir, 'baseDIr')
+const trashDir = app.getPath('userData') + '/trash'
+
 const getIds = async () => {
   const dirs = await fse.readdir(baseDir)
   return dirs.map((dir) => dir.split('__')[0])
@@ -25,8 +34,13 @@ const getAllDirs = async () => {
   return dirs
 }
 
-const getFileName = (id: string, title: string, suffix = '.md') => {
-  const filename = path.join(baseDir, `${id}__${title}${suffix}`)
+const getFileName = (id: string, title: string, ext = '.md') => {
+  const filename = path.join(baseDir, `${id}__${title}${ext}`)
+  return filename
+}
+
+const getTrashFileName = (id: string, title: string, ext = '.md') => {
+  const filename = path.join(trashDir, `${id}__${title}${ext}`)
   return filename
 }
 
@@ -50,7 +64,6 @@ const fns = {
   },
   async add(_event, { id, title, content }) {
     const filename = getFileName(id, title)
-    console.log(filename, '===filename===')
     return fse.writeFile(filename, content, 'utf-8')
   },
   async rename(_event, { id, title }) {
@@ -79,14 +92,19 @@ const fns = {
   async getNotes(): Promise<INotes> {
     await ensureDir(baseDir)
     const all: string[] = await fse.readdir(baseDir)
-    const files: string[] = []
-    const dirs: string[] = []
+    const files: Info[] = []
+    const dirs: Info[] = []
     for (const item of all) {
       const stat = await fse.stat(path.join(baseDir, item))
+      const payload = {
+        name: item,
+        mtime: dayjs(stat.mtime).format('YYYY-MM-DD HH:mm:ss')
+      }
+      console.log(payload, '===payload===')
       if (stat.isDirectory()) {
-        dirs.push(item)
+        dirs.push(payload)
       } else {
-        files.push(item)
+        files.push(payload)
       }
     }
     return {
@@ -99,14 +117,21 @@ const fns = {
     const content = readFileSync(filename, 'utf-8')
     return content
   },
-  /** 移除文件 回收站里点击移除 */
-  async removeNoteById(_event, { id, title }) {
+  /** 移除文件 回收站里点击移除 真删除 */
+  async removeNote(_event, { id, title }) {
     const ids = await getIds()
     const isExist = ids.find((item) => item === id)
     const filename = getFileName(id, title)
     if (isExist) {
-      await fse.unlink(path.join(baseDir, filename))
+      await fse.unlink(path.resolve(baseDir, filename))
     }
+  },
+  /** 移除到回收站 假删除 */
+  async removeNoteToTrash(_event, { id, title }) {
+    await ensureDir(trashDir)
+    const oldFileName = getFileName(id, title)
+    const newFileName = getTrashFileName(id, title)
+    return await fse.rename(oldFileName, newFileName)
   },
   /** 移除目录 */
   async removeNoteByDir(_event, { dirName, options }) {

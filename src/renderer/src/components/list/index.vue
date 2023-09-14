@@ -7,23 +7,32 @@ import { useNoteStore } from '@renderer/store'
 import { ref } from 'vue'
 import Title from './title.vue'
 import Rename from './rename.vue'
-import dayjs from 'dayjs'
 import styles from './style.module.less'
 import { Message } from '@arco-design/web-vue'
 import BaseEmpty from '@renderer/components/base-empty'
 import { ENoteType } from '@renderer/layout/menu/constants'
+import { IBaseNote } from '@renderer/store/note'
 
 const oldTitle = ref('')
 const emits = defineEmits(['handelClickListItem'])
 
 const store = useNoteStore()
 
-const handleRename = (index: number, title: string) => {
-  oldTitle.value = title
+type Item = IBaseNote & { index: number }
+
+/** 重命名 */
+const handleRename = (item: Item) => {
+  oldTitle.value = item.title
   store.notes[store.activeType]!.forEach((note) => {
     note.isClickRename = false
   })
-  store.notes[index].isClickRename = true
+  store.notes[item.index].isClickRename = true
+}
+
+/** 删除 */
+const handleDelete = async (item: Item) => {
+  await store.removeNote(item)
+  Message.success('删除成功')
 }
 
 const handleBlur = async (e, index: number) => {
@@ -52,14 +61,16 @@ const handelClickListItem = (item, index) => {
 
 const Render = () => {
   const ContentSlots = {
-    content: (index: number, title: string) => {
+    content: (item) => {
       return (
         <a-menu style={{ width: '100px', borderRadius: '4px' }}>
-          <a-menu-item key="0" onClick={() => handleRename(index, title)}>
+          <a-menu-item key="0" onClick={() => handleRename(item)}>
             重命名
           </a-menu-item>
           <a-menu-item key="1">移动到</a-menu-item>
-          <a-menu-item key="2">删除</a-menu-item>
+          <a-menu-item onClick={() => handleDelete(item)} key="delete">
+            删除
+          </a-menu-item>
         </a-menu>
       )
     }
@@ -91,13 +102,13 @@ const Render = () => {
                   arrow-style={{ visibility: 'hidden' }}
                   position="rt"
                   v-slots={{
-                    content: () => ContentSlots.content(index, item.title)
+                    content: () => ContentSlots.content({ ...item, index })
                   }}
                 >
                   <icon-more class={styles['icon-more']} />
                 </a-popover>
               </div>
-              <div class={styles['list-bottom-wrapper']}>{dayjs().format('YYYY-MM-DD')}</div>
+              <div class={styles['list-bottom-wrapper']}>{item.timestamp}</div>
             </div>
           )
         })}

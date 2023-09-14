@@ -1,15 +1,16 @@
 import PAYLOAD, { ENoteType } from '@renderer/layout/menu/constants'
 import { defineStore } from 'pinia'
+import { omit } from 'lodash-es'
 
 export interface IBaseNote {
   title: string
-  timeStamp?: number
+  timestamp?: number
   id: string
   children?: IBaseNote[]
   type: ENoteType
   isClickRename: boolean
   content: string
-  suffix: string
+  ext: string
 }
 
 type INotes = {
@@ -58,12 +59,28 @@ const useNoteStore = defineStore('note', {
     updateNoteById(id: string, payload: Partial<IBaseNote>) {
       const item = { ...this.notesMap[id] }
       if (item) {
-        const noteIndex = this.notes[item.suffix].findIndex((note) => note.id === id)
-        this.notes[item.suffix][noteIndex] = {
-          ...this.notes[item.suffix][noteIndex],
+        const noteIndex = this.notes[item.type].findIndex((note) => note.id === id)
+        this.notes[item.type][noteIndex] = {
+          ...this.notes[item.type][noteIndex],
           ...payload
         }
       }
+    },
+    /** 通过id移除note */
+    async removeNote(item: IBaseNote) {
+      const { content, type, id } = item
+      /** 如果笔记没有内容 那么直接删除 不进入回收站 */
+      const removeItem = omit(item, ['children'])
+      if (!content) {
+        await window.electron.ipcRenderer.invoke('removeNote', removeItem)
+      } else {
+        // 进入回收站
+        this.removeNoteToTrash(removeItem)
+      }
+      this.notes[type] = this.notes[type]!.filter((note) => note.id !== id)
+    },
+    removeNoteToTrash(removeItem: Omit<IBaseNote, 'children'>) {
+      window.electron.ipcRenderer.invoke('removeNoteToTrash', removeItem)
     },
     clearNotes() {
       this.notes = {}

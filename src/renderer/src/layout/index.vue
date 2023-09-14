@@ -27,8 +27,8 @@ const state = reactive<{
     id: '',
     title: '',
     content: '',
-    suffix: '',
-    timeStamp: 0,
+    ext: '',
+    timestamp: 0,
     type: ENoteType.MARKDOWN,
     isClickRename: false
   }
