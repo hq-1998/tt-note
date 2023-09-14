@@ -8,7 +8,7 @@ import document from '@renderer/assets/images/icons/document.png'
 import directory from '@renderer/assets/images/icons/directory.png'
 import { useNoteStore, useUserStore } from '@renderer/store'
 import { Message } from '@arco-design/web-vue'
-import PAYLOAD, { ENoteType } from './constants'
+import { ENoteType } from './constants'
 import { user } from '@renderer/api'
 import { useRouter } from 'vue-router'
 import { menuKey } from '@renderer/router/menuKey'
@@ -112,9 +112,7 @@ const createDoptionOptions: IOption[] = [
     value: 'message',
     icon: <img width={14} height={14} src={directory} />,
     click: () => {
-      const payload = PAYLOAD[ENoteType.DIR]
-      window.electron.ipcRenderer.invoke('createDir', payload)
-      noteStore.addNoteDir(payload)
+      noteStore.addNoteDir(ENoteType.DIR)
     }
   }
 ]

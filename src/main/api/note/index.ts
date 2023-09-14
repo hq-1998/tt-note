@@ -100,7 +100,6 @@ const fns = {
         name: item,
         mtime: dayjs(stat.mtime).format('YYYY-MM-DD HH:mm:ss')
       }
-      console.log(payload, '===payload===')
       if (stat.isDirectory()) {
         dirs.push(payload)
       } else {
@@ -140,7 +139,6 @@ const fns = {
   /** 新建文件夹 */
   async createDir(_event, { id, title }) {
     const dirName = getFileName(id, title, '')
-    console.log(dirName, 'dirName')
     await fse.mkdir(dirName)
   }
 }

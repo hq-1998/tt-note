@@ -1,6 +1,7 @@
 import PAYLOAD, { ENoteType } from '@renderer/layout/menu/constants'
 import { defineStore } from 'pinia'
 import { omit } from 'lodash-es'
+import { v4 } from 'uuid'
 
 export interface IBaseNote {
   title: string
@@ -40,20 +41,21 @@ const useNoteStore = defineStore('note', {
   actions: {
     /** 新建markdown */
     addNote(type: ENoteType) {
-      const payload: IBaseNote = PAYLOAD?.[type]
+      const payload: IBaseNote = { ...PAYLOAD?.[type], id: v4() }
       if (payload) {
         window.electron.ipcRenderer.invoke('save', payload)
-        this.notes[payload.type] = this.notes[payload.type] || []
-        this.notes[payload.type]!.unshift(payload)
+        this.notes[type] = this.notes[type] || []
+        this.notes[type]!.unshift(payload)
       }
     },
     /** 新建文件夹 */
-    addNoteDir(payload: IBaseNote) {
-      const { type } = payload
-      if (!this.notes[type]) {
-        this.notes[type] = []
+    addNoteDir(type: ENoteType) {
+      const payload = { ...PAYLOAD?.[type], id: v4() }
+      if (payload) {
+        window.electron.ipcRenderer.invoke('createDir', payload)
+        this.notes[type] = this.notes?.[type] || []
+        this.notes[type as ENoteType.DIR]!.unshift(payload)
       }
-      this.notes[type as ENoteType.DIR]!.unshift(payload)
     },
     /** 通过id更新note */
     updateNoteById(id: string, payload: Partial<IBaseNote>) {

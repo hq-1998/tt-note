@@ -1,12 +1,9 @@
-import { v4 } from 'uuid'
-
 export enum ENoteType {
   MARKDOWN = 'md',
   DIR = 'dir'
 }
 
 const BASE_PAYLOAD = {
-  id: v4(),
   title: '',
   content: '',
   children: []
