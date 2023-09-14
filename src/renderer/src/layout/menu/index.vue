@@ -170,7 +170,8 @@ const onMenuClick = (key: string) => {
           v-model:collapsed="collapsed"
           show-collapse-button
           :style="{ width: '200px', height: '100%' }"
-          :default-open-keys="['new']"
+          :default-open-keys="[menuKey.NEW]"
+          :default-selected-keys="[menuKey.NEW]"
           @menu-item-click="onMenuClick"
           @collapse="onCollapse"
         >
