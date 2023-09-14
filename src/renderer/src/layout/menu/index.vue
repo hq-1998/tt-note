@@ -8,8 +8,7 @@ import document from '@renderer/assets/images/icons/document.png'
 import directory from '@renderer/assets/images/icons/directory.png'
 import { useNoteStore, useUserStore } from '@renderer/store'
 import { Message } from '@arco-design/web-vue'
-import { ENoteType } from '@renderer/store/note'
-import PAYLOAD from './constants'
+import PAYLOAD, { ENoteType } from './constants'
 import { user } from '@renderer/api'
 import { useRouter } from 'vue-router'
 import { menuKey } from '@renderer/router/menuKey'
@@ -104,19 +103,17 @@ const createDoptionOptions: IOption[] = [
     label: 'MarkDown',
     value: 'notify',
     icon: <img width={14} height={14} src={document} />,
-    click: async () => {
-      const payload = PAYLOAD[ENoteType.MARKDOWN]
-      await window.electron.ipcRenderer.invoke('save', payload)
-      noteStore.addNote(payload)
+    click: () => {
+      noteStore.addNote(ENoteType.MARKDOWN)
     }
   },
   {
     label: '新建文件夹',
     value: 'message',
     icon: <img width={14} height={14} src={directory} />,
-    click: async () => {
+    click: () => {
       const payload = PAYLOAD[ENoteType.DIR]
-      await window.electron.ipcRenderer.invoke('createDir', payload)
+      window.electron.ipcRenderer.invoke('createDir', payload)
       noteStore.addNoteDir(payload)
     }
   }

@@ -10,8 +10,8 @@ import Rename from './rename.vue'
 import dayjs from 'dayjs'
 import styles from './style.module.less'
 import { Message } from '@arco-design/web-vue'
-import { ENoteType } from '@renderer/store/note'
 import BaseEmpty from '@renderer/components/base-empty'
+import { ENoteType } from '@renderer/layout/menu/constants'
 
 const oldTitle = ref('')
 const emits = defineEmits(['handelClickListItem'])

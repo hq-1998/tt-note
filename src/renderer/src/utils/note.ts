@@ -10,7 +10,8 @@ const generateNote = async () => {
     const [key, value] = cur
     if (!pre[key]) pre[key] = []
     pre[key] = (value as string[]).map((item) => {
-      const [id, title, suffix] = item.split('__')
+      const [filename, suffix] = item.split('.')
+      const [id, title] = filename.split('__')
       return {
         id,
         title,

@@ -4,7 +4,7 @@ export interface IOption {
   label: string
   value: string
   icon: JSX.Element
-  click: () => Promise<void>
+  click: () => void
 }
 
 interface IProps {

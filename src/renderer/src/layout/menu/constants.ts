@@ -1,5 +1,9 @@
-import { ENoteType } from '@renderer/store/note'
 import { v4 } from 'uuid'
+
+export enum ENoteType {
+  MARKDOWN = 'md',
+  DIR = 'dir'
+}
 
 const BASE_PAYLOAD = {
   id: v4(),
@@ -8,6 +12,7 @@ const BASE_PAYLOAD = {
   children: []
 }
 
+console.log(ENoteType, 'ENoteType')
 const PAYLOAD = {
   [ENoteType.MARKDOWN]: {
     type: ENoteType.MARKDOWN as ENoteType,

@@ -1,10 +1,5 @@
+import PAYLOAD, { ENoteType } from '@renderer/layout/menu/constants'
 import { defineStore } from 'pinia'
-import { v4 } from 'uuid'
-
-export enum ENoteType {
-  MARKDOWN = 'md',
-  DIR = 'dir'
-}
 
 export interface IBaseNote {
   title: string
@@ -43,18 +38,13 @@ const useNoteStore = defineStore('note', {
   },
   actions: {
     /** 新建markdown */
-    async addNote(type: ENoteType) {
-      const payload: IBaseNote = {
-        id: v4(),
-        title: '',
-        content: '',
-        type,
-        suffix: `.${type}`,
-        isClickRename: false
+    addNote(type: ENoteType) {
+      const payload: IBaseNote = PAYLOAD?.[type]
+      if (payload) {
+        window.electron.ipcRenderer.invoke('save', payload)
+        this.notes[payload.type] = this.notes[payload.type] || []
+        this.notes[payload.type]!.unshift(payload)
       }
-      await window.electron.ipcRenderer.invoke('save', payload)
-      this.notes[payload.type] = this.notes[payload.type] || []
-      this.notes[payload.type]!.unshift(payload)
     },
     /** 新建文件夹 */
     addNoteDir(payload: IBaseNote) {

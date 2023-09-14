@@ -7,10 +7,11 @@ import { onBeforeMount } from 'vue'
 import { globalStorage, generateNote, shallowMergeObject } from '../utils'
 import { globalWebSocket, Events } from '@renderer/websocket'
 import { user, area } from '../api'
-import { ENoteType, IBaseNote } from '../store/note'
+import { IBaseNote } from '../store/note'
 import { IUserInfo } from '../api/user/data'
 import { IProvince } from '../api/area/data'
 import BaseEmpty from '@renderer/components/base-empty'
+import { ENoteType } from './menu/constants'
 
 const areaStore = useAreaStore()
 const noteStore = useNoteStore()
@@ -19,13 +20,17 @@ const userStore = useUserStore()
 const collapse = ref(true)
 const currentIndex = ref(0)
 
-const state = reactive({
+const state = reactive<{
+  data: IBaseNote
+}>({
   data: {
     id: '',
     title: '',
     content: '',
     suffix: '',
-    timeStamp: 0
+    timeStamp: 0,
+    type: ENoteType.MARKDOWN,
+    isClickRename: false
   }
 })
 

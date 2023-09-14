@@ -50,6 +50,7 @@ const fns = {
   },
   async add(_event, { id, title, content }) {
     const filename = getFileName(id, title)
+    console.log(filename, '===filename===')
     return fse.writeFile(filename, content, 'utf-8')
   },
   async rename(_event, { id, title }) {
