@@ -4,7 +4,6 @@ import { v4 } from 'uuid'
 const BASE_PAYLOAD = {
   id: v4(),
   title: '',
-  timeStamp: Date.now(),
   content: '',
   children: []
 }

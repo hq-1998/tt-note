@@ -3,7 +3,6 @@ import { onMounted, reactive, ref, computed } from 'vue'
 import Sider from '@renderer/layout/sider/index.vue'
 import Content from '@renderer/layout/content/index.vue'
 import { useNoteStore, useUserStore, useAreaStore } from '../store'
-import { v4 } from 'uuid'
 import { onBeforeMount } from 'vue'
 import { globalStorage, generateNote, shallowMergeObject } from '../utils'
 import { globalWebSocket, Events } from '@renderer/websocket'
@@ -67,18 +66,8 @@ onMounted(async () => {
   })
 })
 
-const handleAdd = async () => {
-  const payload = {
-    id: v4(),
-    title: '',
-    content: '',
-    timeStamp: Date.now(),
-    type: ENoteType.MARKDOWN,
-    suffix: `.${ENoteType.MARKDOWN}`,
-    isClickRename: false
-  }
-  await window.electron.ipcRenderer.invoke('save', payload)
-  noteStore.addNote(payload)
+const handleAdd = () => {
+  noteStore.addNote(ENoteType.MARKDOWN)
 }
 
 const dynamicSideWidth = computed(() => {

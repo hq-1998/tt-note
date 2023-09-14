@@ -13,9 +13,11 @@ import { Message } from '@arco-design/web-vue'
 import { ENoteType } from '@renderer/store/note'
 import BaseEmpty from '@renderer/components/base-empty'
 
-const store = useNoteStore()
 const oldTitle = ref('')
 const emits = defineEmits(['handelClickListItem'])
+
+const store = useNoteStore()
+
 const handleRename = (index: number, title: string) => {
   oldTitle.value = title
   store.notes[store.activeType]!.forEach((note) => {
@@ -23,10 +25,6 @@ const handleRename = (index: number, title: string) => {
   })
   store.notes[index].isClickRename = true
 }
-
-// getNotes() {
-//       return this.notes.sort((a, b) => b.timeStamp! - a.timeStamp!)
-//     }
 
 const handleBlur = async (e, index: number) => {
   store.notes[index].isClickRename = false
@@ -93,7 +91,7 @@ const Render = () => {
                   arrow-style={{ visibility: 'hidden' }}
                   position="rt"
                   v-slots={{
-                    content: ContentSlots.content(index, item.title)
+                    content: () => ContentSlots.content(index, item.title)
                   }}
                 >
                   <icon-more class={styles['icon-more']} />

@@ -31,13 +31,12 @@ const handleUpdateContent = (v) => {
 }
 
 const handleSave = async () => {
-  const { id, title, content, timeStamp } = currentItem.value
+  const { id, title, content } = currentItem.value
   if (!id) return
   await window.electron.ipcRenderer.invoke('save', {
     id,
     title,
-    content,
-    timeStamp: timeStamp || Date.now()
+    content
   })
   Message.success('保存成功')
 }
@@ -50,9 +49,6 @@ watch(
       toRaw(currentItem.value)
     )
     store.updateNoteById(currentItem.value.id, { content })
-  },
-  {
-    immediate: true
   }
 )
 </script>

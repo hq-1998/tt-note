@@ -14,6 +14,7 @@ type INotes = {
 }
 
 const baseDir = app.getPath('userData') + '/notes'
+console.log(baseDir, 'baseDIr')
 const getIds = async () => {
   const dirs = await fse.readdir(baseDir)
   return dirs.map((dir) => dir.split('__')[0])
@@ -87,7 +88,6 @@ const fns = {
         files.push(item)
       }
     }
-    console.log(files, '---files---')
     return {
       [ENoteType.FILE]: files,
       [ENoteType.DIR]: dirs

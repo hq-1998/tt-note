@@ -10,14 +10,12 @@ const generateNote = async () => {
     const [key, value] = cur
     if (!pre[key]) pre[key] = []
     pre[key] = (value as string[]).map((item) => {
-      const [id, title, timeStampAndExt] = item.split('__')
-      const [timeStamp, suffix] = timeStampAndExt.split('.')
+      const [id, title, suffix] = item.split('__')
       return {
         id,
         title,
         content: '',
-        suffix,
-        timeStamp
+        suffix
       }
     })
 

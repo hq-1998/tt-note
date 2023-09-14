@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { v4 } from 'uuid'
 
 export enum ENoteType {
   MARKDOWN = 'md',
@@ -7,7 +8,7 @@ export enum ENoteType {
 
 export interface IBaseNote {
   title: string
-  timeStamp: number
+  timeStamp?: number
   id: string
   children?: IBaseNote[]
   type: ENoteType
@@ -42,12 +43,18 @@ const useNoteStore = defineStore('note', {
   },
   actions: {
     /** 新建markdown */
-    addNote(payload: IBaseNote) {
-      const { type } = payload
-      if (!this.notes[type]) {
-        this.notes[type] = []
+    async addNote(type: ENoteType) {
+      const payload: IBaseNote = {
+        id: v4(),
+        title: '',
+        content: '',
+        type,
+        suffix: `.${type}`,
+        isClickRename: false
       }
-      this.notes[type]!.unshift(payload)
+      await window.electron.ipcRenderer.invoke('save', payload)
+      this.notes[payload.type] = this.notes[payload.type] || []
+      this.notes[payload.type]!.unshift(payload)
     },
     /** 新建文件夹 */
     addNoteDir(payload: IBaseNote) {
@@ -57,6 +64,7 @@ const useNoteStore = defineStore('note', {
       }
       this.notes[type as ENoteType.DIR]!.unshift(payload)
     },
+    /** 通过id更新note */
     updateNoteById(id: string, payload: Partial<IBaseNote>) {
       const item = { ...this.notesMap[id] }
       if (item) {
