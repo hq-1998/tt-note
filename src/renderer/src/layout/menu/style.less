@@ -65,6 +65,33 @@
         }
       }
     }
+
+    .menu-list-wrapper {
+      .folder {
+        display: flex;
+        padding-left: 22px;
+
+        :deep(.arco-menu-item-inner) {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        :deep(.arco-icon) {
+          margin-right: 0px;
+        }
+
+        &:hover {
+          .icon-more {
+            visibility: visible;
+          }
+        }
+
+        .icon-more {
+          visibility: hidden;
+        }
+      }
+    }
   }
 }
 

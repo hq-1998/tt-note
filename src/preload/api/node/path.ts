@@ -2,14 +2,14 @@ import path from 'node:path'
 
 const fns = {
   delimiter: path.delimiter,
-  basename(_path: string, suffix?: string) {
-    return path.basename(_path, suffix)
+  basename(_path: string, ext?: string) {
+    return path.basename(_path, ext)
   },
   join(...paths: string[]) {
     return path.join(...paths)
   },
-  win32BaseName(_path: string, suffix?: string) {
-    return path.win32.basename(_path, suffix)
+  win32BaseName(_path: string, ext?: string) {
+    return path.win32.basename(_path, ext)
   },
   /** 返回path的目录名称 */
   dirname(_path: string) {

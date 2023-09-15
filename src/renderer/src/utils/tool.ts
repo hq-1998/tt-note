@@ -34,4 +34,22 @@ const getImageBase64 = (
   })
 }
 
-export { shallowMergeObject, getImageBase64 }
+const svgDir = import.meta.glob('@renderer/assets/images/svg/*.svg', { eager: true }) as Record<
+  string,
+  {
+    default: string
+  }
+>
+
+const loadSvg = (key: string): string | undefined => {
+  const svgObj = Object.create(null)
+  Object.keys(svgDir).forEach((svgName) => {
+    const name = svgName.split('/').at(-1)?.split('.')[0]
+    if (name) {
+      svgObj[name] = svgDir[svgName].default
+    }
+  })
+  return svgObj?.[key]
+}
+
+export { shallowMergeObject, loadSvg, getImageBase64 }

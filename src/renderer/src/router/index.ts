@@ -1,38 +1,57 @@
-import VueRouter, { RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import { menuKey } from './menuKey'
+
+const generateMenu = (name: string) => {
+  return {
+    path: `/${name}`,
+    name
+  }
+}
 
 const routes: Readonly<RouteRecordRaw[]> = [
   /** 最新 */
   {
-    path: '/',
-    // redirect: '/new',
-    component: () => import('@/views/New.vue')
+    ...generateMenu(menuKey.NEW),
+    component: () => import('@renderer/views/new/index.vue')
   },
   /** 我的文件夹 */
   {
-    path: '/folders',
-    component: () => import('@/views/Folder.vue'),
+    ...generateMenu(menuKey.FOLDERS),
+    component: () => import('@renderer/views/folders/index.vue'),
     children: [
       {
         path: ':id',
-        component: () => import('@/views/Folder.vue')
+        component: () => import('@renderer/views/folders/index.vue')
       }
     ]
   },
-  /** 加星 */
+  // /** 加星 */
   {
-    path: '/star',
-    component: () => import('@/views/Star.vue')
+    ...generateMenu(menuKey.STAR),
+    component: () => import('@renderer/views/star/index.vue')
   },
-  /** 回收站 */
+  // /** 回收站 */
   {
-    path: '/trash',
-    component: () => import('@/views/Trash.vue')
+    ...generateMenu(menuKey.TRASH),
+    component: () => import('@renderer/views/trash/index.vue')
+  },
+  /** 最新 */
+  {
+    path: '/',
+    redirect: '/new'
   }
 ]
 
-const router = VueRouter.createRouter({
-  history: VueRouter.createWebHistory(),
+const router = createRouter({
+  history: createWebHashHistory(),
   routes
+})
+
+router.isReady().then(() => {
+  const path = window.location.pathname
+  if (path === '/index.html' || path === menuKey.default) {
+    router.replace(menuKey.default)
+  }
 })
 
 export default router

@@ -1,19 +1,17 @@
+import PAYLOAD, { ENoteType } from '@renderer/layout/menu/constants'
 import { defineStore } from 'pinia'
-
-export enum ENoteType {
-  MARKDOWN = 'md',
-  DIR = 'dir'
-}
+import { omit } from 'lodash-es'
+import { v4 } from 'uuid'
 
 export interface IBaseNote {
   title: string
-  timeStamp: number
+  timestamp?: number
   id: string
   children?: IBaseNote[]
   type: ENoteType
   isClickRename: boolean
   content: string
-  suffix: string
+  ext: string
 }
 
 type INotes = {
@@ -42,30 +40,49 @@ const useNoteStore = defineStore('note', {
   },
   actions: {
     /** 新建markdown */
-    addNote(payload: IBaseNote) {
-      const { type } = payload
-      if (!this.notes[type]) {
-        this.notes[type] = []
+    addNote(type: ENoteType) {
+      const payload: IBaseNote = { ...PAYLOAD?.[type], id: v4() }
+      if (payload) {
+        window.electron.ipcRenderer.invoke('save', payload)
+        this.notes[type] = this.notes[type] || []
+        this.notes[type]!.unshift(payload)
       }
-      this.notes[type]!.unshift(payload)
     },
     /** 新建文件夹 */
-    addNoteDir(payload: IBaseNote) {
-      const { type } = payload
-      if (!this.notes[type]) {
-        this.notes[type] = []
+    addNoteDir(type: ENoteType) {
+      const payload = { ...PAYLOAD?.[type], id: v4() }
+      if (payload) {
+        window.electron.ipcRenderer.invoke('createDir', payload)
+        this.notes[type] = this.notes?.[type] || []
+        this.notes[type as ENoteType.DIR]!.unshift(payload)
       }
-      this.notes[type as ENoteType.DIR]!.unshift(payload)
     },
+    /** 通过id更新note */
     updateNoteById(id: string, payload: Partial<IBaseNote>) {
       const item = { ...this.notesMap[id] }
       if (item) {
-        const noteIndex = this.notes[item.suffix].findIndex((note) => note.id === id)
-        this.notes[item.suffix][noteIndex] = {
-          ...this.notes[item.suffix][noteIndex],
+        const noteIndex = this.notes[item.type].findIndex((note) => note.id === id)
+        this.notes[item.type][noteIndex] = {
+          ...this.notes[item.type][noteIndex],
           ...payload
         }
       }
+    },
+    /** 通过id移除note */
+    async removeNote(item: IBaseNote) {
+      const { content, type, id } = item
+      /** 如果笔记没有内容 那么直接删除 不进入回收站 */
+      const removeItem = omit(item, ['children'])
+      if (!content) {
+        await window.electron.ipcRenderer.invoke('removeNote', removeItem)
+      } else {
+        // 进入回收站
+        this.removeNoteToTrash(removeItem)
+      }
+      this.notes[type] = this.notes[type]!.filter((note) => note.id !== id)
+    },
+    removeNoteToTrash(removeItem: Omit<IBaseNote, 'children'>) {
+      window.electron.ipcRenderer.invoke('removeNoteToTrash', removeItem)
     },
     clearNotes() {
       this.notes = {}

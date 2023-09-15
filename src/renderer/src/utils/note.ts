@@ -8,15 +8,17 @@ const generateNote = async () => {
   const notes = Object.entries(_notes).reduce((pre, cur) => {
     const [key, value] = cur
     if (!pre[key]) pre[key] = []
-    pre[key] = (value as string[]).map((item) => {
-      const [id, title, timeStampAndExt] = item.split('__')
-      const [timeStamp, suffix] = timeStampAndExt.split('.')
+    pre[key] = (value as { name: string; mtime: string }[]).map((item) => {
+      const { name, mtime } = item
+      const [filename, ext] = name.split('.')
+      const [id, title] = filename.split('__')
       return {
         id,
         title,
         content: '',
-        suffix,
-        timeStamp
+        timestamp: mtime,
+        ext: `.${ext}`,
+        type: ext
       }
     })
 
@@ -25,11 +27,13 @@ const generateNote = async () => {
 
   const files = notes['file']
   const formatterFiles = files.reduce((pre, cur) => {
-    const { suffix } = cur
-    if (!pre[suffix]) pre[suffix] = []
-    pre[suffix].push(cur)
+    const { type } = cur
+    if (!pre[type]) pre[type] = []
+    pre[type].push(cur)
     return pre
   }, {})
+
+  console.log(formatterFiles, 'formatterFiles')
 
   return {
     ...formatterFiles,

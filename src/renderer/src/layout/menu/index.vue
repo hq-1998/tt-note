@@ -1,5 +1,5 @@
 <script lang="tsx" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import UserInfoModal from '@renderer/components/user-info-modal/index.vue'
 import UploadModal from '@renderer/components/upload-modal/index.vue'
 import DrawerComponent from '@renderer/components/drawer/index.vue'
@@ -8,13 +8,16 @@ import document from '@renderer/assets/images/icons/document.png'
 import directory from '@renderer/assets/images/icons/directory.png'
 import { useNoteStore, useUserStore } from '@renderer/store'
 import { Message } from '@arco-design/web-vue'
-import { ENoteType } from '@renderer/store/note'
-import PAYLOAD from './constants'
+import { ENoteType } from './constants'
 import { user } from '@renderer/api'
+import { useRouter } from 'vue-router'
+import { menuKey } from '@renderer/router/menuKey'
+import BaseMore, { type IOption } from '@renderer/components/base-more'
 
 const emits = defineEmits(['handleCollapse'])
 const collapsed = ref(true)
 const visible = ref(false)
+const router = useRouter()
 
 const onCollapse = (val) => {
   collapsed.value = val
@@ -70,7 +73,6 @@ const doptionOptions = [
       user.getUserInfo(userStore.userInfo.id).then((res) => {
         if (res.code === 0) {
           userStore.setUserInfo(res.data)
-          console.log(res.data, '====res.data===')
           toggleModalVisible()
         }
       })
@@ -96,28 +98,32 @@ const doptionOptions = [
 const noteStore = useNoteStore()
 const userStore = useUserStore()
 
-const createDoptionOptions = [
+const createDoptionOptions: IOption[] = [
   {
     label: 'MarkDown',
     value: 'notify',
     icon: <img width={14} height={14} src={document} />,
-    click: async () => {
-      const payload = PAYLOAD[ENoteType.MARKDOWN]
-      await window.electron.ipcRenderer.invoke('save', payload)
-      noteStore.addNote(payload)
+    click: () => {
+      noteStore.addNote(ENoteType.MARKDOWN)
     }
   },
   {
     label: '新建文件夹',
     value: 'message',
     icon: <img width={14} height={14} src={directory} />,
-    click: async () => {
-      const payload = PAYLOAD[ENoteType.DIR]
-      await window.electron.ipcRenderer.invoke('createDir', payload)
-      noteStore.addNoteDir(payload)
+    click: () => {
+      noteStore.addNoteDir(ENoteType.DIR)
     }
   }
 ]
+
+const noteDirs = computed(() => {
+  return noteStore.notes?.dir || []
+})
+
+const onMenuClick = (key: string) => {
+  router.push(`/${key}`)
+}
 </script>
 
 <template>
@@ -126,20 +132,12 @@ const createDoptionOptions = [
       <div :class="['user-wrapper', collapsed && 'remove-padding']">
         <div class="avatar-wrapper">
           <a-dropdown trigger="hover" show-arrow :popup-translate="collapsed ? [32, 5] : [0, 10]">
-            <!-- <a-image-preview-group
-              v-model:visible="visible"
-              :current="0"
-              class="preview"
-              :src-list="userStore.userInfo.avatar ? [userStore.userInfo.avatar] : []"
-            > -->
             <a-avatar
               :size="collapsed ? 32 : 64"
               :image-url="userStore.userInfo?.avatar || ''"
               @click="visible = true"
               ><icon-gitlab
             /></a-avatar>
-            <!-- </a-image-preview-group> -->
-
             <template #content>
               <a-doption v-for="item in doptionOptions" :key="item.value" @click="item.click">
                 {{ item.label }}
@@ -167,25 +165,37 @@ const createDoptionOptions = [
           v-model:collapsed="collapsed"
           show-collapse-button
           :style="{ width: '200px', height: '100%' }"
-          :default-open-keys="['0']"
+          :default-open-keys="[menuKey.NEW]"
+          :default-selected-keys="[menuKey.NEW]"
+          @menu-item-click="onMenuClick"
           @collapse="onCollapse"
         >
-          <a-menu-item key="0">
+          <a-menu-item :key="menuKey.NEW">
             <template #icon><icon-apps /></template>
             最新
           </a-menu-item>
-          <a-sub-menu key="1">
-            <template #icon><icon-file /></template>
+          <a-sub-menu :key="menuKey.FOLDERS" selectable>
+            <template #icon><icon-folder /></template>
             <template #title>我的文件夹</template>
-            <a-menu-item key="1_0">文件夹-1</a-menu-item>
-            <a-menu-item key="1_1">文件夹-2</a-menu-item>
-            <a-menu-item key="1_2">文件夹-3</a-menu-item>
+            <a-menu-item
+              v-for="item in noteDirs"
+              :key="`${menuKey.FOLDERS}/${item.id}`"
+              class="folder"
+            >
+              <span>{{ item.title || '新建文件夹' }}</span>
+              <BaseMore
+                class="icon-more"
+                position="bl"
+                :options="createDoptionOptions"
+                @click.stop
+              />
+            </a-menu-item>
           </a-sub-menu>
-          <a-menu-item key="2">
+          <a-menu-item :key="menuKey.STAR">
             <template #icon><icon-star /></template>
             加星
           </a-menu-item>
-          <a-menu-item key="3">
+          <a-menu-item :key="menuKey.TRASH">
             <template #icon><icon-delete></icon-delete></template>
             回收站
           </a-menu-item>
