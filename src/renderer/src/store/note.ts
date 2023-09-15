@@ -1,4 +1,4 @@
-import PAYLOAD, { ENoteType } from '@renderer/layout/menu/constants'
+import { ENoteType, PAYLOAD } from '@renderer/layout/menu/constants'
 import { defineStore } from 'pinia'
 import { omit } from 'lodash-es'
 import { v4 } from 'uuid'
@@ -67,6 +67,20 @@ const useNoteStore = defineStore('note', {
           ...payload
         }
       }
+    },
+    /** 通过id移除文件夹 */
+    async removeNoteDir(id: string) {
+      /** 如果文件夹下 没有文件 那么直接删除 不进入回收站 */
+      console.log(id, this.notesMap, '===removeId===')
+      const allDirs = await window.electron.ipcRenderer.invoke('getAllDirs')
+      console.log(allDirs, '===allDIrs===')
+      // if (!content) {
+      //   await window.electron.ipcRenderer.invoke('removeNoteDir', removeItem)
+      // } else {
+      //   // 进入回收站
+      //   this.removeNoteToTrash(removeItem)
+      // }
+      // this.notes[type] = this.notes[type]!.filter((note) => note.id !== id)
     },
     /** 通过id移除note */
     async removeNote(item: IBaseNote) {

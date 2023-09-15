@@ -1,14 +1,11 @@
 <template>
   <a-drawer
     v-model:visible="props.visible"
-    class="drawer-wrapper"
+    :class="styles['drawer-wrapper']"
     :width="props.width || 340"
     v-bind="{
       ...props,
       ...attrs
-    }"
-    :drawer-style="{
-      padding: '0px'
     }"
     unmount-on-close
     :mask-closable="false"
@@ -28,6 +25,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { Drawer } from '@arco-design/web-vue'
+import styles from './style.module.less'
 
 type IDrawer = InstanceType<typeof Drawer>['$props']
 
@@ -47,13 +45,9 @@ export default defineComponent({
     return {
       handleToggleVisible,
       props,
-      attrs: context.attrs
+      attrs: context.attrs,
+      styles
     }
   }
 })
 </script>
-
-<style lang="less" scoped>
-.drawer-wrapper {
-}
-</style>

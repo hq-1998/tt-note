@@ -17,7 +17,7 @@ const generateNote = async () => {
         title,
         content: '',
         timestamp: mtime,
-        ext: `.${ext}`,
+        ext: ext ? `.${ext}` : '',
         type: ext
       }
     })

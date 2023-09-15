@@ -1,5 +1,7 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import List from '@renderer/components/list/index.vue'
+</script>
 
 <template>
-  <div>加星</div>
+  <List />
 </template>

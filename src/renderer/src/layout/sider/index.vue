@@ -13,6 +13,7 @@
 import Menu from '../menu/index.vue'
 
 const emits = defineEmits(['handleCollapse', 'handelClickListItem'])
+
 const handleCollapse = (e) => {
   emits('handleCollapse', e)
 }
@@ -20,8 +21,8 @@ const handleCollapse = (e) => {
 
 <style lang="less" scoped>
 .sider-wrapper {
-  display: flex;
   height: 100%;
+  display: inline-flex;
 
   .left-wrapper,
   .right-wrapper {

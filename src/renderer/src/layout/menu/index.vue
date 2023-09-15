@@ -4,15 +4,14 @@ import UserInfoModal from '@renderer/components/user-info-modal/index.vue'
 import UploadModal from '@renderer/components/upload-modal/index.vue'
 import DrawerComponent from '@renderer/components/drawer/index.vue'
 import VirtualScrollList from '@renderer/components/virtual-scroll-list/index.vue'
-import document from '@renderer/assets/images/icons/document.png'
-import directory from '@renderer/assets/images/icons/directory.png'
 import { useNoteStore, useUserStore } from '@renderer/store'
 import { Message } from '@arco-design/web-vue'
-import { ENoteType } from './constants'
+import { ENoteType, OPTION_KEY, createDoptionOptions, fileDoptionOptions } from './constants'
 import { user } from '@renderer/api'
 import { useRouter } from 'vue-router'
 import { menuKey } from '@renderer/router/menuKey'
 import BaseMore, { type IOption } from '@renderer/components/base-more'
+import { IBaseNote } from '@renderer/store/note'
 
 const emits = defineEmits(['handleCollapse'])
 const collapsed = ref(true)
@@ -61,13 +60,13 @@ const toggleUploadModalVisible = async () => {
 const doptionOptions = [
   {
     label: '消息通知',
-    value: 'notify',
+    key: 'notify',
     icon: <icon-notification />,
     click: toggleDrawerVisible
   },
   {
     label: '个人信息',
-    value: 'message',
+    key: 'message',
     icon: <icon-user />,
     click: () => {
       user.getUserInfo(userStore.userInfo.id).then((res) => {
@@ -80,13 +79,13 @@ const doptionOptions = [
   },
   {
     label: '检测更新',
-    value: 'update',
+    key: 'update',
     icon: <icon-sync />,
     click: toggleUploadModalVisible
   },
   {
     label: '退出登录',
-    value: 'exit',
+    key: 'exit',
     icon: <icon-export />,
     click: () => {
       window.electron.ipcRenderer.invoke('closeWindow')
@@ -98,31 +97,27 @@ const doptionOptions = [
 const noteStore = useNoteStore()
 const userStore = useUserStore()
 
-const createDoptionOptions: IOption[] = [
-  {
-    label: 'MarkDown',
-    value: 'notify',
-    icon: <img width={14} height={14} src={document} />,
-    click: () => {
-      noteStore.addNote(ENoteType.MARKDOWN)
-    }
-  },
-  {
-    label: '新建文件夹',
-    value: 'message',
-    icon: <img width={14} height={14} src={directory} />,
-    click: () => {
-      noteStore.addNoteDir(ENoteType.DIR)
-    }
-  }
-]
-
 const noteDirs = computed(() => {
   return noteStore.notes?.dir || []
 })
 
 const onMenuClick = (key: string) => {
   router.push(`/${key}`)
+}
+
+const handleClick = (option: IOption, item?: IBaseNote) => {
+  const { key } = option
+  switch (key) {
+    case OPTION_KEY.MARKDOWN:
+      noteStore.addNote(ENoteType.MARKDOWN)
+      break
+    case OPTION_KEY.DIR:
+      noteStore.addNote(ENoteType.DIR)
+      break
+    case OPTION_KEY.DELETE:
+      item && noteStore.removeNoteDir(item.id)
+      break
+  }
 }
 </script>
 
@@ -139,7 +134,7 @@ const onMenuClick = (key: string) => {
               ><icon-gitlab
             /></a-avatar>
             <template #content>
-              <a-doption v-for="item in doptionOptions" :key="item.value" @click="item.click">
+              <a-doption v-for="item in doptionOptions" :key="item.key" @click="item.click">
                 {{ item.label }}
                 <template #icon> <component :is="item.icon" /> </template
               ></a-doption>
@@ -152,7 +147,11 @@ const onMenuClick = (key: string) => {
             <span v-if="!collapsed" class="create-text">新建</span>
           </div>
           <template #content>
-            <a-doption v-for="item in createDoptionOptions" :key="item.value" @click="item.click">
+            <a-doption
+              v-for="item in createDoptionOptions"
+              :key="item.key"
+              @click="handleClick(item)"
+            >
               {{ item.label }}
               <template #icon> <component :is="item.icon" /> </template
             ></a-doption>
@@ -186,7 +185,8 @@ const onMenuClick = (key: string) => {
               <BaseMore
                 class="icon-more"
                 position="bl"
-                :options="createDoptionOptions"
+                :options="fileDoptionOptions"
+                @handle-click="(option) => handleClick(option, item)"
                 @click.stop
               />
             </a-menu-item>

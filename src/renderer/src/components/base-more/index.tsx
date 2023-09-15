@@ -2,9 +2,8 @@ import { FunctionalComponent, h } from 'vue'
 
 export interface IOption {
   label: string
-  value: string
+  key: string
   icon: JSX.Element
-  click: () => void
 }
 
 interface IProps {
@@ -14,8 +13,12 @@ interface IProps {
   class?: string
 }
 
-const BaseMore: FunctionalComponent<IProps> = (props) => {
+const BaseMore: FunctionalComponent<IProps> = (props, { emit }) => {
   const { class: className = '', options = [], trigger = 'hover', position = 'br' } = props
+
+  const handleClick = (item: IOption) => {
+    emit('handle-click', item)
+  }
 
   const slots = {
     content: () => {
@@ -25,9 +28,9 @@ const BaseMore: FunctionalComponent<IProps> = (props) => {
             v-slots={{
               icon: () => h(item.icon)
             }}
-            key={item.value}
+            onClick={() => handleClick(item)}
+            key={item.key}
             trigger={trigger}
-            onClick={item.click}
           >
             {item.label}
           </a-doption>

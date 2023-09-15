@@ -34,20 +34,20 @@ const getAllDirs = async () => {
   return dirs
 }
 
-const getFileName = (id: string, title: string, ext = '.md') => {
+const getFileName = (id: string, title: string, ext) => {
   const filename = path.join(baseDir, `${id}__${title}${ext}`)
   return filename
 }
 
-const getTrashFileName = (id: string, title: string, ext = '.md') => {
+const getTrashFileName = (id: string, title: string, ext) => {
   const filename = path.join(trashDir, `${id}__${title}${ext}`)
   return filename
 }
 
 const fns = {
-  async save(_event, { id, title, content }) {
+  async save(_event, { id, title, content, ext }) {
     const ids = await getIds()
-    if (!ids || !ids.length) return fns.add(_event, { id, title, content })
+    if (!ids || !ids.length) return fns.add(_event, { id, title, content, ext })
     const isExist = ids.some((item) => item === id)
     if (isExist) {
       const allDirs = await getAllDirs()
@@ -55,19 +55,19 @@ const fns = {
         baseDir,
         allDirs.find((item) => item.split('__')[0] === id)!
       )
-      const filename = getFileName(id, title)
+      const filename = getFileName(id, title, ext)
       await fse.rename(originalFileName, filename)
       return fse.writeFile(filename, content, 'utf-8')
     } else {
-      return fns.add(_event, { id, title, content })
+      return fns.add(_event, { id, title, content, ext })
     }
   },
-  async add(_event, { id, title, content }) {
-    const filename = getFileName(id, title)
+  async add(_event, { id, title, content, ext }) {
+    const filename = getFileName(id, title, ext)
     return fse.writeFile(filename, content, 'utf-8')
   },
-  async rename(_event, { id, title }) {
-    const filename = getFileName(id, title)
+  async rename(_event, { id, title, ext }) {
+    const filename = getFileName(id, title, ext)
     const all = await getAllDirs()
     const isExist = all.find((item) => item.split('__')[0] === id)
     if (!isExist) return
@@ -111,25 +111,25 @@ const fns = {
       [ENoteType.DIR]: dirs
     }
   },
-  async getNoteById(_event, { id, title }) {
-    const filename = getFileName(id, title)
+  async getNoteById(_event, { id, title, ext }) {
+    const filename = getFileName(id, title, ext)
     const content = readFileSync(filename, 'utf-8')
     return content
   },
   /** 移除文件 回收站里点击移除 真删除 */
-  async removeNote(_event, { id, title }) {
+  async removeNote(_event, { id, title, ext }) {
     const ids = await getIds()
     const isExist = ids.find((item) => item === id)
-    const filename = getFileName(id, title)
+    const filename = getFileName(id, title, ext)
     if (isExist) {
       await fse.unlink(path.resolve(baseDir, filename))
     }
   },
   /** 移除到回收站 假删除 */
-  async removeNoteToTrash(_event, { id, title }) {
+  async removeNoteToTrash(_event, { id, title, ext }) {
     await ensureDir(trashDir)
-    const oldFileName = getFileName(id, title)
-    const newFileName = getTrashFileName(id, title)
+    const oldFileName = getFileName(id, title, ext)
+    const newFileName = getTrashFileName(id, title, ext)
     return await fse.rename(oldFileName, newFileName)
   },
   /** 移除目录 */
@@ -137,8 +137,8 @@ const fns = {
     await fse.rmdir(path.join(baseDir, dirName), options)
   },
   /** 新建文件夹 */
-  async createDir(_event, { id, title }) {
-    const dirName = getFileName(id, title, '')
+  async createDir(_event, { id, title, ext }) {
+    const dirName = getFileName(id, title, ext)
     await fse.mkdir(dirName)
   }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, computed } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import Sider from '@renderer/layout/sider/index.vue'
 import Content from '@renderer/layout/content/index.vue'
 import { useNoteStore, useUserStore, useAreaStore } from '../store'
@@ -28,7 +28,7 @@ const state = reactive<{
     title: '',
     content: '',
     ext: '',
-    timestamp: 0,
+    timestamp: '',
     type: ENoteType.MARKDOWN,
     isClickRename: false
   }
@@ -75,19 +75,19 @@ const handleAdd = () => {
   noteStore.addNote(ENoteType.MARKDOWN)
 }
 
-const dynamicSideWidth = computed(() => {
-  return collapse.value ? 255 : 400
-})
-
 const handleCollapse = (e) => {
   collapse.value = e
 }
+
+const width = computed(() => {
+  return collapse.value ? 258 : 400
+})
 </script>
 
 <template>
-  <a-layout style="height: 100vh">
+  <a-layout class="layout">
     <a-layout>
-      <a-layout-sider breakpoint="lg" :width="dynamicSideWidth">
+      <a-layout-sider breakpoint="lg" :width="width">
         <Sider @handle-collapse="handleCollapse">
           <template #content>
             <RouterView />
@@ -113,9 +113,17 @@ const handleCollapse = (e) => {
   </a-layout>
 </template>
 
-<style lang="less">
-.arco-drawer-body {
-  padding: 0px;
+<style lang="less" scoped>
+.layout {
+  height: 100vh;
+
+  :deep(.arco-layout-sider-children) {
+    overflow: hidden;
+  }
+
+  :deep(.arco-drawer-body) {
+    padding: 0px;
+  }
 }
 
 .add-note {
