@@ -15,6 +15,7 @@ declare module 'vue' {
     Editor: typeof import('./src/components/editor/index.vue')['default']
     EditorElement: typeof import('./src/components/editor-element/index.vue')['default']
     List: typeof import('./src/components/list/index.vue')['default']
+    MoveModal: typeof import('./src/components/list/components/move-modal/index.vue')['default']
     Rename: typeof import('./src/components/list/rename.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

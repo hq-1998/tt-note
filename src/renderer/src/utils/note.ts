@@ -33,8 +33,6 @@ const generateNote = async () => {
     return pre
   }, {})
 
-  console.log(formatterFiles, 'formatterFiles')
-
   return {
     ...formatterFiles,
     dir: notes['dir']

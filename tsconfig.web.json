@@ -20,11 +20,14 @@
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
     "baseUrl": ".",
+    "allowJs": true,
     "paths": {
       "@renderer/*": [
         "src/renderer/src/*"
       ]
     },
+    "jsx": "preserve",
+    "noEmit": true,
     "allowImportingTsExtensions": true
   }
 }

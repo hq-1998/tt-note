@@ -1,5 +1,55 @@
 <template>
-  <Render />
+  <div :class="styles['wrapper']">
+    <div :class="styles['search-wrapper']">
+      <a-input-search placeholder="请输入内容" />
+    </div>
+    <div :class="styles.list">
+      <a-list :bordered="false" hoverable>
+        <div v-if="store.notes[store.activeType]?.length" :class="styles['list-wrapper']">
+          <div
+            v-for="(item, index) in store.notes[store.activeType]"
+            :key="item.id"
+            :class="`${styles['list-wrapper-item']} ${index === store.active ? styles.active : ''}`"
+            @click="handelClickListItem(item, index)"
+          >
+            <div :class="styles['list-top-wrapper']">
+              <div :class="styles['list-title-wrapper']">
+                <Rename
+                  v-if="item.isClickRename"
+                  v-model="item.title"
+                  @blur="(e) => handleBlur(e, index)"
+                />
+                <Title v-else :value="item.title" />
+              </div>
+              <a-popover
+                :content-style="{ padding: '0' }"
+                :arrow-style="{ visibility: 'hidden' }"
+                position="rt"
+              >
+                <template #content>
+                  <a-menu style="{ width: '100px', borderRadius: '4px' }">
+                    <a-menu-item key="rename" @click="handleRename({ ...item, index })">
+                      重命名
+                    </a-menu-item>
+                    <a-menu-item key="move" @click="handleMove({ ...item, index })">
+                      移动到
+                    </a-menu-item>
+                    <a-menu-item key="delete" @click="handleDelete({ ...item, index })">
+                      删除
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+                <icon-more :class="styles['icon-more']" />
+              </a-popover>
+            </div>
+            <div :class="styles['list-bottom-wrapper']">{{ item.timestamp }}</div>
+          </div>
+        </div>
+        <BaseEmpty v-else />
+      </a-list>
+    </div>
+    <MoveModal v-model:modalVisible="modalVisible" :data="selectedInfo" />
+  </div>
 </template>
 
 <script lang="tsx" setup>
@@ -12,13 +62,16 @@ import { Message } from '@arco-design/web-vue'
 import BaseEmpty from '@renderer/components/base-empty'
 import { ENoteType } from '@renderer/layout/menu/constants'
 import { IBaseNote } from '@renderer/store/note'
+import MoveModal from './components/move-modal/index.vue'
+
+export type Item = IBaseNote & { index: number }
 
 const oldTitle = ref('')
+const modalVisible = ref(false)
 const emits = defineEmits(['handelClickListItem'])
+const selectedInfo = ref<Item | null>(null)
 
 const store = useNoteStore()
-
-type Item = IBaseNote & { index: number }
 
 /** 重命名 */
 const handleRename = (item: Item) => {
@@ -35,6 +88,13 @@ const handleDelete = async (item: Item) => {
   Message.success('删除成功')
 }
 
+/** 移动到 */
+const handleMove = (item: Item) => {
+  selectedInfo.value = item
+  modalVisible.value = true
+}
+
+/** 修改名称失焦 */
 const handleBlur = async (e, index: number) => {
   store.notes[index].isClickRename = false
   const item = { ...store.notes[index] }
@@ -57,76 +117,5 @@ const handelClickListItem = (item, index) => {
     ...item,
     index
   })
-}
-
-const Render = () => {
-  const ContentSlots = {
-    content: (item) => {
-      return (
-        <a-menu style={{ width: '100px', borderRadius: '4px' }}>
-          <a-menu-item key="0" onClick={() => handleRename(item)}>
-            重命名
-          </a-menu-item>
-          <a-menu-item key="1">移动到</a-menu-item>
-          <a-menu-item onClick={() => handleDelete(item)} key="delete">
-            删除
-          </a-menu-item>
-        </a-menu>
-      )
-    }
-  }
-
-  const ListRender = () => {
-    return (
-      <div class={styles['list-wrapper']}>
-        {(store.notes[store.activeType] || []).map((item, index) => {
-          return (
-            <div
-              onClick={() => handelClickListItem(item, index)}
-              key={item.id}
-              class={`${styles['list-wrapper-item']} ${
-                index === store.active ? styles.active : ''
-              }`}
-            >
-              <div class={styles['list-top-wrapper']}>
-                <div class={styles['list-title-wrapper']}>
-                  {item.isClickRename ? (
-                    <Rename onBlur={(e) => handleBlur(e, index)} v-model={item.title} />
-                  ) : (
-                    <Title value={item.title} />
-                  )}
-                </div>
-
-                <a-popover
-                  content-style={{ padding: '0' }}
-                  arrow-style={{ visibility: 'hidden' }}
-                  position="rt"
-                  v-slots={{
-                    content: () => ContentSlots.content({ ...item, index })
-                  }}
-                >
-                  <icon-more class={styles['icon-more']} />
-                </a-popover>
-              </div>
-              <div class={styles['list-bottom-wrapper']}>{item.timestamp}</div>
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
-
-  return (
-    <div class={styles['wrapper']}>
-      <div class={styles['search-wrapper']}>
-        <a-input-search placeholder="请输入内容" />
-      </div>
-      <div class={styles.list}>
-        <a-list bordered={false} hoverable>
-          {store.notes[store.activeType]?.length ? <ListRender /> : <BaseEmpty />}
-        </a-list>
-      </div>
-    </div>
-  )
 }
 </script>

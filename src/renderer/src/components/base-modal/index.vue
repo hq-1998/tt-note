@@ -25,7 +25,6 @@ const emit = defineEmits(['update:visible', 'handleClose'])
 
 const Render = (props: IProps & ModalProps) => {
   const {
-    visible,
     titleAlign = 'start',
     unmountOnClose = true,
     width = ModalSize.NORMAL,
@@ -36,7 +35,7 @@ const Render = (props: IProps & ModalProps) => {
   const { title: titleSlot, footer: footerSlot, default: defaultSlot } = slots
   return (
     <Modal
-      v-model:visible={visible}
+      visible={props.visible}
       titleAlign={titleAlign}
       unmountOnClose={unmountOnClose}
       width={width}

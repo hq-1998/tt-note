@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 
 export interface IBaseNote {
   title: string
-  timestamp?: number
+  timestamp?: string
   id: string
   children?: IBaseNote[]
   type: ENoteType
