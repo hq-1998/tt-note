@@ -1,7 +1,7 @@
 import { app, BrowserWindow, globalShortcut, Menu } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import ElectronWindow from './window/createWindow'
-import { LOGIN, SETTING, WINDOW_OPTIONS } from './options/window'
+import { INDEX, SETTING, WINDOW_OPTIONS } from './options/window'
 import { utils } from './window/utils'
 import IpcMain from './ipcMain'
 import { join } from 'path'
@@ -39,7 +39,7 @@ if (!lock) {
 }
 
 function createWindow(): void {
-  const mainWindow = new ElectronWindow(LOGIN, mergeConfig(WINDOW_OPTIONS[LOGIN]))
+  const mainWindow = new ElectronWindow(INDEX, mergeConfig(WINDOW_OPTIONS[INDEX]))
   let setting = new ElectronWindow(SETTING, mergeConfig(WINDOW_OPTIONS[SETTING]))
 
   globalShortcut.register('CommandOrControl+T', () => {

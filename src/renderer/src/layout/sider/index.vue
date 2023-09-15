@@ -29,7 +29,6 @@ const handleCollapse = (e) => {
   }
 
   .left-wrapper {
-    border-right: 1px solid rgb(229, 230, 235);
     background-color: #f8f9fa;
   }
 }

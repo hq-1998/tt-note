@@ -3,7 +3,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 3px 0px 3px;
   box-sizing: border-box;
   height: 100%;
 
@@ -26,16 +25,13 @@
     height: 100%;
     flex: 1;
 
-    .menu-list-wrapper {
-      flex: 1;
-    }
-
     .remove-padding {
-      padding: 0px 5px !important;
+      padding: 24px 5px 0px 5px !important;
     }
 
     .user-wrapper {
       padding: 0 24px;
+      padding-top: 24px;
       box-sizing: border-box;
       width: 100%;
       display: flex;
@@ -67,18 +63,28 @@
     }
 
     .menu-list-wrapper {
+      flex: 1;
+
+      :deep {
+        .arco-menu-inner {
+          overflow: hidden;
+        }
+      }
+
       .folder {
         display: flex;
         padding-left: 22px;
 
-        :deep(.arco-menu-item-inner) {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
+        :deep {
+          .arco-menu-item-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
 
-        :deep(.arco-icon) {
-          margin-right: 0px;
+          .arco-icon {
+            margin-right: 0px;
+          }
         }
 
         &:hover {
