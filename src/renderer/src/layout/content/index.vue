@@ -1,37 +1,38 @@
 <template>
   <div class="wrapper">
     <div class="title-wrapper">
-      <DivEditable :value="currentItem.title || '无标题笔记'" @update:value="handleUpdateTitle" />
+      <DivEditable :value="data.title || '无标题笔记'" @update:value="handleUpdateTitle" />
       <div class="title-btns">
         <a-button size="medium" @click="handleSave">保存</a-button>
       </div>
     </div>
     <div class="editor">
-      <Editor :value="currentItem.content" @update:value="handleUpdateContent" />
+      <Editor :value="data.content" @update:value="handleUpdateContent" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, watch, toRaw } from 'vue'
+import { watch } from 'vue'
 import DivEditable from '@renderer/components/editor-element/index.vue'
 import { Message } from '@arco-design/web-vue'
 import { useNoteStore } from '@renderer/store'
+import { ENoteType } from '../menu/constants'
+import { IBaseNote } from '@renderer/store/note'
 
 const store = useNoteStore()
-
-const currentItem = computed(() => store.getNoteByIndex(store.active, store.activeType))
+const props = defineProps<{ data: IBaseNote }>()
 
 const handleUpdateTitle = (v) => {
-  store.updateNoteById(currentItem.value.id, { title: v })
+  store.updateNoteById(props.data.id, { title: v })
 }
 
 const handleUpdateContent = (v) => {
-  store.updateNoteById(currentItem.value.id, { content: v })
+  store.updateNoteById(props.data.id, { content: v })
 }
 
 const handleSave = async () => {
-  const { id, title, content } = currentItem.value
+  const { id, title, content } = props.data
   if (!id) return
   await window.electron.ipcRenderer.invoke('save', {
     id,
@@ -42,14 +43,13 @@ const handleSave = async () => {
 }
 
 watch(
-  () => currentItem.value.id,
+  () => props.data.id,
   async (id) => {
     if (!id) return
-    const content = await window.electron.ipcRenderer.invoke(
-      'getNoteById',
-      toRaw(currentItem.value)
-    )
-    store.updateNoteById(currentItem.value.id, { content })
+    const content = await store.getNoteById(id)
+    if (props.data.type !== ENoteType.DIR) {
+      store.updateNoteById(id, { content })
+    }
   },
   {
     immediate: true
@@ -58,45 +58,5 @@ watch(
 </script>
 
 <style lang="less" scoped>
-.wrapper {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  height: 100vh;
-  box-sizing: border-box;
-
-  .title-wrapper {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: space-between;
-
-    .title {
-      font-size: 24px;
-      font-weight: bold;
-      flex: 1;
-
-      &:focus-visible {
-        outline: none;
-      }
-    }
-
-    .title-btns {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      flex: 1;
-    }
-  }
-
-  .editor {
-    flex: 1;
-    overflow: hidden;
-
-    :deep(.bytemd) {
-      height: 100%;
-    }
-  }
-}
+@import './style.less';
 </style>

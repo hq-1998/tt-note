@@ -5,12 +5,12 @@
     </div>
     <div :class="styles.list">
       <a-list :bordered="false" hoverable>
-        <div v-if="store.notes[store.activeType]?.length" :class="styles['list-wrapper']">
+        <div v-if="data.length" :class="styles['list-wrapper']">
           <div
-            v-for="(item, index) in store.notes[store.activeType]"
+            v-for="(item, index) in data"
             :key="item.id"
             :class="`${styles['list-wrapper-item']} ${index === store.active ? styles.active : ''}`"
-            @click="handelClickListItem(item, index)"
+            @click="handleClickListItem(item, index)"
           >
             <div :class="styles['list-top-wrapper']">
               <div :class="styles['list-title-wrapper']">
@@ -68,11 +68,14 @@ export type Item = IBaseNote & { index: number }
 
 const oldTitle = ref('')
 const modalVisible = ref(false)
-const emits = defineEmits(['handelClickListItem'])
+const emits = defineEmits(['handleClickListItem'])
 const selectedInfo = ref<Item | null>(null)
 
 const store = useNoteStore()
 
+withDefaults(defineProps<{ data: IBaseNote[] }>(), {
+  data: () => []
+})
 /** 重命名 */
 const handleRename = (item: Item) => {
   oldTitle.value = item.title
@@ -111,9 +114,10 @@ const handleBlur = async (e, index: number) => {
   Message.success('重命名成功')
 }
 
-const handelClickListItem = (item, index) => {
+/** 点击列表项 */
+const handleClickListItem = (item, index) => {
   store.setActive(index)
-  emits('handelClickListItem', {
+  emits('handleClickListItem', {
     ...item,
     index
   })

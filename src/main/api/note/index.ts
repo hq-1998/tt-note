@@ -1,7 +1,8 @@
 import fse from 'node:fs/promises'
 import { app } from 'electron'
 import dayjs from 'dayjs'
-import { ObjectEncodingOptions, ensureDir, readFileSync } from 'fs-extra'
+import { ObjectEncodingOptions, ensureDir, readFileSync, readdirSync } from 'fs-extra'
+import { statSync } from 'node:fs'
 import path from 'node:path'
 
 enum ENoteType {
@@ -24,8 +25,10 @@ type INotes = {
 const baseDir = app.getPath('userData') + '/notes'
 const trashDir = app.getPath('userData') + '/trash'
 
-const getIds = async () => {
-  const dirs = await fse.readdir(baseDir)
+const getIds = async (parentId = '') => {
+  console.log('getIds')
+  const dirs = await fse.readdir(path.join(baseDir, parentId))
+  console.log(dirs, '===dirs===')
   return dirs.map((dir) => dir.split('__')[0])
 }
 
@@ -34,8 +37,9 @@ const getAllDirs = async () => {
   return dirs
 }
 
-const getFileName = (id: string, title: string, ext) => {
-  const filename = path.join(baseDir, `${id}__${title}${ext}`)
+const getFileName = (id: string, title: string, ext: string, parentFullName = '') => {
+  const filename = path.resolve(baseDir, parentFullName, `${id}__${title}${ext}`)
+  console.log(filename, '===fileName===')
   return filename
 }
 
@@ -45,9 +49,21 @@ const getTrashFileName = (id: string, title: string, ext) => {
 }
 
 const fns = {
-  async save(_event, { id, title, content, ext }) {
-    const ids = await getIds()
-    if (!ids || !ids.length) return fns.add(_event, { id, title, content, ext })
+  async save(_event, data) {
+    const source = JSON.parse(data)
+    const { payload, parent } = source
+    const { id, title, ext, content } = payload
+    const { fullname } = parent || {}
+
+    console.log(payload, parent, 'save')
+    const ids = await getIds(fullname)
+    console.log(ids, '===ids===')
+    if (!ids || !ids.length)
+      return fns.add(_event, {
+        ...payload,
+        fullname
+      })
+
     const isExist = ids.some((item) => item === id)
     if (isExist) {
       const allDirs = await getAllDirs()
@@ -59,11 +75,11 @@ const fns = {
       await fse.rename(originalFileName, filename)
       return fse.writeFile(filename, content, 'utf-8')
     } else {
-      return fns.add(_event, { id, title, content, ext })
+      return fns.add(_event, { id, title, content, ext, fullname })
     }
   },
-  async add(_event, { id, title, content, ext }) {
-    const filename = getFileName(id, title, ext)
+  async add(_event, { id, title, content, ext, fullname }) {
+    const filename = getFileName(id, title, ext, fullname)
     return fse.writeFile(filename, content, 'utf-8')
   },
   async rename(_event, { id, title, ext }) {
@@ -111,10 +127,34 @@ const fns = {
       [ENoteType.DIR]: dirs
     }
   },
-  async getNoteById(_event, { id, title, ext }) {
+  async getNoteById(_event, item) {
+    const { id, title, ext, type, fullname } = item
+    let content: Info[] | string
     const filename = getFileName(id, title, ext)
-    const content = readFileSync(filename, 'utf-8')
-    return content
+
+    console.log(filename, 'getNoteById filename')
+
+    switch (type) {
+      case ENoteType.DIR: {
+        const data = readdirSync(filename, 'utf-8')
+        const result = data.map((item) => {
+          const [prefix, type] = item.split('.')
+          const [id, title] = prefix.split('__')
+          const ext = type ? `.${type}` : ''
+          const childFileName = getFileName(id, title, ext, fullname)
+          const stat = statSync(childFileName)
+          return {
+            name: item,
+            mtime: dayjs(stat.mtime).format('YYYY-MM-DD HH:mm:ss')
+          }
+        })
+        return result
+      }
+      default: {
+        content = readFileSync(filename, 'utf-8')
+        return content
+      }
+    }
   },
   /** 移除文件 回收站里点击移除 真删除 */
   async removeNote(_event, { id, title, ext }) {
@@ -133,13 +173,19 @@ const fns = {
     return await fse.rename(oldFileName, newFileName)
   },
   /** 移除目录 */
-  async removeNoteByDir(_event, { dirName, options }) {
+  async removeNoteDir(_event, { dirName, options }) {
     await fse.rmdir(path.join(baseDir, dirName), options)
   },
   /** 新建文件夹 */
   async createDir(_event, { id, title, ext }) {
     const dirName = getFileName(id, title, ext)
     await fse.mkdir(dirName)
+  },
+  /** 检测文件夹是否为空 */
+  async checkDir(_event, id: string) {
+    const readPath = path.join(baseDir, id)
+    const hasContent = await fse.readdir(readPath)
+    return !!hasContent.length
   }
 }
 

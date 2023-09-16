@@ -1,18 +1,13 @@
 <template>
   <div class="sider-wrapper">
-    <div class="left-wrapper">
-      <Menu @handle-collapse="handleCollapse" />
-    </div>
-    <div class="right-wrapper">
-      <slot name="content" />
-    </div>
+    <Menu @handle-collapse="handleCollapse" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import Menu from '../menu/index.vue'
 
-const emits = defineEmits(['handleCollapse', 'handelClickListItem'])
+const emits = defineEmits(['handleCollapse'])
 
 const handleCollapse = (e) => {
   emits('handleCollapse', e)
@@ -23,14 +18,6 @@ const handleCollapse = (e) => {
 .sider-wrapper {
   height: 100%;
   display: inline-flex;
-
-  .left-wrapper,
-  .right-wrapper {
-    height: 100%;
-  }
-
-  .left-wrapper {
-    background-color: #f8f9fa;
-  }
+  background-color: #f8f9fa;
 }
 </style>

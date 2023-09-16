@@ -21,7 +21,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
     children: [
       {
         path: ':id',
-        component: () => import('@renderer/views/folders/index.vue')
+        component: () => import('@renderer/views/folders/index.vue'),
+        meta: {
+          /* 标记菜单层级 */
+          level: 2
+        }
       }
     ]
   },

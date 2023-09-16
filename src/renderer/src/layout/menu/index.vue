@@ -6,17 +6,22 @@ import DrawerComponent from '@renderer/components/drawer/index.vue'
 import VirtualScrollList from '@renderer/components/virtual-scroll-list/index.vue'
 import { useNoteStore, useUserStore } from '@renderer/store'
 import { Message } from '@arco-design/web-vue'
-import { ENoteType, OPTION_KEY, createDoptionOptions, fileDoptionOptions } from './constants'
+import { OPTION_KEY, createDoptionOptions, fileDoptionOptions, keyMap } from './constants'
 import { user } from '@renderer/api'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { menuKey } from '@renderer/router/menuKey'
 import BaseMore, { type IOption } from '@renderer/components/base-more'
 import { IBaseNote } from '@renderer/store/note'
 
 const emits = defineEmits(['handleCollapse'])
+
 const collapsed = ref(true)
 const visible = ref(false)
+
 const router = useRouter()
+const route = useRoute()
+const noteStore = useNoteStore()
+const userStore = useUserStore()
 
 const onCollapse = (val) => {
   collapsed.value = val
@@ -94,29 +99,51 @@ const doptionOptions = [
   }
 ]
 
-const noteStore = useNoteStore()
-const userStore = useUserStore()
-
 const noteDirs = computed(() => {
   return noteStore.notes?.dir || []
 })
 
-const onMenuClick = (key: string) => {
+const demandChildren = async (key: string) => {
+  const id = noteStore.notes[keyMap[key]][0]?.id
+  if (id) {
+    const content = await noteStore.getNoteById(id)
+    noteStore.insertChildrenById(id, content)
+  }
+}
+
+const onMenuClick = async (key: string) => {
+  const children = key.split('/')
+  noteStore.setActiveType(keyMap[children[0]])
+  if (children.length > 1) {
+    demandChildren(children[0])
+  }
   router.push(`/${key}`)
 }
 
-const handleClick = (option: IOption, item?: IBaseNote) => {
+const handleClick = async (option: IOption, item?: IBaseNote) => {
   const { key } = option
-  switch (key) {
-    case OPTION_KEY.MARKDOWN:
-      noteStore.addNote(ENoteType.MARKDOWN)
-      break
-    case OPTION_KEY.DIR:
-      noteStore.addNote(ENoteType.DIR)
-      break
-    case OPTION_KEY.DELETE:
-      item && noteStore.removeNoteDir(item.id)
-      break
+  const parentId = (route.params.id as string) ?? ''
+  try {
+    switch (key) {
+      case OPTION_KEY.MARKDOWN:
+      case OPTION_KEY.DIR:
+        {
+          const successId = await noteStore.addNote(key, parentId)
+          if (successId) {
+            Message.success('新建成功')
+          }
+        }
+        break
+      case OPTION_KEY.DELETE:
+        if (item) {
+          await noteStore.removeNoteDir(item)
+          Message.success('删除成功')
+        }
+        break
+    }
+  } catch (error) {
+    console.log(error, '===error===')
+    Message.error((error as { message: string }).message)
   }
 }
 </script>

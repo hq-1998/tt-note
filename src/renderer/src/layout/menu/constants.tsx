@@ -2,6 +2,7 @@ import type { IOption } from '@renderer/components/base-more'
 import document from '@renderer/assets/images/icons/document.png'
 import directory from '@renderer/assets/images/icons/directory.png'
 import trash from '@renderer/assets/images/icons/trash.png'
+import { menuKey } from '@renderer/router/menuKey'
 
 export enum ENoteType {
   MARKDOWN = 'md',
@@ -30,8 +31,8 @@ const PAYLOAD = {
 }
 
 const OPTION_KEY = {
-  MARKDOWN: 'markdown',
-  DIR: 'dir',
+  MARKDOWN: ENoteType.MARKDOWN,
+  DIR: ENoteType.DIR,
   DELETE: 'delete'
 }
 
@@ -57,4 +58,11 @@ const fileDoptionOptions: IOption[] = [
   }
 ]
 
-export { OPTION_KEY, createDoptionOptions, fileDoptionOptions, PAYLOAD }
+const keyMap = {
+  [menuKey.NEW]: ENoteType.MARKDOWN,
+  [menuKey.FOLDERS]: ENoteType.DIR,
+  [menuKey.STAR]: ENoteType.DIR,
+  [menuKey.TRASH]: ENoteType.DIR
+}
+
+export { keyMap, OPTION_KEY, createDoptionOptions, fileDoptionOptions, PAYLOAD }

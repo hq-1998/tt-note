@@ -1,10 +1,16 @@
+import { ENoteType } from '@renderer/layout/menu/constants'
+
 /** nodejs获取到的数据格式为 */
 /** { file: [], dir: []} */
-
 /** 前台展示 进行整理 归类 细分出文件类型 */
 /** { md: [], ...: [], dir: [] } */
+
 const generateNote = async () => {
   const _notes = await window.electron.ipcRenderer.invoke('getNotes')
+  const initData = {
+    [ENoteType.MARKDOWN]: [],
+    [ENoteType.DIR]: []
+  }
   const notes = Object.entries(_notes).reduce((pre, cur) => {
     const [key, value] = cur
     if (!pre[key]) pre[key] = []
@@ -18,7 +24,9 @@ const generateNote = async () => {
         content: '',
         timestamp: mtime,
         ext: ext ? `.${ext}` : '',
-        type: ext
+        fullname: name,
+        type: ext || ENoteType.DIR,
+        children: []
       }
     })
 
@@ -34,8 +42,8 @@ const generateNote = async () => {
   }, {})
 
   return {
-    ...formatterFiles,
-    dir: notes['dir']
+    [ENoteType.MARKDOWN]: formatterFiles[ENoteType.MARKDOWN] || initData[ENoteType.MARKDOWN],
+    [ENoteType.DIR]: notes['dir'] || initData[ENoteType.DIR]
   }
 }
 
