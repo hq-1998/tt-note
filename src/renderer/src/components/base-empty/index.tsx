@@ -4,19 +4,21 @@ import styles from './style.module.less'
 
 interface IProps {
   /** 空数据图标 */
-  emptyIconStr?: string
+  icon?: string
   /** 空数据文案 */
-  emptyText?: string
+  text?: string
+  /** 是否隐藏空数组文案 */
+  hidden?: boolean
 }
 
 const BaseEmpty: FunctionalComponent<IProps> = (props, { slots }) => {
-  const { emptyIconStr = 'empty', emptyText = '暂无数据' } = props
-  const icon = loadSvg(emptyIconStr)
+  const { icon = 'empty', text = '暂无数据', hidden = false } = props
+  const iconAsset = loadSvg(icon)
 
   return (
     <div class={styles['empty-wrapper']}>
-      <img class={styles['empty-icon']} src={icon} />
-      <span class={styles['empty-text']}>{emptyText}</span>
+      <img class={styles['empty-icon']} src={iconAsset} />
+      {!hidden && <span class={styles['empty-text']}>{text}</span>}
       {slots?.extra && slots?.extra()}
     </div>
   )

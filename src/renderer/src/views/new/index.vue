@@ -15,7 +15,7 @@ const currentItem = ref<IBaseNote | null>(null)
 const store = useNoteStore()
 
 onMounted(() => {
-  data.value = store.notes[ENoteType.MARKDOWN] || []
+  data.value = store.notes || []
 })
 
 const handleAdd = () => {
@@ -23,12 +23,14 @@ const handleAdd = () => {
   store.addNote(ENoteType.MARKDOWN, id && store.notesMap[id].fullname)
 }
 
-const hasLength = computed(() => {
-  return !!(store.notes[ENoteType.MARKDOWN]?.length || 0)
+const empty = computed(() => {
+  if (currentItem.value?.type === ENoteType.DIR) return true
+  return store.notes.length === 0
 })
 
 const handleClickListItem = (item: IBaseNote) => {
   currentItem.value = item
+  console.log(currentItem.value, 'currentItem')
 }
 </script>
 
@@ -37,19 +39,21 @@ const handleClickListItem = (item: IBaseNote) => {
     <div class="main-content">
       <List :data="data" @handle-click-list-item="handleClickListItem" />
       <div class="content">
-        <BaseEmpty v-if="!hasLength">
-          <template #extra>
+        <BaseEmpty
+          v-if="empty"
+          :hidden="currentItem?.type === ENoteType.DIR"
+          :icon="currentItem?.type === ENoteType.DIR ? 'emptyDir' : undefined"
+        >
+          <template v-if="currentItem?.type !== ENoteType.DIR" #extra>
             <a-button size="medium" class="add-note" type="primary">
               <template #icon>
                 <icon-plus />
               </template>
-              <template #default>
-                <div @click="handleAdd">新建笔记</div>
-              </template>
+              <div @click="handleAdd">新建笔记</div>
             </a-button>
           </template></BaseEmpty
         >
-        <Content v-else :data="(currentItem as IBaseNote) || store.notes[ENoteType.MARKDOWN][0]" />
+        <Content v-else :data="(currentItem as IBaseNote) || store.notes[0]" />
       </div>
     </div>
   </a-layout-content>

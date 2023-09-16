@@ -19,7 +19,7 @@
                   v-model="item.title"
                   @blur="(e) => handleBlur(e, index)"
                 />
-                <Title v-else :value="item.title" />
+                <Title v-else :value="item.title" :type="item.type" />
               </div>
               <a-popover
                 :content-style="{ padding: '0' }"

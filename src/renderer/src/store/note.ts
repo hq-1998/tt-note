@@ -2,13 +2,13 @@ import { ENoteType, PAYLOAD } from '@renderer/layout/menu/constants'
 import { defineStore } from 'pinia'
 import { omit } from 'lodash-es'
 import { v4 } from 'uuid'
-import { reactive, toRaw } from 'vue'
+import { toRaw } from 'vue'
 
 export interface IBaseNote {
   title: string
   timestamp?: string
   id: string
-  children?: IBaseNote[]
+  children: IBaseNote[]
   type: ENoteType
   isClickRename: boolean
   content: string
@@ -18,28 +18,18 @@ export interface IBaseNote {
   parentFullName?: string
 }
 
-type INotes = {
-  [ENoteType.MARKDOWN]: IBaseNote[]
-  [ENoteType.DIR]: IBaseNote[]
-}
-
 const useNoteStore = defineStore('note', {
   state: () => {
     return {
-      notes: {} as INotes,
+      notes: [] as IBaseNote[],
+      notesMap: {} as Record<string, IBaseNote>,
       active: 0,
       activeType: ENoteType.MARKDOWN
     }
   },
   getters: {
-    notesMap(state) {
-      return Object.entries(state.notes).reduce((pre, cur) => {
-        const [, value] = cur
-        value.map((item) => {
-          pre[item.id] = item
-        })
-        return pre
-      }, {})
+    dirNotes(state) {
+      return state.notes.filter((item) => !item.ext)
     }
   },
   actions: {
@@ -110,36 +100,11 @@ const useNoteStore = defineStore('note', {
     updateNoteById(id: string, payload: Partial<IBaseNote>) {
       const item = this.notesMap[id]
       if (item) {
-        const noteIndex = this.notes[item.type].findIndex((note) => note.id === id)
-        this.notes[item.type][noteIndex] = {
-          ...this.notes[item.type][noteIndex],
+        const noteIndex = this.notes.findIndex((note) => note.id === id)
+        this.notes[noteIndex] = {
+          ...this.notes[noteIndex],
           ...payload
         }
-      }
-    },
-    /** 通过id 按需插入children */
-    insertChildrenById(id: string, content: { name: string; mtime: string }[]) {
-      const data = this.notesMap[id]
-      if (data) {
-        const noteIndex = this.notes[data.type].findIndex((note) => note.id === id)
-        this.notes[data.type][noteIndex].children = content.map((item) => {
-          const [prefix, type] = item.name.split('.')
-          const [id, title] = prefix.split('__')
-          const ext = type ? '.' + type : ''
-          return {
-            title,
-            timestamp: item.mtime,
-            id,
-            children: [],
-            type,
-            isClickRename: false,
-            content: '',
-            ext,
-            fullname: item.name,
-            parentId: data.id,
-            parentFullName: data.fullname
-          }
-        })
       }
     },
     /** 通过id移除文件夹 */
@@ -181,16 +146,19 @@ const useNoteStore = defineStore('note', {
     removeNoteToTrash(removeItem: Omit<IBaseNote, 'children'>) {
       window.electron.ipcRenderer.invoke('removeNoteToTrash', removeItem)
     },
-    setNotes(payload: INotes) {
+    setNotes(payload: IBaseNote[]) {
       this.notes = payload
     },
+    setNotesMap(payload: Record<string, IBaseNote>) {
+      this.notesMap = payload
+    },
     async getNoteById(id: string) {
-      const item = toRaw(this.notesMap[id])
+      const item = toRaw(omit(this.notesMap[id], 'children'))
       const content = await window.electron.ipcRenderer.invoke('getNoteById', item)
+      console.log(content, '===')
       return content
     },
     getNoteByIndex(index: number, type: ENoteType) {
-      console.log(this.notes, '====', type)
       const category = this.notes[type]
       return category[index]
     },

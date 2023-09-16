@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import Sider from '@renderer/layout/sider/index.vue'
 import { useNoteStore, useUserStore, useAreaStore } from '../store'
 import { onBeforeMount } from 'vue'
-import { globalStorage, generateNote, shallowMergeObject } from '../utils'
+import { globalStorage } from '../utils'
 import { globalWebSocket, Events } from '@renderer/websocket'
 import { user, area } from '../api'
-import { IBaseNote } from '../store/note'
 import { IUserInfo } from '../api/user/data'
 import { IProvince } from '../api/area/data'
-import { ENoteType } from './menu/constants'
 
 const areaStore = useAreaStore()
 const noteStore = useNoteStore()
@@ -17,21 +15,6 @@ const userStore = useUserStore()
 
 const collapse = ref(true)
 const currentIndex = ref(0)
-
-const state = reactive<{
-  data: IBaseNote
-}>({
-  data: {
-    id: '',
-    title: '',
-    content: '',
-    ext: '',
-    timestamp: '',
-    type: ENoteType.MARKDOWN,
-    isClickRename: false,
-    fullname: ''
-  }
-})
 
 onBeforeMount(() => {
   const token = globalStorage.get('token')
@@ -54,12 +37,9 @@ onBeforeMount(() => {
 
 onMounted(async () => {
   noteStore.setActive(currentIndex.value)
-  const notes = await generateNote()
-  noteStore.setNotes(notes)
-  const note = notes[ENoteType.MARKDOWN]?.[currentIndex.value]
-  if (note) {
-    state.data = shallowMergeObject(state.data, note) as IBaseNote
-  }
+  const { result, treeMap } = await window.electron.ipcRenderer.invoke('getNotes')
+  noteStore.setNotes(result)
+  noteStore.setNotesMap(treeMap)
 
   const unsubscribe = globalWebSocket.subscribe(Events.OTHER, () => {
     window.electron.ipcRenderer.invoke('sendNotification', {
@@ -70,13 +50,9 @@ onMounted(async () => {
   })
 })
 
-const handleCollapse = (e) => {
-  collapse.value = e
-}
+const handleCollapse = (e) => (collapse.value = e)
 
-const width = computed(() => {
-  return collapse.value ? 48 : 200
-})
+const width = computed(() => (collapse.value ? 48 : 200))
 </script>
 
 <template>
@@ -91,19 +67,5 @@ const width = computed(() => {
 </template>
 
 <style lang="less" scoped>
-.layout {
-  height: 100vh;
-
-  :deep(.arco-layout-sider-children) {
-    overflow: hidden;
-  }
-
-  :deep(.arco-drawer-body) {
-    padding: 0px;
-  }
-}
-
-.add-note {
-  margin-top: 10px;
-}
+@import './style.less';
 </style>

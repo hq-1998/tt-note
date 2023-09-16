@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import List from '@renderer/components/list/index.vue'
 import { useNoteStore } from '@renderer/store'
 import { IBaseNote } from '@renderer/store/note'
@@ -10,35 +10,32 @@ import { ENoteType } from '@renderer/layout/menu/constants'
 
 const route = useRoute()
 
-const data = ref<IBaseNote[]>([])
 const store = useNoteStore()
 const currentItem = ref<IBaseNote | null>(null)
-
-onMounted(() => {
-  initData()
-})
-
-onBeforeRouteUpdate(() => {
-  initData()
-})
-
-const initData = () => {
-  const dataSource = store.notes[ENoteType.DIR] || []
-  data.value = dataSource[store.active].children || []
-}
 
 const handleAdd = () => {
   const id = route.params.id as string | undefined
   store.addNote(ENoteType.MARKDOWN, id && store.notesMap[id].fullname)
 }
 
-const hasLength = computed(() => {
-  return !!(store.notes[ENoteType.DIR]?.length || 0)
-})
+const hasLength = ref(!!(store.dirNotes[store.active].children.length || 0))
 
 const handleClickListItem = (item: IBaseNote) => {
   currentItem.value = item
+  console.log(currentItem.value, '3')
 }
+
+const data = ref<IBaseNote[]>([])
+
+onBeforeRouteUpdate((to, from) => {
+  if (to.params.id !== from.params.id) {
+    const item = store.dirNotes.find((child) => child.id === to.params.id)
+    hasLength.value = !!(item?.children.length || 0)
+    if (item) {
+      data.value = item.children || []
+    }
+  }
+})
 </script>
 
 <template>
@@ -58,7 +55,7 @@ const handleClickListItem = (item: IBaseNote) => {
             </a-button>
           </template></BaseEmpty
         >
-        <Content v-else :data="(currentItem as IBaseNote) || store.notes[ENoteType.DIR][0]" />
+        <Content v-else :data="currentItem || data[store.active]" />
       </div>
     </div>
   </a-layout-content>

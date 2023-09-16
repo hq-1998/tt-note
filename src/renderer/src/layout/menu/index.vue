@@ -1,5 +1,5 @@
 <script lang="tsx" setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import UserInfoModal from '@renderer/components/user-info-modal/index.vue'
 import UploadModal from '@renderer/components/upload-modal/index.vue'
 import DrawerComponent from '@renderer/components/drawer/index.vue'
@@ -99,24 +99,9 @@ const doptionOptions = [
   }
 ]
 
-const noteDirs = computed(() => {
-  return noteStore.notes?.dir || []
-})
-
-const demandChildren = async (key: string) => {
-  const id = noteStore.notes[keyMap[key]][0]?.id
-  if (id) {
-    const content = await noteStore.getNoteById(id)
-    noteStore.insertChildrenById(id, content)
-  }
-}
-
 const onMenuClick = async (key: string) => {
   const children = key.split('/')
   noteStore.setActiveType(keyMap[children[0]])
-  if (children.length > 1) {
-    demandChildren(children[0])
-  }
   router.push(`/${key}`)
 }
 
@@ -204,7 +189,7 @@ const handleClick = async (option: IOption, item?: IBaseNote) => {
             <template #icon><icon-folder /></template>
             <template #title>我的文件夹</template>
             <a-menu-item
-              v-for="item in noteDirs"
+              v-for="item in noteStore.dirNotes"
               :key="`${menuKey.FOLDERS}/${item.id}`"
               class="folder"
             >

@@ -34,11 +34,17 @@ const handleUpdateContent = (v) => {
 const handleSave = async () => {
   const { id, title, content } = props.data
   if (!id) return
-  await window.electron.ipcRenderer.invoke('save', {
-    id,
-    title,
-    content
-  })
+  await window.electron.ipcRenderer.invoke(
+    'save',
+    JSON.stringify({
+      payload: {
+        id,
+        title,
+        content,
+        ext: `.${ENoteType.MARKDOWN}`
+      }
+    })
+  )
   Message.success('保存成功')
 }
 
