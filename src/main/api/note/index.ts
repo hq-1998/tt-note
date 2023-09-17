@@ -25,6 +25,7 @@ type Info = {
 
 const baseDir = app.getPath('userData') + '/notes'
 const trashDir = app.getPath('userData') + '/trash'
+let noteMaps: Record<string, Info> = {}
 
 const getIds = async (parentId = '') => {
   const dirs = await fse.readdir(path.join(baseDir, parentId))
@@ -45,8 +46,6 @@ const getTrashFileName = (id: string, title: string, ext) => {
   const filename = path.join(trashDir, `${id}__${title}${ext}`)
   return filename
 }
-
-let noteMaps: Record<string, Info> = {}
 
 const fns = {
   async save(_event, data) {
@@ -123,7 +122,7 @@ const fns = {
       timestamp: dayjs(stat.mtime).format('YYYY-MM-DD HH:mm:ss'),
       ext,
       fullname,
-      type: ext || ENoteType.DIR,
+      type: type || ENoteType.DIR,
       children: [],
       parentId: parent?.id ?? null,
       parentFullName: parent?.fullname ?? null

@@ -19,6 +19,7 @@ declare module 'vue' {
     Rename: typeof import('./src/components/list/rename.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SvgComponent: typeof import('./src/components/svg-component/index.vue')['default']
     Title: typeof import('./src/components/list/title.vue')['default']
     UploadAvatar: typeof import('./src/components/upload-avatar/index.vue')['default']
     UploadModal: typeof import('./src/components/upload-modal/index.vue')['default']

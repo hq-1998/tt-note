@@ -30,6 +30,9 @@ const useNoteStore = defineStore('note', {
   getters: {
     dirNotes(state) {
       return state.notes.filter((item) => !item.ext)
+    },
+    fileNotes(state) {
+      return state.notes.filter((item) => item.ext)
     }
   },
   actions: {

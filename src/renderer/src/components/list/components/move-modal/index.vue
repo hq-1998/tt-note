@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import type { Item } from '../index'
 import BaseModal from '@renderer/components/base-modal/index.vue'
-import markdown from '@renderer/assets/images/icons/document.png'
+import markdown from '@renderer/assets/images/svg/markdown.svg'
 
 const emits = defineEmits(['update:modalVisible'])
 const props = withDefaults(

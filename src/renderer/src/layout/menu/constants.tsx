@@ -1,8 +1,9 @@
 import type { IOption } from '@renderer/components/base-more'
-import document from '@renderer/assets/images/icons/document.png'
-import directory from '@renderer/assets/images/icons/directory.png'
+import markdown from '@renderer/assets/images/svg/markdown.svg'
+import directory from '@renderer/assets/images/svg/directory.svg'
 import trash from '@renderer/assets/images/icons/trash.png'
 import { menuKey } from '@renderer/router/menuKey'
+import SvgComponent from '@renderer/components/svg-component/index.vue'
 
 export enum ENoteType {
   MARKDOWN = 'md',
@@ -40,12 +41,12 @@ const createDoptionOptions: IOption[] = [
   {
     label: 'MarkDown',
     key: OPTION_KEY.MARKDOWN,
-    icon: <img width={14} height={14} src={document} />
+    icon: <SvgComponent name="markdown" />
   },
   {
     label: '新建文件夹',
     key: OPTION_KEY.DIR,
-    icon: <img width={14} height={14} src={directory} />
+    icon: <SvgComponent name="directory" />
   }
 ]
 

@@ -15,7 +15,7 @@ const currentItem = ref<IBaseNote | null>(null)
 const store = useNoteStore()
 
 onMounted(() => {
-  data.value = store.notes || []
+  data.value = store.fileNotes || []
 })
 
 const handleAdd = () => {
@@ -24,8 +24,7 @@ const handleAdd = () => {
 }
 
 const empty = computed(() => {
-  if (currentItem.value?.type === ENoteType.DIR) return true
-  return store.notes.length === 0
+  return store.fileNotes.length === 0
 })
 
 const handleClickListItem = (item: IBaseNote) => {
@@ -52,7 +51,7 @@ const handleClickListItem = (item: IBaseNote) => {
             </a-button>
           </template></BaseEmpty
         >
-        <Content v-else :data="(currentItem as IBaseNote) || store.notes[0]" />
+        <Content v-else :data="(currentItem as IBaseNote) || store.fileNotes[0]" />
       </div>
     </div>
   </a-layout-content>

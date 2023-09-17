@@ -6,6 +6,7 @@ import Components from 'unplugin-vue-components/vite'
 import { ArcoResolver } from 'unplugin-vue-components/resolvers'
 import { vitePluginForArco } from '@arco-plugins/vite-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 
 export default defineConfig(() => {
   return {
@@ -48,6 +49,10 @@ export default defineConfig(() => {
           script: {
             defineModel: true
           }
+        }),
+        createSvgIconsPlugin({
+          iconDirs: [resolve(__dirname, 'src/renderer/src/assets/images/svg')],
+          symbolId: 'icon-[name]'
         }),
         vueJsx(),
         AutoImport({

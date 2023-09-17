@@ -1,6 +1,6 @@
 import { FunctionalComponent } from 'vue'
-import { loadSvg } from '@renderer/utils'
 import styles from './style.module.less'
+import SvgComponent from '@renderer/components/svg-component/index.vue'
 
 interface IProps {
   /** 空数据图标 */
@@ -9,15 +9,16 @@ interface IProps {
   text?: string
   /** 是否隐藏空数组文案 */
   hidden?: boolean
+  /** 空数据图大小 */
+  size?: number
 }
 
 const BaseEmpty: FunctionalComponent<IProps> = (props, { slots }) => {
-  const { icon = 'empty', text = '暂无数据', hidden = false } = props
-  const iconAsset = loadSvg(icon)
+  const { icon = 'empty', text = '暂无数据', size = 180, hidden = false } = props
 
   return (
     <div class={styles['empty-wrapper']}>
-      <img class={styles['empty-icon']} src={iconAsset} />
+      <SvgComponent size={size} name={icon} />
       {!hidden && <span class={styles['empty-text']}>{text}</span>}
       {slots?.extra && slots?.extra()}
     </div>

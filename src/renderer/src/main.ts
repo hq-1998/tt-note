@@ -4,6 +4,7 @@ import 'bytemd/dist/index.css'
 import { Message } from '@arco-design/web-vue'
 import { createPinia } from 'pinia'
 import router from './router'
+import 'virtual:svg-icons-register'
 
 const app = createApp(App)
 app.use(createPinia())
