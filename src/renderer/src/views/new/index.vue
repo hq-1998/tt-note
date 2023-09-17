@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import List from '@renderer/components/list/index.vue'
 import { useNoteStore } from '@renderer/store'
 import { IBaseNote } from '@renderer/store/note'
@@ -34,12 +34,6 @@ const handleRename = (item: IBaseNote & { index: number }) => {
   store.fileNotes.forEach((note) => (note.isClickRename = false))
   store.fileNotes[item.index].isClickRename = true
 }
-
-onMounted(async () => {
-  const { result, noteMaps } = await window.electron.ipcRenderer.invoke('getNotes')
-  store.setNotes(result)
-  store.setNotesMap(noteMaps)
-})
 </script>
 
 <template>

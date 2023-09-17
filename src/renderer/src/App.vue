@@ -2,8 +2,15 @@
 import Layout from '@renderer/layout/index.vue'
 import { onMounted } from 'vue'
 import { globalWebSocket, Events } from '@renderer/websocket'
+import { useNoteStore } from './store'
 
-onMounted(() => {
+const store = useNoteStore()
+
+onMounted(async () => {
+  const { result, noteMaps } = await window.electron.ipcRenderer.invoke('getNotes')
+  store.setNotes(result)
+  store.setNotesMap(noteMaps)
+
   const unsubscribe = globalWebSocket.subscribe(Events.OTHER, () => {
     window.electron.ipcRenderer.invoke('sendNotification', {
       title: '欢迎光临',

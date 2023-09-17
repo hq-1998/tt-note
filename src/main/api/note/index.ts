@@ -32,12 +32,23 @@ const getFileName = (id: string, title: string, ext: string, parentFullName = ''
   return filename
 }
 
+const replaceFullName = (oldFullName: string, title: string) => {
+  const [prefix, suffix] = oldFullName.split('.')
+  const [id] = prefix.split('__')
+  const newSuffix = `${id}__${title}${suffix ? '.' + suffix : ''}`
+  return newSuffix
+}
+
 const fns = {
   async save(_event, payload: Info) {
     const { id, content } = payload
     const isExist = noteMaps.get(id)
     if (isExist) {
-      const mergeResult = { ...isExist, ...payload }
+      const mergeResult = {
+        ...isExist,
+        ...payload,
+        fullname: replaceFullName(isExist.fullname, payload.title)
+      }
       const originalFileName = fns.montagePath(isExist)
       const filename = getFileName(
         mergeResult.id,
@@ -50,8 +61,8 @@ const fns = {
       noteMaps.set(id, mergeResult)
       return mergeResult.id
     } else {
-      noteMaps.set(id, payload)
       await fns._add(payload)
+      noteMaps.set(id, payload)
       return payload.id
     }
   },
@@ -210,6 +221,7 @@ const fns = {
     const item = noteMaps.get(id)
     if (item) {
       const oldFileName = fns.montagePath(item)
+      console.log(oldFileName, noteMaps, '===oldFileName===')
       const newFileName = oldFileName.replace('/notes', '/trash')
       await fse.rename(oldFileName, newFileName)
       noteMaps.delete(id)

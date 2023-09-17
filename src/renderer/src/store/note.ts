@@ -74,6 +74,7 @@ const useNoteStore = defineStore('note', {
           await window.electron.ipcRenderer.invoke('save', data)
           await window.electron.ipcRenderer.invoke('setNotesMap', data)
           /** 递归插入children parent notes */
+          this.setActive(0)
           this.notesHandler.create(payload)
           this.notesMap.set(id, payload)
           if (parentId && parent) {
@@ -107,6 +108,7 @@ const useNoteStore = defineStore('note', {
           parentId,
           parentFullName: parent?.fullname ?? ''
         }
+        this.setActive(0)
         this.notesHandler.create(payload)
         this.notesMap.set(id, data)
         if (parentId && parent) {
@@ -154,19 +156,32 @@ const useNoteStore = defineStore('note', {
     /** 修改文件名 */
     async rename(value: string, oldValue: string, item: IBaseNote) {
       const { id } = item
-      this.notesHandler.update({
-        ...item,
-        isClickRename: false
-      })
-      if (Object.is(value, oldValue)) return
+
+      if (Object.is(value, oldValue)) {
+        const payload = {
+          ...item,
+          isClickRename: false
+        }
+        this.notesHandler.update(payload)
+        this.notesMap.set(id, payload)
+        return
+      }
       if (!value) {
-        this.notesHandler.update({
+        const payload = {
           ...item,
           title: oldValue,
           isClickRename: false
-        })
+        }
+        this.notesHandler.update(payload)
+        this.notesMap.set(id, payload)
         return
       }
+      const payload = {
+        ...item,
+        title: value,
+        isClickRename: false
+      }
+      this.notesMap.set(id, payload)
       this.updateNoteById(id, {
         title: value,
         type: ENoteType.MARKDOWN
