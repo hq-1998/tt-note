@@ -27,9 +27,7 @@ const baseDir = app.getPath('userData') + '/notes'
 const trashDir = app.getPath('userData') + '/trash'
 
 const getIds = async (parentId = '') => {
-  console.log('getIds')
   const dirs = await fse.readdir(path.join(baseDir, parentId))
-  console.log(dirs, '===dirs===')
   return dirs.map((dir) => dir.split('__')[0])
 }
 
@@ -40,7 +38,6 @@ const getAllDirs = async () => {
 
 const getFileName = (id: string, title: string, ext: string, parentFullName = '') => {
   const filename = path.resolve(baseDir, parentFullName, `${id}__${title}${ext}`)
-  console.log(filename, '===fileName===')
   return filename
 }
 
@@ -175,37 +172,45 @@ const fns = {
     }
     return path.reverse().join('/')
   },
-  async getNoteById(_event, item) {
+  async getNoteById(_event, id: string) {
     let content: Info[] | string
-    const fullPath = fns.montagePath(item)
-    const fullResolvePath = path.join(baseDir, fullPath)
+    const item = noteMaps[id]
+    if (item) {
+      const fullPath = fns.montagePath(item)
+      const fullResolvePath = path.join(baseDir, fullPath)
 
-    switch (item.type) {
-      case ENoteType.DIR: {
-        const data = readdirSync(fullResolvePath, 'utf-8')
-        return data.map((v) => {
-          return fns._generateData(v, statSync(path.resolve(fullResolvePath, v)), item)
-        })
+      switch (item.type) {
+        case ENoteType.DIR: {
+          const data = readdirSync(fullResolvePath, 'utf-8')
+          return data.map((v) => {
+            return fns._generateData(v, statSync(path.resolve(fullResolvePath, v)), item)
+          })
+        }
+        default: {
+          content = readFileSync(fullResolvePath, 'utf-8')
+          return content
+        }
       }
-      default: {
-        content = readFileSync(fullResolvePath, 'utf-8')
-        return content
-      }
+    } else {
+      throw new Error('文件不存在')
     }
   },
   /** 移除文件 回收站里点击移除 真删除 */
-  async removeNote(_event, { id, title, ext }) {
-    const ids = await getIds()
-    const isExist = ids.find((item) => item === id)
-    const filename = getFileName(id, title, ext)
-    if (isExist) {
-      await fse.unlink(path.resolve(baseDir, filename))
+  async removeNote(_event, id: string) {
+    const item = noteMaps[id]
+    if (item) {
+      const removePath = fns.montagePath(item.fullname)
+      if (removePath) {
+        await fse.unlink(path.resolve(baseDir, removePath))
+      }
     }
   },
   /** 移除到回收站 假删除 */
-  async removeNoteToTrash(_event, { id, title, ext }) {
+  async removeNoteToTrash(_event, id: string) {
     await ensureDir(trashDir)
-    const oldFileName = getFileName(id, title, ext)
+    const item = noteMaps[id]
+    const { title, ext } = item
+    const oldFileName = item.fullname
     const newFileName = getTrashFileName(id, title, ext)
     return await fse.rename(oldFileName, newFileName)
   },

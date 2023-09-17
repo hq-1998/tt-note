@@ -115,10 +115,9 @@ const useNoteStore = defineStore('note', {
       const dir = allDirs.find((dir) => dir.split('__')[0] === id)
       if (dir) {
         const dirHasContent = await window.electron.ipcRenderer.invoke('checkDir', dir)
-        const removeItem = omit(item, ['children'])
         /** 文件夹有内容 进入回收站 */
         if (dirHasContent) {
-          this.removeNoteToTrash(removeItem)
+          this.removeNoteToTrash(id)
         } else {
           /* 无内容 直接删除文件 */
           await window.electron.ipcRenderer.invoke('removeNoteDir', {
@@ -131,20 +130,20 @@ const useNoteStore = defineStore('note', {
       }
     },
     /** 通过id移除note */
-    async removeNote(item: IBaseNote) {
-      const { content, type, id } = item
+    async removeNote(id: string) {
       /** 如果笔记没有内容 那么直接删除 不进入回收站 */
-      const removeItem = omit(item, ['children'])
+      const item = this.notesMap[id]
+      const { content, type } = item
       if (!content) {
-        await window.electron.ipcRenderer.invoke('removeNote', removeItem)
+        await window.electron.ipcRenderer.invoke('removeNote', id)
       } else {
         // 进入回收站
-        this.removeNoteToTrash(removeItem)
+        this.removeNoteToTrash(id)
       }
       this.notes[type] = this.notes[type]!.filter((note) => note.id !== id)
     },
-    removeNoteToTrash(removeItem: Omit<IBaseNote, 'children'>) {
-      window.electron.ipcRenderer.invoke('removeNoteToTrash', removeItem)
+    removeNoteToTrash(id: string) {
+      window.electron.ipcRenderer.invoke('removeNoteToTrash', id)
     },
     setNotes(payload: IBaseNote[]) {
       this.notes = payload
@@ -153,9 +152,7 @@ const useNoteStore = defineStore('note', {
       this.notesMap = payload
     },
     async getNoteById(id: string) {
-      const item = toRaw(omit(this.notesMap[id], 'children'))
-      const content = await window.electron.ipcRenderer.invoke('getNoteById', item)
-      console.log(content, '===')
+      const content = await window.electron.ipcRenderer.invoke('getNoteById', id)
       return content
     },
     getNoteByIndex(index: number, type: ENoteType) {

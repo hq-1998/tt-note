@@ -87,7 +87,7 @@ const handleRename = (item: Item) => {
 
 /** 删除 */
 const handleDelete = async (item: Item) => {
-  await store.removeNote(item)
+  await store.removeNote(item.id)
   Message.success('删除成功')
 }
 

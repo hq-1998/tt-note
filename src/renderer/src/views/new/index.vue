@@ -30,7 +30,6 @@ const empty = computed(() => {
 
 const handleClickListItem = (item: IBaseNote) => {
   currentItem.value = item
-  console.log(currentItem.value, 'currentItem')
 }
 </script>
 

@@ -22,7 +22,6 @@ const hasLength = ref(!!(store.dirNotes[store.active].children.length || 0))
 
 const handleClickListItem = (item: IBaseNote) => {
   currentItem.value = item
-  console.log(currentItem.value, '3')
 }
 
 const data = ref<IBaseNote[]>([])
