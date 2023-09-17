@@ -52,4 +52,24 @@ const loadSvg = (key: string): string | undefined => {
   return svgObj?.[key]
 }
 
-export { shallowMergeObject, loadSvg, getImageBase64 }
+/** 通过children Id 查到的parent */
+function getParentNodeId<T extends { children: T[]; id: string }>(tree: T[], childId: string) {
+  // 遍历树节点
+  for (const node of tree) {
+    // 如果当前节点就是目标节点的父节点，直接返回当前节点id
+    if (node.children && node.children.some((child) => child.id === childId)) {
+      return node
+    }
+    // 否则继续遍历当前节点的子节点
+    if (node.children) {
+      const parent = getParentNodeId(node.children, childId)
+      if (parent !== null) {
+        return parent
+      }
+    }
+  }
+  // 如果没有找到父节点，则返回null
+  return null
+}
+
+export { shallowMergeObject, getParentNodeId, loadSvg, getImageBase64 }

@@ -38,6 +38,6 @@ onMounted(() => {
 
 <style lang="less" scoped>
 .input-wrapper {
-  width: 120px;
+  width: 100%;
 }
 </style>

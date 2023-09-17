@@ -34,17 +34,7 @@ const handleUpdateContent = (v) => {
 const handleSave = async () => {
   const { id, title, content } = props.data
   if (!id) return
-  await window.electron.ipcRenderer.invoke(
-    'save',
-    JSON.stringify({
-      payload: {
-        id,
-        title,
-        content,
-        ext: `.${ENoteType.MARKDOWN}`
-      }
-    })
-  )
+  await store.save(id, { content, title })
   Message.success('保存成功')
 }
 
@@ -56,9 +46,6 @@ watch(
     if (props.data.type !== ENoteType.DIR) {
       store.updateNoteById(id, { content })
     }
-  },
-  {
-    immediate: true
   }
 )
 </script>

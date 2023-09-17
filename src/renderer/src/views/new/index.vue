@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import List from '@renderer/components/list/index.vue'
 import { useNoteStore } from '@renderer/store'
 import { IBaseNote } from '@renderer/store/note'
@@ -7,20 +7,19 @@ import Content from '@renderer/layout/content/index.vue'
 import { useRoute } from 'vue-router'
 import BaseEmpty from '@renderer/components/base-empty'
 import { ENoteType } from '@renderer/layout/menu/constants'
+import { Message } from '@arco-design/web-vue'
 
 const route = useRoute()
 
-const data = ref<IBaseNote[]>([])
-const currentItem = ref<IBaseNote | null>(null)
 const store = useNoteStore()
+const currentItem = ref<IBaseNote | null>(null)
 
-onMounted(() => {
-  data.value = store.fileNotes || []
-})
-
-const handleAdd = () => {
-  const id = route.params.id as string | undefined
-  store.addNote(ENoteType.MARKDOWN, id && store.notesMap[id].fullname)
+const handleAdd = async () => {
+  const parentId = route.params.id as string | undefined
+  const success = await store.addNote(ENoteType.MARKDOWN, parentId)
+  if (success) {
+    Message.success('新建成功')
+  }
 }
 
 const empty = computed(() => {
@@ -30,19 +29,30 @@ const empty = computed(() => {
 const handleClickListItem = (item: IBaseNote) => {
   currentItem.value = item
 }
+
+const handleRename = (item: IBaseNote & { index: number }) => {
+  store.fileNotes.forEach((note) => (note.isClickRename = false))
+  store.fileNotes[item.index].isClickRename = true
+}
+
+onMounted(async () => {
+  const { result, noteMaps } = await window.electron.ipcRenderer.invoke('getNotes')
+  store.setNotes(result)
+  store.setNotesMap(noteMaps)
+})
 </script>
 
 <template>
   <a-layout-content>
     <div class="main-content">
-      <List :data="data" @handle-click-list-item="handleClickListItem" />
+      <List
+        :data="store.fileNotes"
+        @handle-click-list-item="handleClickListItem"
+        @handle-rename="handleRename"
+      />
       <div class="content">
-        <BaseEmpty
-          v-if="empty"
-          :hidden="currentItem?.type === ENoteType.DIR"
-          :icon="currentItem?.type === ENoteType.DIR ? 'emptyDir' : undefined"
-        >
-          <template v-if="currentItem?.type !== ENoteType.DIR" #extra>
+        <BaseEmpty v-if="empty">
+          <template #extra>
             <a-button size="medium" class="add-note" type="primary">
               <template #icon>
                 <icon-plus />
@@ -58,13 +68,5 @@ const handleClickListItem = (item: IBaseNote) => {
 </template>
 
 <style lang="less" scoped>
-.main-content {
-  display: flex;
-  height: 100%;
-  .content {
-    flex: 1;
-    height: 100%;
-    border-left: 1px solid #f7f8f9;
-  }
-}
+@import './style.less';
 </style>

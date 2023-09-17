@@ -20,72 +20,62 @@ type Info = {
   type: string
   children: Info[]
   parentId: string | null
-  parentFullName: string | null
+  parentFullName: string
 }
 
 const baseDir = app.getPath('userData') + '/notes'
 const trashDir = app.getPath('userData') + '/trash'
-let noteMaps: Record<string, Info> = {}
-
-const getIds = async (parentId = '') => {
-  const dirs = await fse.readdir(path.join(baseDir, parentId))
-  return dirs.map((dir) => dir.split('__')[0])
-}
-
-const getAllDirs = async () => {
-  const dirs = await fse.readdir(baseDir)
-  return dirs
-}
+let noteMaps: Map<string, Info> = new Map()
 
 const getFileName = (id: string, title: string, ext: string, parentFullName = '') => {
   const filename = path.resolve(baseDir, parentFullName, `${id}__${title}${ext}`)
   return filename
 }
 
-const getTrashFileName = (id: string, title: string, ext) => {
-  const filename = path.join(trashDir, `${id}__${title}${ext}`)
-  return filename
-}
-
 const fns = {
-  async save(_event, data) {
-    const source = JSON.parse(data)
-    const { payload, parent } = source
-    const { id, title, ext, content } = payload
-    const { fullname } = parent || {}
-    const ids = await getIds(fullname)
-    if (!ids || !ids.length)
-      return fns.add(_event, {
-        ...payload,
-        fullname
-      })
-
-    const isExist = ids.some((item) => item === id)
+  async save(_event, payload: Info) {
+    const { id, content } = payload
+    const isExist = noteMaps.get(id)
     if (isExist) {
-      const allDirs = await getAllDirs()
-      const originalFileName = path.join(
-        baseDir,
-        allDirs.find((item) => item.split('__')[0] === id)!
+      const mergeResult = { ...isExist, ...payload }
+      const originalFileName = fns.montagePath(isExist)
+      const filename = getFileName(
+        mergeResult.id,
+        mergeResult.title,
+        mergeResult.ext,
+        mergeResult.parentFullName
       )
-      const filename = getFileName(id, title, ext)
       await fse.rename(originalFileName, filename)
-      return fse.writeFile(filename, content, 'utf-8')
+      await fse.writeFile(filename, content, 'utf-8')
+      noteMaps.set(id, mergeResult)
+      return mergeResult.id
     } else {
-      return fns.add(_event, { id, title, content, ext, fullname })
+      noteMaps.set(id, payload)
+      await fns._add(payload)
+      return payload.id
     }
   },
-  async add(_event, { id, title, content, ext, fullname }) {
-    const filename = getFileName(id, title, ext, fullname)
+  async _add({ fullname, content, parentFullName }: Info) {
+    const filename = path.resolve(baseDir, parentFullName, fullname)
     return fse.writeFile(filename, content, 'utf-8')
   },
-  async rename(_event, { id, title, ext }) {
-    const filename = getFileName(id, title, ext)
-    const all = await getAllDirs()
-    const isExist = all.find((item) => item.split('__')[0] === id)
+  async rename(_event, item: Info) {
+    const isExist = noteMaps.get(item.id)
     if (!isExist) return
-
-    const oldFileName = path.resolve(baseDir, isExist)
-    return await fse.rename(oldFileName, filename)
+    const p = fns.montagePath(isExist)
+    const oldFileName = path.resolve(baseDir, isExist.fullname)
+    const basePath = path.basename(p)
+    const [prefix, suffix] = basePath.split('.')
+    const [id] = prefix.split('__')
+    const newTitle = item.title
+    const newSuffix = `${id}__${newTitle}${suffix ? '.' + suffix : ''}`
+    const filename = path.resolve(baseDir, isExist.parentFullName, newSuffix)
+    await fse.rename(oldFileName, filename)
+    noteMaps.set(item.id, {
+      ...isExist,
+      ...item
+    })
+    return item.id
   },
   async getAllDirs(
     _event,
@@ -104,10 +94,10 @@ const fns = {
   async getNotes(): Promise<ReturnType<typeof fns._transTree>> {
     await ensureDir(baseDir)
     const { result, treeMap } = fns._transTree(baseDir)
-    noteMaps = { ...treeMap }
+    noteMaps = new Map(Object.entries(treeMap))
     return {
       result,
-      treeMap
+      noteMaps
     }
   },
   _generateData(fileInfo: string, stat: Stats, parent?: Info) {
@@ -125,7 +115,7 @@ const fns = {
       type: type || ENoteType.DIR,
       children: [],
       parentId: parent?.id ?? null,
-      parentFullName: parent?.fullname ?? null
+      parentFullName: parent?.fullname ?? ''
     }
     return payload
   },
@@ -163,21 +153,27 @@ const fns = {
   /** 通过id 递归查找上级id 拼接完整路径 */
   montagePath(item: Info) {
     let parentId = item.parentId
-    const path = [item.fullname]
+    const pathname = [item.fullname]
     while (parentId) {
-      const parent = noteMaps[parentId]
-      path.push(parent.fullname)
-      parentId = parent.parentId
+      const parent = noteMaps.get(parentId)
+      pathname.push(parent!.fullname)
+      parentId = parent!.parentId
     }
-    return path.reverse().join('/')
+    const urlStr = pathname.reverse().join('/')
+    return path.join(baseDir, urlStr)
+  },
+  setNotesMap(_event, item: Info) {
+    const { id } = item
+    noteMaps.set(id, item)
+  },
+  removeNotesMapById(id: string) {
+    noteMaps.delete(id)
   },
   async getNoteById(_event, id: string) {
     let content: Info[] | string
-    const item = noteMaps[id]
+    const item = noteMaps.get(id)
     if (item) {
-      const fullPath = fns.montagePath(item)
-      const fullResolvePath = path.join(baseDir, fullPath)
-
+      const fullResolvePath = fns.montagePath(item)
       switch (item.type) {
         case ENoteType.DIR: {
           const data = readdirSync(fullResolvePath, 'utf-8')
@@ -195,23 +191,31 @@ const fns = {
     }
   },
   /** 移除文件 回收站里点击移除 真删除 */
-  async removeNote(_event, id: string) {
-    const item = noteMaps[id]
+  async removeNote(_event, id: string): Promise<string | null> {
+    const item = noteMaps.get(id)
     if (item) {
-      const removePath = fns.montagePath(item.fullname)
+      const removePath = fns.montagePath(item)
       if (removePath) {
-        await fse.unlink(path.resolve(baseDir, removePath))
+        await fse.unlink(removePath)
+        noteMaps.delete(id)
+        return id
       }
+      return null
     }
+    throw new Error('文件不存在')
   },
   /** 移除到回收站 假删除 */
   async removeNoteToTrash(_event, id: string) {
     await ensureDir(trashDir)
-    const item = noteMaps[id]
-    const { title, ext } = item
-    const oldFileName = item.fullname
-    const newFileName = getTrashFileName(id, title, ext)
-    return await fse.rename(oldFileName, newFileName)
+    const item = noteMaps.get(id)
+    if (item) {
+      const oldFileName = fns.montagePath(item)
+      const newFileName = oldFileName.replace('/notes', '/trash')
+      await fse.rename(oldFileName, newFileName)
+      noteMaps.delete(id)
+      return id
+    }
+    throw new Error('文件不存在')
   },
   /** 移除目录 */
   async removeNoteDir(_event, { dirName, options }) {

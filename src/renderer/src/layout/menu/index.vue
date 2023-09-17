@@ -121,7 +121,7 @@ const handleClick = async (option: IOption, item?: IBaseNote) => {
         break
       case OPTION_KEY.DELETE:
         if (item) {
-          await noteStore.removeNoteDir(item)
+          await noteStore.removeNoteDirById(item.id)
           Message.success('删除成功')
         }
         break

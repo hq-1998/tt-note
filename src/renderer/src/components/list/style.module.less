@@ -28,7 +28,6 @@
       }
 
       .list-wrapper-item {
-        width: 100%;
         padding: 12px 8px;
         box-sizing: border-box;
         border-radius: 5px;
@@ -38,8 +37,10 @@
           background-color: #f2f3f5;
 
           .list-top-wrapper {
-            .icon-more {
-              visibility: visible;
+            .list-inner-wrapper {
+              .icon-more {
+                visibility: visible;
+              }
             }
           }
         }
@@ -49,16 +50,25 @@
           justify-content: space-between;
           align-items: center;
 
-          .list-title-wrapper {
+          .list-inner-wrapper {
             display: flex;
             align-items: center;
-            margin-left: 4px;
-          }
+            justify-content: flex-start;
+            flex: 1;
 
-          .icon-more {
-            cursor: pointer;
-            color: #999999;
-            visibility: hidden;
+            .list-title-wrapper {
+              margin-left: 4px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              flex: 1;
+            }
+
+            .icon-more {
+              cursor: pointer;
+              color: #999999;
+              visibility: hidden;
+            }
           }
         }
 

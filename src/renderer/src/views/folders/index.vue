@@ -15,7 +15,7 @@ const currentItem = ref<IBaseNote | null>(null)
 
 const handleAdd = () => {
   const id = route.params.id as string | undefined
-  store.addNote(ENoteType.MARKDOWN, id && store.notesMap[id].fullname)
+  store.addNote(ENoteType.MARKDOWN, id)
 }
 
 const hasLength = ref(!!(store.dirNotes[store.active].children.length || 0))

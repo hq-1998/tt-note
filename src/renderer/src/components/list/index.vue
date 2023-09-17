@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import Title from './title.vue'
 import Rename from './rename.vue'
 import styles from './style.module.less'
-import { Message } from '@arco-design/web-vue'
+import { Message, Modal } from '@arco-design/web-vue'
 import BaseEmpty from '@renderer/components/base-empty'
 import { ENoteType } from '@renderer/layout/menu/constants'
 import { IBaseNote } from '@renderer/store/note'
@@ -15,7 +15,7 @@ export type Item = IBaseNote & { index: number }
 
 const oldTitle = ref('')
 const modalVisible = ref(false)
-const emits = defineEmits(['handleClickListItem'])
+const emits = defineEmits(['handleClickListItem', 'handleRename'])
 const selectedInfo = ref<Item | null>(null)
 
 const store = useNoteStore()
@@ -26,16 +26,24 @@ withDefaults(defineProps<{ data: IBaseNote[] }>(), {
 /** 重命名 */
 const handleRename = (item: Item) => {
   oldTitle.value = item.title
-  store.notes[store.activeType]!.forEach((note) => {
-    note.isClickRename = false
-  })
-  store.notes[item.index].isClickRename = true
+  emits('handleRename', item)
 }
 
 /** 删除 */
 const handleDelete = async (item: Item) => {
-  await store.removeNote(item.id)
-  Message.success('删除成功')
+  Modal.warning({
+    title: '确认删除？',
+    content: '删除内容将进入回收站，若没有内容将永久删除。',
+    alignCenter: false,
+    titleAlign: 'start',
+    cancelText: '取消',
+    hideCancel: false,
+    width: 320,
+    async onOk() {
+      await store.removeNoteById(item.id)
+      Message.success('删除成功')
+    }
+  })
 }
 
 /** 移动到 */
@@ -45,20 +53,11 @@ const handleMove = (item: Item) => {
 }
 
 /** 修改名称失焦 */
-const handleBlur = async (e, index: number) => {
-  store.notes[index].isClickRename = false
-  const item = { ...store.notes[index] }
-  const value = e.target.value
-  if (Object.is(value, oldTitle.value)) return
-  store.updateNoteById(item.id, {
-    title: value,
-    type: ENoteType.MARKDOWN
-  })
-  await window.electron.ipcRenderer.invoke('rename', {
-    id: item.id,
-    title: value
-  })
-  Message.success('重命名成功')
+const handleBlur = async (e, item: Item) => {
+  const success = await store.rename(e.target.value, oldTitle.value, item)
+  if (success) {
+    Message.success('重命名成功')
+  }
 }
 
 /** 点击列表项 */
@@ -74,6 +73,24 @@ const iconMap = {
   [ENoteType.MARKDOWN]: 'markdown',
   [ENoteType.DIR]: 'directory'
 }
+
+const menuConfig = [
+  {
+    key: 'rename',
+    label: '重命名',
+    onClick: handleRename
+  },
+  {
+    key: 'move',
+    label: '移动到',
+    onClick: handleMove
+  },
+  {
+    key: 'delete',
+    label: '删除',
+    onClick: handleDelete
+  }
+]
 </script>
 
 <template>
@@ -91,38 +108,33 @@ const iconMap = {
             @click="handleClickListItem(item, index)"
           >
             <div :class="styles['list-top-wrapper']">
-              <a-row align="center">
+              <div :class="styles['list-inner-wrapper']">
                 <SvgComponent :name="iconMap[item.type]" />
-                <div :class="styles['list-title-wrapper']">
-                  <Rename
-                    v-if="item.isClickRename"
-                    v-model="item.title"
-                    @blur="(e) => handleBlur(e, index)"
-                  />
-                  <Title v-else :value="item.title" :type="item.type" />
+                <div v-if="item.isClickRename" :class="styles['list-title-wrapper']">
+                  <Rename v-model="item.title" @blur="(e) => handleBlur(e, { ...item, index })" />
                 </div>
-              </a-row>
-
-              <a-popover
-                :content-style="{ padding: '0' }"
-                :arrow-style="{ visibility: 'hidden' }"
-                position="rt"
-              >
-                <template #content>
-                  <a-menu style="{ width: '100px', borderRadius: '4px' }">
-                    <a-menu-item key="rename" @click="handleRename({ ...item, index })">
-                      重命名
-                    </a-menu-item>
-                    <a-menu-item key="move" @click="handleMove({ ...item, index })">
-                      移动到
-                    </a-menu-item>
-                    <a-menu-item key="delete" @click="handleDelete({ ...item, index })">
-                      删除
-                    </a-menu-item>
-                  </a-menu>
-                </template>
-                <icon-more :class="styles['icon-more']" />
-              </a-popover>
+                <div v-else :class="styles['list-title-wrapper']">
+                  <Title :value="item.title" :type="item.type" />
+                  <a-popover
+                    :content-style="{ padding: '0' }"
+                    :arrow-style="{ visibility: 'hidden' }"
+                    position="rt"
+                  >
+                    <template #content>
+                      <a-menu style="{ width: '100px', borderRadius: '4px' }">
+                        <a-menu-item
+                          v-for="menu in menuConfig"
+                          :key="menu.key"
+                          @click="menu.onClick({ ...item, index })"
+                        >
+                          {{ menu.label }}
+                        </a-menu-item>
+                      </a-menu>
+                    </template>
+                    <icon-more v-if="!item.isClickRename" :class="styles['icon-more']" />
+                  </a-popover>
+                </div>
+              </div>
             </div>
             <div :class="styles['list-bottom-wrapper']">{{ item.timestamp }}</div>
           </div>

@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import Sider from '@renderer/layout/sider/index.vue'
-import { useNoteStore, useUserStore, useAreaStore } from '../store'
+import { useUserStore, useAreaStore } from '../store'
 import { onBeforeMount } from 'vue'
 import { globalStorage } from '../utils'
-import { globalWebSocket, Events } from '@renderer/websocket'
+import { globalWebSocket } from '@renderer/websocket'
 import { user, area } from '../api'
 import { IUserInfo } from '../api/user/data'
 import { IProvince } from '../api/area/data'
 
 const areaStore = useAreaStore()
-const noteStore = useNoteStore()
 const userStore = useUserStore()
 
 const collapse = ref(true)
-const currentIndex = ref(0)
 
 onBeforeMount(() => {
   const token = globalStorage.get('token')
@@ -33,21 +31,6 @@ onBeforeMount(() => {
       }
     })
   }
-})
-
-onMounted(async () => {
-  noteStore.setActive(currentIndex.value)
-  const { result, treeMap } = await window.electron.ipcRenderer.invoke('getNotes')
-  noteStore.setNotes(result)
-  noteStore.setNotesMap(treeMap)
-
-  const unsubscribe = globalWebSocket.subscribe(Events.OTHER, () => {
-    window.electron.ipcRenderer.invoke('sendNotification', {
-      title: '欢迎光临',
-      body: '这是您首次登录小腾笔记，请享受您的笔记之旅'
-    })
-    unsubscribe?.()
-  })
 })
 
 const handleCollapse = (e) => (collapse.value = e)
