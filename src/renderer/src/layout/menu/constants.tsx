@@ -1,6 +1,4 @@
 import type { IOption } from '@renderer/components/base-more'
-import markdown from '@renderer/assets/images/svg/markdown.svg'
-import directory from '@renderer/assets/images/svg/directory.svg'
 import trash from '@renderer/assets/images/icons/trash.png'
 import { menuKey } from '@renderer/router/menuKey'
 import SvgComponent from '@renderer/components/svg-component/index.vue'
