@@ -20,14 +20,30 @@ export interface IBaseNote {
   parentFullName?: string
 }
 
+interface IState {
+  /** 笔记数据 */
+  notes: IBaseNote[]
+  /** 笔记查找map */
+  notesMap: Map<string, IBaseNote>
+  /** 当前活跃索引 */
+  active: number
+  /** 当前活跃类型 */
+  activeType: ENoteType
+  /** 操作note的class类 */
+  notesHandler: Note
+  /** 当前活跃的项 */
+  currentItem: IBaseNote | null
+}
+
 const useNoteStore = defineStore('note', {
-  state: () => {
+  state: (): IState => {
     return {
-      notes: [] as IBaseNote[],
-      notesMap: new Map<string, IBaseNote>(),
+      notes: [],
+      notesMap: new Map(),
       active: 0,
       activeType: ENoteType.MARKDOWN,
-      notesHandler: new Note([])
+      notesHandler: new Note([]),
+      currentItem: null
     }
   },
   getters: {
@@ -75,11 +91,14 @@ const useNoteStore = defineStore('note', {
           await window.electron.ipcRenderer.invoke('setNotesMap', data)
           /** 递归插入children parent notes */
           this.setActive(0)
+          this.setCurrentItem(null)
+
           this.notesHandler.create(payload)
           this.notesMap.set(id, payload)
           if (parentId && parent) {
             this.insertChildrenToParent(parentId, payload)
           }
+
           return payload.id
         }
         return null
@@ -109,6 +128,8 @@ const useNoteStore = defineStore('note', {
           parentFullName: parent?.fullname ?? ''
         }
         this.setActive(0)
+        this.setCurrentItem(null)
+
         this.notesHandler.create(payload)
         this.notesMap.set(id, data)
         if (parentId && parent) {
@@ -242,6 +263,9 @@ const useNoteStore = defineStore('note', {
     },
     setActiveType(type: ENoteType) {
       this.activeType = type
+    },
+    setCurrentItem(item: IBaseNote | null) {
+      this.currentItem = item
     }
   }
 })

@@ -39,7 +39,11 @@ watch(
   () => {
     if (isChange.value) {
       innerText.value = props.value
+      divRef.value!.innerHTML = props.value
     }
+  },
+  {
+    flush: 'post'
   }
 )
 

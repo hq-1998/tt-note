@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import List from '@renderer/components/list/index.vue'
 import { useNoteStore } from '@renderer/store'
 import { IBaseNote } from '@renderer/store/note'
@@ -12,7 +12,6 @@ import { Message } from '@arco-design/web-vue'
 const route = useRoute()
 
 const store = useNoteStore()
-const currentItem = ref<IBaseNote | null>(null)
 
 const handleAdd = async () => {
   const parentId = route.params.id as string | undefined
@@ -27,7 +26,7 @@ const empty = computed(() => {
 })
 
 const handleClickListItem = (item: IBaseNote) => {
-  currentItem.value = item
+  store.setCurrentItem(item)
 }
 
 const handleRename = (item: IBaseNote & { index: number }) => {
@@ -55,7 +54,7 @@ const handleRename = (item: IBaseNote & { index: number }) => {
             </a-button>
           </template></BaseEmpty
         >
-        <Content v-else :data="(currentItem as IBaseNote) || store.fileNotes[0]" />
+        <Content v-else :data="store.currentItem || store.fileNotes[0]" />
       </div>
     </div>
   </a-layout-content>
