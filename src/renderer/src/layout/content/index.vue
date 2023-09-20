@@ -46,6 +46,9 @@ watch(
     if (props.data.type !== ENoteType.DIR) {
       store.updateNoteById(id, { content })
     }
+  },
+  {
+    immediate: true
   }
 )
 </script>
