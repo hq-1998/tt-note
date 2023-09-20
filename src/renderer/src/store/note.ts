@@ -170,6 +170,7 @@ const useNoteStore = defineStore('note', {
           ...item,
           ...data
         }
+        this.setCurrentItem(payload)
         this.notesHandler.update(payload)
         this.notesMap.set(id, payload)
       }
