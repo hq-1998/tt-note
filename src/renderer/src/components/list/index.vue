@@ -131,7 +131,7 @@ const menuConfig = [
                         </a-menu-item>
                       </a-menu>
                     </template>
-                    <icon-more v-if="!item.isClickRename" :class="styles['icon-more']" />
+                    <icon-more :class="styles['icon-more']" />
                   </a-popover>
                 </div>
               </div>
