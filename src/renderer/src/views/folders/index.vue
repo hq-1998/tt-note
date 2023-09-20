@@ -6,16 +6,21 @@ import { IBaseNote } from '@renderer/store/note'
 import Content from '@renderer/layout/content/index.vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import BaseEmpty from '@renderer/components/base-empty'
+import BaseButton from '@renderer/components/base-button'
 import { ENoteType } from '@renderer/layout/menu/constants'
+import { Message } from '@arco-design/web-vue'
 
 const route = useRoute()
 
 const store = useNoteStore()
 const currentItem = ref<IBaseNote | null>(null)
 
-const handleAdd = () => {
-  const id = route.params.id as string | undefined
-  store.addNote(ENoteType.MARKDOWN, id)
+const handleAdd = async () => {
+  const parentId = route.params.id as string | undefined
+  const success = await store.addNote(ENoteType.MARKDOWN, parentId)
+  if (success) {
+    Message.success('新建成功')
+  }
 }
 
 const hasLength = ref(!!(store.dirNotes[store.active].children.length || 0))
@@ -24,14 +29,25 @@ const handleClickListItem = (item: IBaseNote) => {
   currentItem.value = item
 }
 
-const data = ref<IBaseNote[]>([])
+const handleRename = (item: IBaseNote & { index: number }) => {
+  store.dirNotes.forEach((note) => (note.isClickRename = false))
+  store.dirNotes[item.index].isClickRename = true
+}
+
+const data = ref<IBaseNote[]>(store.dirNotes[0]?.children || [])
 
 onBeforeRouteUpdate((to, from) => {
   if (to.params.id !== from.params.id) {
-    const item = store.dirNotes.find((child) => child.id === to.params.id)
-    hasLength.value = !!(item?.children.length || 0)
-    if (item) {
-      data.value = item.children || []
+    console.log('111')
+    const parent = store.findParentById(to.params.id as string)
+    if (!parent) {
+      const index = store.dirNotes.findIndex((item) => item.id === to.params.id)
+      const children = store.dirNotes[index]?.children || []
+      hasLength.value = !!(children.length || 0)
+      data.value = children
+    } else {
+      hasLength.value = !!(parent.children.length || 0)
+      data.value = parent.children || []
     }
   }
 })
@@ -40,34 +56,23 @@ onBeforeRouteUpdate((to, from) => {
 <template>
   <a-layout-content>
     <div class="main-content">
-      <List :data="data" @handle-click-list-item="handleClickListItem" />
+      <List
+        :data="data"
+        @handle-click-list-item="handleClickListItem"
+        @handle-rename="handleRename"
+      />
       <div class="content">
         <BaseEmpty v-if="!hasLength">
           <template #extra>
-            <a-button size="medium" class="add-note" type="primary">
-              <template #icon>
-                <icon-plus />
-              </template>
-              <template #default>
-                <div @click="handleAdd">新建笔记</div>
-              </template>
-            </a-button>
-          </template></BaseEmpty
-        >
-        <Content v-else :data="currentItem || data[store.active]" />
+            <BaseButton class="add-note" :create="true" @click="handleAdd">新建笔记</BaseButton>
+          </template>
+        </BaseEmpty>
+        <Content v-else :data="store.currentItem || data[store.active]" />
       </div>
     </div>
   </a-layout-content>
 </template>
 
 <style lang="less" scoped>
-.main-content {
-  display: flex;
-  height: 100%;
-  .content {
-    flex: 1;
-    height: 100%;
-    border-left: 1px solid #f7f8f9;
-  }
-}
+@import './style.less';
 </style>

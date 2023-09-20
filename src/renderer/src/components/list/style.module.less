@@ -18,6 +18,13 @@
 
   .list {
     padding: 0 15px;
+    overflow-y: auto;
+    height: calc(100vh - 62px);
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
     .list-wrapper {
       display: flex;
       flex-direction: column;

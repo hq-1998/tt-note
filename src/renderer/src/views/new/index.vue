@@ -4,19 +4,15 @@ import List from '@renderer/components/list/index.vue'
 import { useNoteStore } from '@renderer/store'
 import { IBaseNote } from '@renderer/store/note'
 import Content from '@renderer/layout/content/index.vue'
-import { useRoute } from 'vue-router'
 import BaseEmpty from '@renderer/components/base-empty'
 import { ENoteType } from '@renderer/layout/menu/constants'
 import { Message } from '@arco-design/web-vue'
-import BaseButton from '@renderer/components/base-button/index'
-
-const route = useRoute()
+import BaseButton from '@renderer/components/base-button'
 
 const store = useNoteStore()
 
 const handleAdd = async () => {
-  const parentId = route.params.id as string | undefined
-  const success = await store.addNote(ENoteType.MARKDOWN, parentId)
+  const success = await store.addNote(ENoteType.MARKDOWN)
   if (success) {
     Message.success('新建成功')
   }
@@ -48,8 +44,8 @@ const handleRename = (item: IBaseNote & { index: number }) => {
         <BaseEmpty v-if="empty">
           <template #extra>
             <BaseButton class="add-note" :create="true" @click="handleAdd">新建笔记</BaseButton>
-          </template></BaseEmpty
-        >
+          </template>
+        </BaseEmpty>
         <Content v-else :data="store.currentItem || store.fileNotes[0]" />
       </div>
     </div>

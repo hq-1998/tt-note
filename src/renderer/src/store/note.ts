@@ -5,6 +5,7 @@ import { v4 } from 'uuid'
 import { toRaw } from 'vue'
 import { omit } from 'lodash-es'
 import Note from '@renderer/utils/note'
+import { getParentNodeId } from '@renderer/utils/tool'
 
 export interface IBaseNote {
   title: string
@@ -267,6 +268,10 @@ const useNoteStore = defineStore('note', {
     },
     setCurrentItem(item: IBaseNote | null) {
       this.currentItem = item
+    },
+    findParentById(id: string) {
+      const p = getParentNodeId(this.notes, id)
+      return p
     }
   }
 })
