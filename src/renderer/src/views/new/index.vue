@@ -8,6 +8,7 @@ import { useRoute } from 'vue-router'
 import BaseEmpty from '@renderer/components/base-empty'
 import { ENoteType } from '@renderer/layout/menu/constants'
 import { Message } from '@arco-design/web-vue'
+import BaseButton from '@renderer/components/base-button/index'
 
 const route = useRoute()
 
@@ -46,12 +47,7 @@ const handleRename = (item: IBaseNote & { index: number }) => {
       <div class="content">
         <BaseEmpty v-if="empty">
           <template #extra>
-            <a-button size="medium" class="add-note" type="primary">
-              <template #icon>
-                <icon-plus />
-              </template>
-              <div @click="handleAdd">新建笔记</div>
-            </a-button>
+            <BaseButton class="add-note" :create="true" @click="handleAdd">新建笔记</BaseButton>
           </template></BaseEmpty
         >
         <Content v-else :data="store.currentItem || store.fileNotes[0]" />
