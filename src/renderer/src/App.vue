@@ -10,7 +10,7 @@ import { user, area } from '@renderer/api'
 import { IUserInfo } from '@renderer/api/user/data'
 import { IProvince } from '@renderer/api/area/data'
 
-const store = useNoteStore()
+const noteStore = useNoteStore()
 const areaStore = useAreaStore()
 const userStore = useUserStore()
 
@@ -35,8 +35,8 @@ onBeforeMount(() => {
 
 onMounted(async () => {
   const { result, noteMaps } = await window.electron.ipcRenderer.invoke('getNotes')
-  store.setNotes(result)
-  store.setNotesMap(noteMaps)
+  noteStore.setNotes(result)
+  noteStore.setNotesMap(noteMaps)
 
   const unsubscribe = globalWebSocket.subscribe(Events.OTHER, () => {
     window.electron.ipcRenderer.invoke('sendNotification', {
