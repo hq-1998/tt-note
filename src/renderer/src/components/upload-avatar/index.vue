@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { Message } from '@arco-design/web-vue'
+import { FileItem, Message } from '@arco-design/web-vue'
 import defaultAvatar from '@renderer/assets/images/common/default-avatar.png'
-import BaseUpload from '@renderer/components/base-upload/index.vue'
+import BaseUpload from '@renderer/components/base-upload'
 
 defineOptions({
   name: 'UploadAvatar'
@@ -9,9 +9,9 @@ defineOptions({
 
 const modelValue = defineModel('modelValue')
 
-const handleSuccess = (data: string) => {
-  if (data) {
-    modelValue.value = data
+const handleSuccess = (result: FileItem) => {
+  if (result) {
+    modelValue.value = result.response.data
     Message.success('上传成功')
   }
 }
@@ -19,7 +19,7 @@ const handleSuccess = (data: string) => {
 
 <template>
   <BaseUpload @success="handleSuccess">
-    <template #uploadButton>
+    <template #upload-button>
       <a-space align="center">
         <a-image
           width="55"
@@ -57,7 +57,6 @@ const handleSuccess = (data: string) => {
     padding: 0;
     line-height: 24px;
     color: #4e5a70;
-    color: var(#4e5a70);
     background: #ffffff;
     border-radius: 50px;
     text-align: center;

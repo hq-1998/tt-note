@@ -15,9 +15,7 @@ const BaseButton: FunctionalComponent<IMergeButtonConfig> = (props, { emit, attr
   }
 
   const buttonSlots = {
-    icon: () => {
-      return <icon-plus />
-    },
+    icon: () => <icon-plus />,
     ...slots
   }
   return (

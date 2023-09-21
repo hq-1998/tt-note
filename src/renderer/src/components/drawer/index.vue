@@ -1,6 +1,7 @@
 <template>
   <a-drawer
     v-model:visible="props.visible"
+    v-slots="$slots"
     :class="styles['drawer-wrapper']"
     :width="props.width || 340"
     v-bind="{
@@ -12,13 +13,6 @@
     @ok="handleToggleVisible"
     @cancel="handleToggleVisible"
   >
-    <template #title>
-      <slot name="title"></slot>
-    </template>
-    <template #header>
-      <slot name="header"></slot>
-    </template>
-    <slot name="default"></slot>
   </a-drawer>
 </template>
 
