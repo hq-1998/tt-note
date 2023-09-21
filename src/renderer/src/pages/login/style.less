@@ -35,12 +35,19 @@
             cursor: pointer;
           }
 
+          .layout-right {
+            justify-content: flex-end !important;
+          }
+
           .other-login-box {
             display: flex;
             color: #515767;
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
+            .remember {
+              color: #515767;
+            }
             .oauth-box {
               display: flex;
               align-items: center;
@@ -108,12 +115,24 @@
     }
 
     .agreement-box {
-      margin-top: 3.33rem;
+      margin-top: 2.8rem;
       color: #8a919f;
       text-align: center;
 
       a {
         color: #1e80ff;
+        cursor: pointer;
+      }
+    }
+
+    .register {
+      margin-top: 1rem;
+      color: #8a919f;
+      text-align: center;
+
+      .clickable {
+        color: #1e80ff;
+        text-decoration: underline;
         cursor: pointer;
       }
     }

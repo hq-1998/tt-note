@@ -29,7 +29,7 @@ export const WINDOW_OPTIONS = {
   },
   [LOGIN]: {
     width: 338,
-    height: 414,
+    height: 426,
     ...BASE_WINDOW_OPTIONS
   }
 }

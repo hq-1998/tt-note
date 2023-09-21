@@ -2,15 +2,11 @@
 import { ref, computed } from 'vue'
 import ResetPassword from './components/ResetPassword/index.vue'
 import VerifyCode from '@renderer/components/verify-code/index.vue'
-// import QrcodeVue from 'qrcode.vue'
 import { user } from '@renderer/api'
 import { reactive } from 'vue'
 import { FieldRule, Form, Message } from '@arco-design/web-vue'
 import { Validate, globalStorage } from '@renderer/utils'
 import { ELoginType } from '@renderer/api/user/data.d'
-import github from '@renderer/assets/images/icons/github.png'
-import wechat from '@renderer/assets/images/icons/wechat.png'
-import weibo from '@renderer/assets/images/icons/weibo.png'
 
 const title = import.meta.env.RENDERER_VITE_APP_TITLE
 const loginType = ref<ELoginType>(ELoginType.verifyCode)
@@ -37,22 +33,6 @@ const resetPassword = () => {
 
 /** 表单 */
 const formRef = ref<InstanceType<typeof Form>>()
-
-/** 第三方登录 */
-const loginIcons = [
-  {
-    title: '微博',
-    icon: weibo
-  },
-  {
-    title: '微信',
-    icon: wechat
-  },
-  {
-    title: 'GitHub',
-    icon: github
-  }
-]
 
 const loginVerifyMap = {
   title: '验证码登录',
@@ -211,7 +191,7 @@ const handleClick = async (callback) => {
                     :placeholder="loginMap.placeholder"
                   >
                     <template #append>
-                      <a class="send-code-btn" @click="handleClick"> 忘记密码 </a>
+                      <a class="send-code-btn" @click="handleClick">忘记密码</a>
                     </template></a-input-password
                   >
                 </a-form-item>
@@ -222,32 +202,16 @@ const handleClick = async (callback) => {
                 </a-form-item>
               </a-form>
 
-              <div class="other-login-box">
-                <div class="oauth-box">
-                  <span>其他登录：</span>
-                  <div v-for="item in loginIcons" :key="item.title" class="oauth">
-                    <div class="oauth-bg">
-                      <img :src="item.icon" />
-                    </div>
-                  </div>
-                </div>
+              <div :class="[isSendVerifyCode && 'layout-right', 'other-login-box']">
+                <a-checkbox v-if="!isSendVerifyCode" :value="true">
+                  <span class="remember">记住密码</span></a-checkbox
+                >
                 <span class="clickable" @click="toggleLoginType">{{
-                  loginType === 1 ? '密码登录' : '验证码登录'
+                  !isSendVerifyCode ? '密码登录' : '验证码登录'
                 }}</span>
               </div>
             </div>
           </div>
-          <!-- <div class="auth-qrcode">
-            <h1 class="title">扫码登录</h1>
-            <div class="qrcode-img-wrap">
-              <QrcodeVue class="qrcode-img" value="https://www.baidu.com" :size="120" />
-            </div>
-            <div class="qrcode-text">
-              打开
-              <a class="app">小腾笔记APP</a>
-              <div>点击“我-左上角扫一扫”登录</div>
-            </div>
-          </div> -->
         </a-row>
       </div>
       <footer class="agreement-box">
@@ -256,6 +220,10 @@ const handleClick = async (callback) => {
         和
         <a class="privacy">隐私政策</a>
       </footer>
+      <div class="register">
+        还没有账号？
+        <a class="clickable">立即注册</a>
+      </div>
     </div>
     <ResetPassword ref="resetPwdRef" :modal-visible="modalVisible" />
   </div>
