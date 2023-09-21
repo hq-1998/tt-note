@@ -29,6 +29,9 @@ class ElectronTray {
       }
     ]
 
+    this.tray.on('click', async () => {
+      this.showMainWindow()
+    })
     this.tray.setContextMenu(Menu.buildFromTemplate(contextMenu))
   }
   setTrayUrl(url: string) {
