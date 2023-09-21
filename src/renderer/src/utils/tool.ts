@@ -53,7 +53,10 @@ const loadSvg = (key: string): string | undefined => {
 }
 
 /** 通过children Id 查到的parent */
-function getParentNodeId<T extends { children: T[]; id: string }>(tree: T[], childId: string) {
+function getParentNodeId<T extends { children: T[]; id: string }>(
+  tree: T[],
+  childId: string
+): T | null {
   // 遍历树节点
   for (const node of tree) {
     // 如果当前节点就是目标节点的父节点，直接返回当前节点id

@@ -1,6 +1,6 @@
 <script lang="tsx" setup>
 import { useNoteStore } from '@renderer/store'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import Title from './title.vue'
 import Rename from './rename.vue'
 import styles from './style.module.less'
@@ -10,26 +10,25 @@ import { ENoteType } from '@renderer/layout/menu/constants'
 import { IBaseNote } from '@renderer/store/note'
 import MoveModal from './components/move-modal/index.vue'
 import SvgComponent from '@renderer/components/svg-component/index.vue'
-import { Item } from './data'
 
 const oldTitle = ref('')
 const modalVisible = ref(false)
 const emits = defineEmits(['handleClickListItem', 'handleRename', 'handleDelete'])
-const selectedInfo = ref<Item | null>(null)
+const selectedInfo = ref<IBaseNote | null>(null)
 
 const store = useNoteStore()
 
-withDefaults(defineProps<{ data: IBaseNote[] }>(), {
+const props = withDefaults(defineProps<{ data: IBaseNote[] }>(), {
   data: () => []
 })
 /** 重命名 */
-const handleRename = (item: Item) => {
+const handleRename = (item: IBaseNote) => {
   oldTitle.value = item.title
-  emits('handleRename', item)
+  emits('handleRename')
 }
 
 /** 删除 */
-const handleDelete = async (item: Item) => {
+const handleDelete = async (item: IBaseNote) => {
   Modal.warning({
     title: '确认删除？',
     content: '删除内容将进入回收站，若没有内容将永久删除。',
@@ -47,13 +46,13 @@ const handleDelete = async (item: Item) => {
 }
 
 /** 移动到 */
-const handleMove = (item: Item) => {
+const handleMove = (item: IBaseNote) => {
   selectedInfo.value = item
   modalVisible.value = true
 }
 
 /** 修改名称失焦 */
-const handleBlur = async (e, item: Item) => {
+const handleBlur = async (e, item: IBaseNote) => {
   const success = await store.rename(e.target.value, oldTitle.value, {
     ...item,
     isClickRename: false
@@ -64,7 +63,7 @@ const handleBlur = async (e, item: Item) => {
 }
 
 /** 点击列表项 */
-const handleClickListItem = (item, index) => {
+const handleClickListItem = (item: IBaseNote, index: number) => {
   store.setCurrentItem(item)
   emits('handleClickListItem', {
     ...item,
@@ -94,6 +93,26 @@ const menuConfig = [
     onClick: handleDelete
   }
 ]
+
+const showBack = computed(() => {
+  const currentItem = store.currentItem
+  if (store.activeType !== ENoteType.DIR) return false
+  if (currentItem) {
+    const parent = store.findParentById(currentItem?.id)
+    return !!parent?.parentId
+  } else {
+    return props.data.length
+  }
+})
+
+const dirName = computed(() => {
+  const currentItem = store.currentItem
+  if (currentItem) {
+    const parent = store.findParentById(currentItem?.id)
+    return parent?.title || '新建文件夹'
+  }
+  return ''
+})
 </script>
 
 <template>
@@ -101,7 +120,13 @@ const menuConfig = [
     <div :class="styles['search-wrapper']">
       <a-input-search placeholder="请输入内容" />
     </div>
-    <div :class="styles.list">
+    <div v-if="showBack" :class="styles['back']">
+      <SvgComponent name="back" />
+      <div :class="styles['dir']">
+        {{ dirName }}
+      </div>
+    </div>
+    <div :class="[styles.list, showBack && styles.hasBack]">
       <a-list :bordered="false" hoverable>
         <div v-if="data.length" :class="styles['list-wrapper']">
           <div
@@ -114,7 +139,7 @@ const menuConfig = [
               <div :class="styles['list-inner-wrapper']">
                 <SvgComponent :name="iconMap[item.type]" />
                 <div v-if="item.isClickRename" :class="styles['list-title-wrapper']">
-                  <Rename v-model="item.title" @blur="(e) => handleBlur(e, { ...item, index })" />
+                  <Rename v-model="item.title" @blur="(e) => handleBlur(e, item)" />
                 </div>
                 <div v-else :class="styles['list-title-wrapper']">
                   <Title :value="item.title" :type="item.type" />
@@ -128,7 +153,7 @@ const menuConfig = [
                         <a-menu-item
                           v-for="menu in menuConfig"
                           :key="menu.key"
-                          @click="menu.onClick({ ...item, index })"
+                          @click="menu.onClick(item)"
                         >
                           {{ menu.label }}
                         </a-menu-item>

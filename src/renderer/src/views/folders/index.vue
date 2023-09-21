@@ -28,9 +28,11 @@ const handleRename = () => {
   const currentId = store.currentItem?.id
   if (currentId) {
     const parent = store.findParentById(currentId)
-    const index = parent.children.findIndex((item) => item.id === currentId)
-    parent.children.forEach((note) => (note.isClickRename = false))
-    parent.children[index].isClickRename = true
+    if (parent) {
+      const index = parent.children.findIndex((item) => item.id === currentId)
+      parent.children.forEach((note) => (note.isClickRename = false))
+      parent.children[index].isClickRename = true
+    }
   }
 }
 

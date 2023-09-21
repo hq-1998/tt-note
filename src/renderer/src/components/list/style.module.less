@@ -16,6 +16,29 @@
     }
   }
 
+  .back {
+    padding: 0 15px;
+    height: 40px;
+    line-height: 40px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+
+    .dir {
+      font-size: 15px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: #5b89fe;
+    }
+  }
+
+  .hasBack {
+    height: calc(100vh - 102px) !important;
+  }
+
   .list {
     padding: 0 15px;
     overflow-y: auto;

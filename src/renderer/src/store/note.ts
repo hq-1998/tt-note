@@ -241,7 +241,7 @@ const useNoteStore = defineStore('note', {
       this.currentItem = item
     },
     findParentById(id: string) {
-      const p = getParentNodeId(this.notes, id)
+      const p = getParentNodeId<IBaseNote>(this.notes, id)
       return p
     }
   }

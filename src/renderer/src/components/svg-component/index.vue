@@ -36,5 +36,6 @@ withDefaults(
   vertical-align: middle;
   fill: currentColor;
   overflow: hidden;
+  cursor: pointer;
 }
 </style>
