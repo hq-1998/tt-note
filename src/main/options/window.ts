@@ -22,14 +22,14 @@ export const WINDOW_OPTIONS = {
     ...BASE_WINDOW_OPTIONS
   },
   [INDEX]: {
-    width: 1200,
+    width: 1280,
     height: 670,
     ...BASE_WINDOW_OPTIONS,
     alwaysOnTop: false
   },
   [LOGIN]: {
-    width: 580,
-    height: 434,
+    width: 338,
+    height: 414,
     ...BASE_WINDOW_OPTIONS
   }
 }

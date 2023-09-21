@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import ResetPassword from './components/ResetPassword/index.vue'
 import VerifyCode from '@renderer/components/verify-code/index.vue'
-import QrcodeVue from 'qrcode.vue'
+// import QrcodeVue from 'qrcode.vue'
 import { user } from '@renderer/api'
 import { reactive } from 'vue'
 import { FieldRule, Form, Message } from '@arco-design/web-vue'
@@ -237,7 +237,7 @@ const handleClick = async (callback) => {
               </div>
             </div>
           </div>
-          <div class="auth-qrcode">
+          <!-- <div class="auth-qrcode">
             <h1 class="title">扫码登录</h1>
             <div class="qrcode-img-wrap">
               <QrcodeVue class="qrcode-img" value="https://www.baidu.com" :size="120" />
@@ -247,7 +247,7 @@ const handleClick = async (callback) => {
               <a class="app">小腾笔记APP</a>
               <div>点击“我-左上角扫一扫”登录</div>
             </div>
-          </div>
+          </div> -->
         </a-row>
       </div>
       <footer class="agreement-box">
