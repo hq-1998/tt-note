@@ -180,19 +180,12 @@ const useNoteStore = defineStore('note', {
       const { id } = item
 
       if (Object.is(value, oldValue)) {
-        const payload = {
-          ...item,
-          isClickRename: false
-        }
-        this.notesHandler.update(payload)
-        this.notesMap.set(id, payload)
         return
       }
       if (!value) {
         const payload = {
           ...item,
-          title: oldValue,
-          isClickRename: false
+          title: oldValue
         }
         this.notesHandler.update(payload)
         this.notesMap.set(id, payload)
@@ -200,8 +193,7 @@ const useNoteStore = defineStore('note', {
       }
       const payload = {
         ...item,
-        title: value,
-        isClickRename: false
+        title: value
       }
       this.notesMap.set(id, payload)
       this.updateNoteById(id, {

@@ -27,12 +27,18 @@ const handleAdd = async () => {
 const hasLength = computed(() => {
   if (!store.currentItem) return false
   const currentId = store.currentItem.id
-  return store.findParentById(currentId).children.length > 0
+  const children = store.findParentById(currentId)?.children || []
+  return !!children.length
 })
 
-const handleRename = (item: IBaseNote & { index: number }) => {
-  store.dirNotes.forEach((note) => (note.isClickRename = false))
-  store.dirNotes[item.index].isClickRename = true
+const handleRename = () => {
+  const currentId = store.currentItem?.id
+  if (currentId) {
+    const parent = store.findParentById(currentId)
+    const index = parent.children.findIndex((item) => item.id === currentId)
+    parent.children.forEach((note) => (note.isClickRename = false))
+    parent.children[index].isClickRename = true
+  }
 }
 
 const handleDelete = () => {}
@@ -63,7 +69,7 @@ onBeforeRouteUpdate((to, from) => {
             <BaseButton class="add-note" :create="true" @click="handleAdd">新建笔记</BaseButton>
           </template>
         </BaseEmpty>
-        <Content v-else :data="store.currentItem!" />
+        <Content v-else :data="store.currentItem! || store.dirNotes[0]?.children[0]" />
       </div>
     </div>
   </a-layout-content>

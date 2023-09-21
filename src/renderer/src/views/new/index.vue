@@ -42,7 +42,7 @@ const handleRename = (item: IBaseNote & { index: number }) => {
             <BaseButton class="add-note" :create="true" @click="handleAdd">新建笔记</BaseButton>
           </template>
         </BaseEmpty>
-        <Content v-else :data="store.currentItem!" />
+        <Content v-else :data="store.currentItem! || store.fileNotes[0]" />
       </div>
     </div>
   </a-layout-content>

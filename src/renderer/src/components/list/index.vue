@@ -54,7 +54,10 @@ const handleMove = (item: Item) => {
 
 /** 修改名称失焦 */
 const handleBlur = async (e, item: Item) => {
-  const success = await store.rename(e.target.value, oldTitle.value, item)
+  const success = await store.rename(e.target.value, oldTitle.value, {
+    ...item,
+    isClickRename: false
+  })
   if (success) {
     Message.success('重命名成功')
   }
