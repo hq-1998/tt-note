@@ -7,7 +7,6 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    BaseBreadcrumb: typeof import('./src/components/base-breadcrumb/index.vue')['default']
     BaseForm: typeof import('./src/components/base-form/index.vue')['default']
     BaseModal: typeof import('./src/components/base-modal/index.vue')['default']
     BaseUpload: typeof import('./src/components/base-upload/index.vue')['default']

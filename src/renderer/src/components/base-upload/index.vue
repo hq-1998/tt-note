@@ -65,7 +65,7 @@ const uploadHeaders = computed(() => {
 const handleData = (fileItem: FileItem) => {
   return {
     fileType: fileItem.file!.name.split('.')[1],
-    userId: store.userInfo.id
+    userId: String(store.userInfo.id)
   }
 }
 </script>

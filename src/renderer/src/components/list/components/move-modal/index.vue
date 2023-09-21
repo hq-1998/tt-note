@@ -2,13 +2,13 @@
 import { ref, watch } from 'vue'
 import BaseModal from '@renderer/components/base-modal/index.vue'
 import markdown from '@renderer/assets/images/svg/markdown.svg'
-import { Item } from '../../data'
+import { IBaseNote } from '@renderer/store/note'
 
 const emits = defineEmits(['update:modalVisible'])
 const props = withDefaults(
   defineProps<{
     modalVisible: boolean
-    data: Item | null
+    data: IBaseNote | null
   }>(),
   {
     modalVisible: false,

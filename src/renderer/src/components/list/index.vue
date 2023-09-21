@@ -126,9 +126,11 @@ const dirName = computed(() => {
       <a-list :bordered="false" hoverable>
         <div v-if="data.length" :class="styles['list-wrapper']">
           <div
-            v-for="(item, index) in data"
+            v-for="item in data"
             :key="item.id"
-            :class="`${styles['list-wrapper-item']} ${index === store.active ? styles.active : ''}`"
+            :class="`${styles['list-wrapper-item']} ${
+              item.id === store.currentItem?.id ? styles.active : ''
+            }`"
             @click="handleClickListItem(item)"
           >
             <div :class="styles['list-top-wrapper']">
