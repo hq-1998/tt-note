@@ -33,7 +33,6 @@ const handleUpdateContent = (v) => {
 
 const handleSave = async () => {
   const { id, title, content } = props.data
-  if (!id) return
   await store.save(id, { content, title })
   Message.success('保存成功')
 }

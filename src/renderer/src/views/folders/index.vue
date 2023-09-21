@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { ref, watch } from 'vue'
 import List from '@renderer/components/list/index.vue'
 import { useNoteStore } from '@renderer/store'
 import { IBaseNote } from '@renderer/store/note'
 import Content from '@renderer/layout/content/index.vue'
-import { onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import BaseEmpty from '@renderer/components/base-empty'
 import BaseButton from '@renderer/components/base-button'
 import { ENoteType } from '@renderer/layout/menu/constants'
@@ -24,13 +24,6 @@ const handleAdd = async () => {
   }
 }
 
-const hasLength = computed(() => {
-  if (!store.currentItem) return false
-  const currentId = store.currentItem.id
-  const children = store.findParentById(currentId)?.children || []
-  return !!children.length
-})
-
 const handleRename = () => {
   const currentId = store.currentItem?.id
   if (currentId) {
@@ -45,18 +38,22 @@ const handleDelete = () => {}
 
 const data = ref<IBaseNote[]>(store.dirNotes[0]?.children || [])
 
-onBeforeRouteUpdate((to, from) => {
-  if (to.params.id !== from.params.id) {
-    const parent = store.findParentById(to.params.id as string)
+watch(
+  () => route.params.id,
+  (id) => {
+    const parent = store.findParentById(id as string)
     if (!parent) {
-      const index = store.dirNotes.findIndex((item) => item.id === to.params.id)
+      const index = store.dirNotes.findIndex((item) => item.id === id)
       const children = store.dirNotes[index]?.children || []
       data.value = children
     } else {
       data.value = parent.children || []
     }
+  },
+  {
+    immediate: true
   }
-})
+)
 </script>
 
 <template>
@@ -64,12 +61,12 @@ onBeforeRouteUpdate((to, from) => {
     <div class="main-content">
       <List :data="data" @handle-rename="handleRename" @handle-delete="handleDelete" />
       <div class="content">
-        <BaseEmpty v-if="!hasLength">
+        <BaseEmpty v-if="!store.currentItem">
           <template #extra>
             <BaseButton class="add-note" :create="true" @click="handleAdd">新建笔记</BaseButton>
           </template>
         </BaseEmpty>
-        <Content v-else :data="store.currentItem! || store.dirNotes[0]?.children[0]" />
+        <Content v-else :data="store.currentItem" />
       </div>
     </div>
   </a-layout-content>

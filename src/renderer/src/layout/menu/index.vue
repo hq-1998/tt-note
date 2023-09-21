@@ -18,7 +18,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { menuKey } from '@renderer/router/menuKey'
 import BaseMore, { type IOption } from '@renderer/components/base-more'
 import { IBaseNote } from '@renderer/store/note'
-import { is } from '@electron-toolkit/utils'
 
 const emits = defineEmits(['handleCollapse'])
 
@@ -110,7 +109,11 @@ const onMenuClick = async (key: string) => {
   const children = key.split('/')
   const activeType = keyMap[children[0]]
   const isDir = activeType === ENoteType.DIR
-  noteStore.setCurrentItem(isDir ? noteStore.dirNotes[0]?.children[0] : noteStore.fileNotes[0])
+  const index = isDir ? noteStore.dirNotes.findIndex((item) => item.id === children[1]) : 0
+  console.log(isDir ? noteStore.dirNotes[index]?.children[0] : noteStore.fileNotes[index], '111')
+  noteStore.setCurrentItem(
+    isDir ? noteStore.dirNotes[index]?.children[0] : noteStore.fileNotes[index]
+  )
   noteStore.setActiveType(activeType)
   router.push(`/${key}`)
 }
