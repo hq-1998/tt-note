@@ -13,7 +13,7 @@ import SvgComponent from '@renderer/components/svg-component/index.vue'
 
 const oldTitle = ref('')
 const modalVisible = ref(false)
-const emits = defineEmits(['handleClickListItem', 'handleRename', 'handleDelete'])
+const emits = defineEmits(['handleRename', 'handleDelete'])
 const selectedInfo = ref<IBaseNote | null>(null)
 
 const store = useNoteStore()
@@ -63,12 +63,8 @@ const handleBlur = async (e, item: IBaseNote) => {
 }
 
 /** 点击列表项 */
-const handleClickListItem = (item: IBaseNote, index: number) => {
+const handleClickListItem = (item: IBaseNote) => {
   store.setCurrentItem(item)
-  emits('handleClickListItem', {
-    ...item,
-    index
-  })
 }
 
 const iconMap = {
@@ -133,7 +129,7 @@ const dirName = computed(() => {
             v-for="(item, index) in data"
             :key="item.id"
             :class="`${styles['list-wrapper-item']} ${index === store.active ? styles.active : ''}`"
-            @click="handleClickListItem(item, index)"
+            @click="handleClickListItem(item)"
           >
             <div :class="styles['list-top-wrapper']">
               <div :class="styles['list-inner-wrapper']">
