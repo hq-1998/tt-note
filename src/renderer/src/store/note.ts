@@ -16,9 +16,8 @@ export interface IBaseNote {
   isClickRename: boolean
   content: string
   ext: string
-  fullname: string
+  fullName: string
   parentId?: string
-  parentFullName?: string
 }
 
 interface IState {
@@ -74,17 +73,16 @@ const useNoteStore = defineStore('note', {
       let parent: IBaseNote | undefined
       if (basePayload) {
         const id = v4()
-        const fullname = id + '__' + basePayload.title + basePayload.ext
+        const fullName = id + '__' + basePayload.title + basePayload.ext
         if (parentId) {
           parent = this.notesMap.get(parentId)
         }
         const payload: IBaseNote = {
           ...basePayload,
           id,
-          fullname,
+          fullName,
           timestamp: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-          parentId,
-          parentFullName: parent ? parent.fullname : ''
+          parentId
         }
         const data = omit(payload, 'children')
         if (payload) {
@@ -108,35 +106,20 @@ const useNoteStore = defineStore('note', {
     async addNoteDir(parentId?: string): Promise<string | null> {
       const basePayload = PAYLOAD[ENoteType.DIR]
       const id = v4()
-      const fullname = id + '__' + basePayload.title + basePayload.ext
-      const data = { ...basePayload, id, fullname }
-      let parent: IBaseNote | undefined
+      const fullName = id + '__' + basePayload.title + basePayload.ext
+      const data: IBaseNote = { ...basePayload, id, fullName }
+      data.parentId = parentId
+      /** 递归插入children notes parent */
+      await window.electron.ipcRenderer.invoke('createDir', data)
+      await window.electron.ipcRenderer.invoke('setNotesMap', data)
+
+      this.setCurrentItem(data)
+      this.notesHandler.create(data)
+      this.notesMap.set(id, data)
       if (parentId) {
-        const parentInfo = this.notesMap.get(parentId)
-        if (parentInfo) {
-          parent = toRaw<IBaseNote>(parentInfo)
-        }
+        this.insertChildrenToParent(parentId, data)
       }
-      if (data) {
-        /** 递归插入children notes parent */
-        const payload = {
-          ...data,
-          parentId,
-          parentFullName: parent?.fullname ?? ''
-        }
-        await window.electron.ipcRenderer.invoke('createDir', payload)
-        await window.electron.ipcRenderer.invoke('setNotesMap', payload)
-
-        this.setCurrentItem(payload)
-
-        this.notesHandler.create(payload)
-        this.notesMap.set(id, payload)
-        if (parentId && parent) {
-          this.insertChildrenToParent(parentId, payload)
-        }
-        return payload.id
-      }
-      return null
+      return data.id
     },
     insertChildrenToParent(parentId: string, item: IBaseNote) {
       const parent = this.notesMap.get(parentId)
@@ -211,14 +194,14 @@ const useNoteStore = defineStore('note', {
       /** 如果文件夹下 没有文件 那么直接删除 不进入回收站 */
       const item = this.notesMap.get(id)
       if (item) {
-        const dirHasContent = await window.electron.ipcRenderer.invoke('checkDir', item.fullname)
+        const dirHasContent = await window.electron.ipcRenderer.invoke('checkDir', item.fullName)
         /** 文件夹有内容 进入回收站 */
         if (dirHasContent) {
           await window.electron.ipcRenderer.invoke('removeNoteToTrash', id)
         } else {
           /* 无内容 直接删除文件 */
           await window.electron.ipcRenderer.invoke('removeNoteDir', {
-            dirName: item.fullname
+            dirName: item.fullName
           })
         }
         this.notesHandler.remove(id)

@@ -16,11 +16,10 @@ type Info = {
   content: string
   timestamp: string
   ext: string
-  fullname: string
+  fullName: string
   type: string
   children: Info[]
-  parentId: string | null
-  parentFullName: string
+  parentId: string
 }
 
 const baseDir = app.getPath('userData') + '/notes'
@@ -32,8 +31,8 @@ const getFileName = (id: string, title: string, ext: string, parentFullName = ''
   return filename
 }
 
-const replaceFullName = (oldFullName: string, title: string) => {
-  const [prefix, suffix] = oldFullName.split('.')
+const replacefullName = (oldfullName: string, title: string) => {
+  const [prefix, suffix] = oldfullName.split('.')
   const [id] = prefix.split('__')
   const newSuffix = `${id}__${title}${suffix ? '.' + suffix : ''}`
   return newSuffix
@@ -47,14 +46,15 @@ const fns = {
       const mergeResult = {
         ...isExist,
         ...payload,
-        fullname: replaceFullName(isExist.fullname, payload.title)
+        fullName: replacefullName(isExist.fullName, payload.title)
       }
+      const parent = noteMaps.get(mergeResult.parentId)
       const originalFileName = fns.montagePath(isExist)
       const filename = getFileName(
         mergeResult.id,
         mergeResult.title,
         mergeResult.ext,
-        mergeResult.parentFullName
+        parent?.fullName ?? ''
       )
       await fse.rename(originalFileName, filename)
       await fse.writeFile(filename, content, 'utf-8')
@@ -66,21 +66,23 @@ const fns = {
       return payload.id
     }
   },
-  async _add({ fullname, content, parentFullName }: Info) {
-    const filename = path.resolve(baseDir, parentFullName, fullname)
+  async _add({ fullName, content, id }: Info) {
+    const parentfullName = noteMaps.get(id)?.fullName ?? ''
+    const filename = path.resolve(baseDir, parentfullName, fullName)
     return fse.writeFile(filename, content, 'utf-8')
   },
   async rename(_event, item: Info) {
     const isExist = noteMaps.get(item.id)
     if (!isExist) return
     const p = fns.montagePath(isExist)
-    const oldFileName = path.resolve(baseDir, isExist.fullname)
+    const oldFileName = path.resolve(baseDir, isExist.fullName)
+    const parentfullName = noteMaps.get(item.parentId)?.fullName ?? ''
     const basePath = path.basename(p)
     const [prefix, suffix] = basePath.split('.')
     const [id] = prefix.split('__')
     const newTitle = item.title
     const newSuffix = `${id}__${newTitle}${suffix ? '.' + suffix : ''}`
-    const filename = path.resolve(baseDir, isExist.parentFullName, newSuffix)
+    const filename = path.resolve(baseDir, parentfullName, newSuffix)
     await fse.rename(oldFileName, filename)
     noteMaps.set(item.id, {
       ...isExist,
@@ -115,18 +117,17 @@ const fns = {
     const [prefix, type] = fileInfo.split('.')
     const [id, title] = prefix.split('__')
     const ext = type ? `.${type}` : ''
-    const fullname = fileInfo
+    const fullName = fileInfo
     const payload: Info = {
       id,
       title,
       content: '',
       timestamp: dayjs(stat.mtime).format('YYYY-MM-DD HH:mm:ss'),
       ext,
-      fullname,
+      fullName,
       type: type || ENoteType.DIR,
       children: [],
-      parentId: parent?.id ?? null,
-      parentFullName: parent?.fullname ?? ''
+      parentId: parent?.id ?? ''
     }
     return payload
   },
@@ -141,7 +142,11 @@ const fns = {
         const stat = statSync(childDir)
         if (stat.isDirectory()) {
           const current = this._generateData(item, stat, parent)
-          result.push(current)
+          if (!parent) {
+            result.push(current)
+          } else {
+            parent.children.push(current)
+          }
           treeMap[current.id] = current
           fn(childDir, readdirSync(childDir, 'utf-8'), current)
         } else {
@@ -164,10 +169,10 @@ const fns = {
   /** 通过id 递归查找上级id 拼接完整路径 */
   montagePath(item: Info) {
     let parentId = item.parentId
-    const pathname = [item.fullname]
+    const pathname = [item.fullName]
     while (parentId) {
       const parent = noteMaps.get(parentId)
-      pathname.push(parent!.fullname)
+      pathname.push(parent!.fullName)
       parentId = parent!.parentId
     }
     const urlStr = pathname.reverse().join('/')
@@ -221,7 +226,6 @@ const fns = {
     const item = noteMaps.get(id)
     if (item) {
       const oldFileName = fns.montagePath(item)
-      console.log(oldFileName, noteMaps, '===oldFileName===')
       const newFileName = oldFileName.replace('/notes', '/trash')
       await fse.rename(oldFileName, newFileName)
       noteMaps.delete(id)
@@ -234,8 +238,8 @@ const fns = {
     await fse.rmdir(path.join(baseDir, dirName), options)
   },
   /** 新建文件夹 */
-  async createDir(_event, { id, title, ext }) {
-    const dirName = getFileName(id, title, ext)
+  async createDir(_event, item: Info) {
+    const dirName = fns.montagePath(item)
     await fse.mkdir(dirName)
   },
   /** 检测文件夹是否为空 */

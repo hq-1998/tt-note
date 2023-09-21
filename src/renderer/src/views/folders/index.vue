@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import List from '@renderer/components/list/index.vue'
 import { useNoteStore } from '@renderer/store'
 import { IBaseNote } from '@renderer/store/note'
@@ -54,6 +54,8 @@ watch(
     immediate: true
   }
 )
+
+const isDir = computed(() => store.currentItem?.type === ENoteType.DIR)
 </script>
 
 <template>
@@ -61,8 +63,12 @@ watch(
     <div class="main-content">
       <List :data="data" @handle-rename="handleRename" @handle-delete="handleDelete" />
       <div class="content">
-        <BaseEmpty v-if="!store.currentItem">
-          <template #extra>
+        <BaseEmpty
+          v-if="!store.currentItem || isDir"
+          :hidden="isDir"
+          :icon="isDir ? 'emptyDir' : 'empty'"
+        >
+          <template v-if="store.currentItem?.type !== ENoteType.DIR" #extra>
             <BaseButton class="add-note" :create="true" @click="handleAdd">新建笔记</BaseButton>
           </template>
         </BaseEmpty>

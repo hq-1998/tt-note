@@ -13,6 +13,7 @@ class Note {
     this.notes = note
   }
   create(payload: IBaseNote) {
+    console.log(this.notes, payload.id, 'aaa')
     const source = getData(this.notes, payload.id)
     source.unshift(payload)
   }

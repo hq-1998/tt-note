@@ -110,7 +110,6 @@ const onMenuClick = async (key: string) => {
   const activeType = keyMap[children[0]]
   const isDir = activeType === ENoteType.DIR
   const index = isDir ? noteStore.dirNotes.findIndex((item) => item.id === children[1]) : 0
-  console.log(isDir ? noteStore.dirNotes[index]?.children[0] : noteStore.fileNotes[index], '111')
   noteStore.setCurrentItem(
     isDir ? noteStore.dirNotes[index]?.children[0] : noteStore.fileNotes[index]
   )
