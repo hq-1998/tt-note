@@ -91,9 +91,7 @@ const useNoteStore = defineStore('note', {
           await window.electron.ipcRenderer.invoke('save', data)
           await window.electron.ipcRenderer.invoke('setNotesMap', data)
           /** 递归插入children parent notes */
-          this.setActive(0)
-          this.setCurrentItem(null)
-
+          this.setCurrentItem(payload)
           this.notesHandler.create(payload)
           this.notesMap.set(id, payload)
           if (parentId && parent) {
@@ -120,23 +118,23 @@ const useNoteStore = defineStore('note', {
         }
       }
       if (data) {
-        await window.electron.ipcRenderer.invoke('createDir', data)
-        await window.electron.ipcRenderer.invoke('setNotesMap', data)
         /** 递归插入children notes parent */
         const payload = {
           ...data,
           parentId,
           parentFullName: parent?.fullname ?? ''
         }
-        this.setActive(0)
-        this.setCurrentItem(null)
+        await window.electron.ipcRenderer.invoke('createDir', payload)
+        await window.electron.ipcRenderer.invoke('setNotesMap', payload)
+
+        this.setCurrentItem(payload)
 
         this.notesHandler.create(payload)
-        this.notesMap.set(id, data)
+        this.notesMap.set(id, payload)
         if (parentId && parent) {
-          this.insertChildrenToParent(parentId, data)
+          this.insertChildrenToParent(parentId, payload)
         }
-        return data.id
+        return payload.id
       }
       return null
     },
@@ -149,6 +147,7 @@ const useNoteStore = defineStore('note', {
           children.push(item)
         }
       }
+      this.notesHandler.update(parent as IBaseNote)
       this.notesMap.set(parentId, parent as IBaseNote)
     },
     /** 保存 */
@@ -259,9 +258,6 @@ const useNoteStore = defineStore('note', {
     async getNoteById(id: string) {
       const content = await window.electron.ipcRenderer.invoke('getNoteById', id)
       return content
-    },
-    setActive(index: number) {
-      this.active = index
     },
     setActiveType(type: ENoteType) {
       this.activeType = type

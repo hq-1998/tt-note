@@ -6,7 +6,13 @@ import DrawerComponent from '@renderer/components/drawer/index.vue'
 import VirtualScrollList from '@renderer/components/virtual-scroll-list/index.vue'
 import { useNoteStore, useUserStore } from '@renderer/store'
 import { Message } from '@arco-design/web-vue'
-import { OPTION_KEY, createDoptionOptions, fileDoptionOptions, keyMap } from './constants'
+import {
+  ENoteType,
+  OPTION_KEY,
+  createDoptionOptions,
+  fileDoptionOptions,
+  keyMap
+} from './constants'
 import { user } from '@renderer/api'
 import { useRoute, useRouter } from 'vue-router'
 import { menuKey } from '@renderer/router/menuKey'
@@ -101,7 +107,11 @@ const doptionOptions = [
 
 const onMenuClick = async (key: string) => {
   const children = key.split('/')
-  noteStore.setActiveType(keyMap[children[0]])
+  const activeType = keyMap[children[0]]
+  noteStore.setCurrentItem(
+    activeType === ENoteType.DIR ? noteStore.dirNotes[0]?.children[0] : noteStore.fileNotes[0]
+  )
+  noteStore.setActiveType(activeType)
   router.push(`/${key}`)
 }
 
@@ -127,7 +137,6 @@ const handleClick = async (option: IOption, item?: IBaseNote) => {
         break
     }
   } catch (error) {
-    console.log(error, '===error===')
     Message.error((error as { message: string }).message)
   }
 }

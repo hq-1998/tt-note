@@ -22,10 +22,6 @@ const empty = computed(() => {
   return store.fileNotes.length === 0
 })
 
-const handleClickListItem = (item: IBaseNote) => {
-  store.setCurrentItem(item)
-}
-
 const handleRename = (item: IBaseNote & { index: number }) => {
   store.fileNotes.forEach((note) => (note.isClickRename = false))
   store.fileNotes[item.index].isClickRename = true
@@ -37,7 +33,7 @@ const handleRename = (item: IBaseNote & { index: number }) => {
     <div class="main-content">
       <List
         :data="store.fileNotes"
-        @handle-click-list-item="handleClickListItem"
+        @handle-click-list-item="store.setCurrentItem"
         @handle-rename="handleRename"
       />
       <div class="content">
@@ -46,7 +42,7 @@ const handleRename = (item: IBaseNote & { index: number }) => {
             <BaseButton class="add-note" :create="true" @click="handleAdd">新建笔记</BaseButton>
           </template>
         </BaseEmpty>
-        <Content v-else :data="store.currentItem || store.fileNotes[0]" />
+        <Content v-else :data="store.currentItem!" />
       </div>
     </div>
   </a-layout-content>

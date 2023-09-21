@@ -1,8 +1,13 @@
 import { IUserInfo } from '@renderer/api/user/data'
 import { defineStore } from 'pinia'
 
+interface IState {
+  token: string
+  userInfo: IUserInfo
+}
+
 const useUserStore = defineStore('user', {
-  state: () => {
+  state: (): IState => {
     return {
       token: '',
       userInfo: {} as IUserInfo

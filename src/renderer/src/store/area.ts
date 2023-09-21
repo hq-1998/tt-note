@@ -1,11 +1,18 @@
 import type { ICity, IProvince } from '@renderer/api/area/data'
 import { defineStore } from 'pinia'
 
+interface IState {
+  province: IProvince[]
+  city: ICity[]
+  selectedProvinceId: number
+  selectedCityId: number
+}
+
 const useAreaStore = defineStore('area', {
-  state: () => {
+  state: (): IState => {
     return {
-      province: [] as IProvince[],
-      city: [] as ICity[],
+      province: [],
+      city: [],
       selectedProvinceId: -1,
       selectedCityId: -1
     }

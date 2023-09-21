@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import Layout from '@renderer/layout/index.vue'
 import { onMounted } from 'vue'
-import { globalWebSocket, Events } from '@renderer/websocket'
+// Events
+import { globalWebSocket } from '@renderer/websocket'
 import { useUserStore, useAreaStore } from '@renderer/store'
 import { useNoteStore } from './store'
 import { onBeforeMount } from 'vue'
@@ -38,13 +39,13 @@ onMounted(async () => {
   noteStore.setNotes(result)
   noteStore.setNotesMap(noteMaps)
 
-  const unsubscribe = globalWebSocket.subscribe(Events.OTHER, () => {
-    window.electron.ipcRenderer.invoke('sendNotification', {
-      title: '欢迎光临',
-      body: '这是您首次登录小腾笔记，请享受您的笔记之旅'
-    })
-    unsubscribe?.()
-  })
+  // const unsubscribe = globalWebSocket.subscribe(Events.OTHER, () => {
+  //   window.electron.ipcRenderer.invoke('sendNotification', {
+  //     title: '欢迎光临',
+  //     body: '这是您首次登录小腾笔记，请享受您的笔记之旅'
+  //   })
+  //   unsubscribe?.()
+  // })
 })
 </script>
 

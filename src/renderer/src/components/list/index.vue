@@ -10,12 +10,11 @@ import { ENoteType } from '@renderer/layout/menu/constants'
 import { IBaseNote } from '@renderer/store/note'
 import MoveModal from './components/move-modal/index.vue'
 import SvgComponent from '@renderer/components/svg-component/index.vue'
-
-export type Item = IBaseNote & { index: number }
+import { Item } from './data'
 
 const oldTitle = ref('')
 const modalVisible = ref(false)
-const emits = defineEmits(['handleClickListItem', 'handleRename'])
+const emits = defineEmits(['handleClickListItem', 'handleRename', 'handleDelete'])
 const selectedInfo = ref<Item | null>(null)
 
 const store = useNoteStore()
@@ -42,6 +41,7 @@ const handleDelete = async (item: Item) => {
     async onOk() {
       await store.removeNoteById(item.id)
       Message.success('删除成功')
+      emits('handleDelete', item.id)
     }
   })
 }
@@ -62,7 +62,7 @@ const handleBlur = async (e, item: Item) => {
 
 /** 点击列表项 */
 const handleClickListItem = (item, index) => {
-  store.setActive(index)
+  store.setCurrentItem(item)
   emits('handleClickListItem', {
     ...item,
     index

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import List from '@renderer/components/list/index.vue'
 import { useNoteStore } from '@renderer/store'
 import { IBaseNote } from '@renderer/store/note'
@@ -13,40 +13,40 @@ import { Message } from '@arco-design/web-vue'
 const route = useRoute()
 
 const store = useNoteStore()
-const currentItem = ref<IBaseNote | null>(null)
 
 const handleAdd = async () => {
   const parentId = route.params.id as string | undefined
   const success = await store.addNote(ENoteType.MARKDOWN, parentId)
-  if (success) {
+  if (success && parentId) {
     Message.success('新建成功')
+    const children = store.findParentById(success)?.children || []
+    data.value = children
   }
 }
 
-const hasLength = ref(!!(store.dirNotes[store.active].children.length || 0))
-
-const handleClickListItem = (item: IBaseNote) => {
-  currentItem.value = item
-}
+const hasLength = computed(() => {
+  if (!store.currentItem) return false
+  const currentId = store.currentItem.id
+  return store.findParentById(currentId).children.length > 0
+})
 
 const handleRename = (item: IBaseNote & { index: number }) => {
   store.dirNotes.forEach((note) => (note.isClickRename = false))
   store.dirNotes[item.index].isClickRename = true
 }
 
+const handleDelete = () => {}
+
 const data = ref<IBaseNote[]>(store.dirNotes[0]?.children || [])
 
 onBeforeRouteUpdate((to, from) => {
   if (to.params.id !== from.params.id) {
-    console.log('111')
     const parent = store.findParentById(to.params.id as string)
     if (!parent) {
       const index = store.dirNotes.findIndex((item) => item.id === to.params.id)
       const children = store.dirNotes[index]?.children || []
-      hasLength.value = !!(children.length || 0)
       data.value = children
     } else {
-      hasLength.value = !!(parent.children.length || 0)
       data.value = parent.children || []
     }
   }
@@ -56,18 +56,14 @@ onBeforeRouteUpdate((to, from) => {
 <template>
   <a-layout-content>
     <div class="main-content">
-      <List
-        :data="data"
-        @handle-click-list-item="handleClickListItem"
-        @handle-rename="handleRename"
-      />
+      <List :data="data" @handle-rename="handleRename" @handle-delete="handleDelete" />
       <div class="content">
         <BaseEmpty v-if="!hasLength">
           <template #extra>
             <BaseButton class="add-note" :create="true" @click="handleAdd">新建笔记</BaseButton>
           </template>
         </BaseEmpty>
-        <Content v-else :data="store.currentItem || data[store.active]" />
+        <Content v-else :data="store.currentItem!" />
       </div>
     </div>
   </a-layout-content>

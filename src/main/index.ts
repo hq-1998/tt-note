@@ -53,7 +53,6 @@ function createWindow(): void {
 
   global.store = store
   IpcMain.listen()
-  // const menuTemplate = Menu.buildFromTemplate(template(mainWindow.window))
   Menu.setApplicationMenu(null)
   mainWindow.open()
 }
