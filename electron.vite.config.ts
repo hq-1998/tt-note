@@ -17,6 +17,15 @@ export default defineConfig(() => {
       plugins: [externalizeDepsPlugin()]
     },
     renderer: {
+      css: {
+        preprocessorOptions: {
+          less: {
+            modifyVars: {
+              'color-primary-6': '#5d7af9'
+            }
+          }
+        }
+      },
       // https://api.hq-cll.vip/users/login'
       server: {
         cors: true,
@@ -61,7 +70,7 @@ export default defineConfig(() => {
         Components({
           resolvers: [
             ArcoResolver({
-              sideEffect: true
+              importStyle: 'less'
             })
           ]
         }),

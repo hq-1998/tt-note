@@ -1,22 +1,18 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import List from '@renderer/components/list/index.vue'
 import { useNoteStore } from '@renderer/store'
 import { IBaseNote } from '@renderer/store/note'
 import Content from '@renderer/layout/content/index.vue'
-import { useRoute } from 'vue-router'
 import BaseEmpty from '@renderer/components/base-empty'
 import { ENoteType } from '@renderer/layout/menu/constants'
 import { Message } from '@arco-design/web-vue'
-
-const route = useRoute()
+import BaseButton from '@renderer/components/base-button'
 
 const store = useNoteStore()
-const currentItem = ref<IBaseNote | null>(null)
 
 const handleAdd = async () => {
-  const parentId = route.params.id as string | undefined
-  const success = await store.addNote(ENoteType.MARKDOWN, parentId)
+  const success = await store.addNote(ENoteType.MARKDOWN)
   if (success) {
     Message.success('新建成功')
   }
@@ -27,7 +23,7 @@ const empty = computed(() => {
 })
 
 const handleClickListItem = (item: IBaseNote) => {
-  currentItem.value = item
+  store.setCurrentItem(item)
 }
 
 const handleRename = (item: IBaseNote & { index: number }) => {
@@ -47,15 +43,10 @@ const handleRename = (item: IBaseNote & { index: number }) => {
       <div class="content">
         <BaseEmpty v-if="empty">
           <template #extra>
-            <a-button size="medium" class="add-note" type="primary">
-              <template #icon>
-                <icon-plus />
-              </template>
-              <div @click="handleAdd">新建笔记</div>
-            </a-button>
-          </template></BaseEmpty
-        >
-        <Content v-else :data="(currentItem as IBaseNote) || store.fileNotes[0]" />
+            <BaseButton class="add-note" :create="true" @click="handleAdd">新建笔记</BaseButton>
+          </template>
+        </BaseEmpty>
+        <Content v-else :data="store.currentItem || store.fileNotes[0]" />
       </div>
     </div>
   </a-layout-content>

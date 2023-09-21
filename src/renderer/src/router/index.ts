@@ -41,8 +41,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
   },
   /** 最新 */
   {
-    path: '/',
-    redirect: '/new'
+    path: menuKey.default,
+    redirect: `/${menuKey.NEW}`
   }
 ]
 
