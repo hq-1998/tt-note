@@ -101,6 +101,7 @@ const doptionOptions = [
     click: () => {
       window.electron.ipcRenderer.invoke('closeWindow')
       window.electron.ipcRenderer.invoke('openSingleWindow', 'login')
+      window.electron.ipcRenderer.invoke('setTrayUrl', { url: 'login' })
     }
   }
 ]
