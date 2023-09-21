@@ -9,7 +9,7 @@ import { Validate, globalStorage } from '@renderer/utils'
 import { ELoginType } from '@renderer/api/user/data.d'
 
 const title = import.meta.env.RENDERER_VITE_APP_TITLE
-const loginType = ref<ELoginType>(ELoginType.verifyCode)
+const loginType = ref<ELoginType>(ELoginType.passwordCode)
 const loading = ref<boolean>(false)
 
 const isSendVerifyCode = computed(() => loginType.value === ELoginType.verifyCode)
@@ -207,7 +207,7 @@ const handleClick = async (callback) => {
                   <span class="remember">记住密码</span></a-checkbox
                 >
                 <span class="clickable" @click="toggleLoginType">{{
-                  !isSendVerifyCode ? '密码登录' : '验证码登录'
+                  isSendVerifyCode ? '密码登录' : '验证码登录'
                 }}</span>
               </div>
             </div>
