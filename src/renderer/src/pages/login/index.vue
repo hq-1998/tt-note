@@ -6,10 +6,13 @@ import { user } from '@renderer/api'
 import { reactive } from 'vue'
 import { FieldRule, Form, Message } from '@arco-design/web-vue'
 import { Validate, globalStorage } from '@renderer/utils'
-import { ELoginType } from '@renderer/api/user/data.d'
+import { ELoginType, ERegisterType } from '@renderer/api/user/data.d'
+import { loginPwdMap, loginVerifyMap, registerPwdMap, registerVerifyMap } from './constants'
 
 const title = import.meta.env.RENDERER_VITE_APP_TITLE
+
 const loginType = ref<ELoginType>(ELoginType.passwordCode)
+const registerType = ref<ERegisterType>(ERegisterType.LOGIN)
 const loading = ref<boolean>(false)
 
 const isSendVerifyCode = computed(() => loginType.value === ELoginType.verifyCode)
@@ -34,21 +37,23 @@ const resetPassword = () => {
 /** 表单 */
 const formRef = ref<InstanceType<typeof Form>>()
 
-const loginVerifyMap = {
-  title: '验证码登录',
-  placeholder: '请输入验证码'
-}
-
-const loginPwdMap = {
-  title: '密码登录',
-  placeholder: '请输入密码'
-}
-
 const loginMap = computed(() => {
   return {
     [ELoginType.verifyCode]: loginVerifyMap,
     [ELoginType.passwordCode]: loginPwdMap
   }[loginType.value]
+})
+
+const registerMap = computed(() => {
+  return {
+    [ELoginType.verifyCode]: registerVerifyMap,
+    [ELoginType.passwordCode]: registerPwdMap
+  }[loginType.value]
+})
+
+const showMap = computed(() => {
+  const isLogin = registerType.value === ERegisterType.LOGIN
+  return isLogin ? loginMap.value : registerMap.value
 })
 
 const form = reactive({
@@ -82,27 +87,30 @@ const formRules: Record<keyof typeof form, FieldRule | FieldRule[]> = {
   ]
 }
 
-const handleLogin = (values) => {
+const handleSuccess = (values) => {
   const payload = {
     type: loginType.value as ELoginType,
     account: values.account,
     password: values.password
   }
 
+  const api = isLogin.value ? user.login : user.register
+
   loading.value = true
-  user
-    .login(payload)
+  api(payload)
     .then((res) => {
       if (res.code === 0) {
-        Message.success('登录成功')
-        setTimeout(() => {
-          const { data } = res
-          globalStorage.set('token', data.token)
-          globalStorage.set('userInfo', data.userInfo)
-          window.electron.ipcRenderer.invoke('closeWindow')
-          window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
-          window.electron.ipcRenderer.invoke('setTrayUrl', { url: 'index' })
-        }, 300)
+        Message.success(`${isLogin.value ? '登录' : '注册'}成功`)
+        if (isLogin.value) {
+          setTimeout(() => {
+            const { data } = res
+            globalStorage.set('token', data.token)
+            globalStorage.set('userInfo', data.userInfo)
+            window.electron.ipcRenderer.invoke('closeWindow')
+            window.electron.ipcRenderer.invoke('openSingleWindow', 'index')
+            window.electron.ipcRenderer.invoke('setTrayUrl', { url: 'index' })
+          }, 300)
+        }
       }
     })
     .finally(() => {
@@ -136,17 +144,29 @@ const handleClick = async (callback) => {
     resetPassword()
   }
 }
+
+/** 立即注册/立即登录 */
+const handleSoonClick = () => {
+  registerType.value =
+    registerType.value === ERegisterType.REGISTER ? ERegisterType.LOGIN : ERegisterType.REGISTER
+  loginType.value = ELoginType.passwordCode
+}
+
+/** 是否是登录 */
+const isLogin = computed(() => {
+  return registerType.value === ERegisterType.LOGIN
+})
 </script>
 
 <template>
   <div class="modal">
-    <header class="header">登录{{ title }}畅享更多权益</header>
+    <header class="header">{{ `${isLogin ? '登录' : '注册'}${title}` }}畅享更多权益</header>
     <div class="auth-body">
       <div class="content">
         <a-row justify="space-between" :wrap="false">
           <div class="login-main">
             <h1 class="title">
-              {{ loginMap.title }}
+              {{ showMap.title }}
             </h1>
             <div class="input-group">
               <a-form
@@ -156,7 +176,7 @@ const handleClick = async (callback) => {
                 :wrapper-col-props="{ span: 24 }"
                 :model="form"
                 :rules="formRules"
-                @submit-success="handleLogin"
+                @submit-success="handleSuccess"
               >
                 <a-form-item field="account">
                   <a-input
@@ -172,7 +192,7 @@ const handleClick = async (callback) => {
                     v-model="form.password"
                     allow-clear
                     :style="{ width: '277px' }"
-                    :placeholder="loginMap.placeholder"
+                    :placeholder="showMap.placeholder"
                   >
                     <template #append>
                       <VerifyCode
@@ -188,17 +208,17 @@ const handleClick = async (callback) => {
                     v-model="form.password"
                     allow-clear
                     :style="{ width: '277px' }"
-                    :placeholder="loginMap.placeholder"
+                    :placeholder="showMap.placeholder"
                   >
-                    <template #append>
+                    <template v-if="isLogin" #append>
                       <a class="send-code-btn" @click="handleClick">忘记密码</a>
                     </template></a-input-password
                   >
                 </a-form-item>
                 <a-form-item>
-                  <a-button :loading="loading" long type="primary" html-type="submit"
-                    >登录</a-button
-                  >
+                  <a-button :loading="loading" long type="primary" html-type="submit">{{
+                    isLogin ? '登录' : '注册'
+                  }}</a-button>
                 </a-form-item>
               </a-form>
 
@@ -207,23 +227,25 @@ const handleClick = async (callback) => {
                   <span class="remember">记住密码</span></a-checkbox
                 >
                 <span class="clickable" @click="toggleLoginType">{{
-                  isSendVerifyCode ? '密码登录' : '验证码登录'
+                  isSendVerifyCode
+                    ? `密码${isLogin ? '登录' : '注册'}`
+                    : `验证码${isLogin ? '登录' : '注册'}`
                 }}</span>
               </div>
             </div>
           </div>
         </a-row>
       </div>
-      <footer class="agreement-box">
+      <div class="agreement-box">
         注册登录即表示同意
         <a class="terms">用户协议</a>
         和
         <a class="privacy">隐私政策</a>
-      </footer>
-      <div class="register">
-        还没有账号？
-        <a class="clickable">立即注册</a>
       </div>
+      <footer class="register">
+        {{ isLogin ? '还没有账号？' : '已有账号' }}
+        <a class="clickable" @click="handleSoonClick">{{ isLogin ? '立即注册' : '立即登录' }}</a>
+      </footer>
     </div>
     <ResetPassword ref="resetPwdRef" :modal-visible="modalVisible" />
   </div>

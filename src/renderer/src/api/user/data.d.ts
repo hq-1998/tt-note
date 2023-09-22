@@ -3,6 +3,11 @@ export enum ELoginType {
   passwordCode = 2
 }
 
+export enum ERegisterType {
+  LOGIN = 1,
+  REGISTER = 2
+}
+
 export type IUserPwd = {
   type: ELoginType
   account: string
