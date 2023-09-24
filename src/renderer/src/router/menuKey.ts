@@ -3,5 +3,6 @@ export const menuKey = {
   FOLDERS: 'folders',
   STAR: 'star',
   TRASH: 'trash',
+  COMPONENTS: 'components',
   default: '/'
 }

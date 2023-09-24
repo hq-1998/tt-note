@@ -3,12 +3,10 @@ import { useUserStore } from '@renderer/store'
 import { FunctionalComponent, ref, computed } from 'vue'
 
 type IProps = InstanceType<typeof Upload>['$props']
-type IEmits = {
-  success: (fileItem: FileItem) => void
-}
+type IEmits = { success: (fileItem: FileItem) => void }
 type ISlots = InstanceType<typeof Upload>['$slots']
 
-const BaseButton: FunctionalComponent<IProps, IEmits, ISlots> = (props, { emit, slots }) => {
+const BaseUpload: FunctionalComponent<IProps, IEmits, ISlots> = (props, { emit, slots }) => {
   const {
     accept = '.jpg,.jpeg,.png,.gif',
     action = `${import.meta.env.RENDERER_VITE_API}/upload`,
@@ -46,11 +44,11 @@ const BaseButton: FunctionalComponent<IProps, IEmits, ISlots> = (props, { emit, 
 
   return (
     <a-upload
-      ref={uploadRef}
+      ref={uploadRef.value}
       v-slots={slots}
       accept={accept}
       action={action}
-      headers={uploadHeaders}
+      headers={uploadHeaders.value}
       data={handleData}
       auto-upload={autoUpload}
       show-file-list={showFileList}
@@ -61,4 +59,4 @@ const BaseButton: FunctionalComponent<IProps, IEmits, ISlots> = (props, { emit, 
   )
 }
 
-export default BaseButton
+export default BaseUpload

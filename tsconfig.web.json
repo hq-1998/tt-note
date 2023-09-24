@@ -13,12 +13,12 @@
     "src/renderer/src/components/**/*.vue",
     "src/renderer/src/utils/**/*",
     "src/renderer/src/websocket/**/*"
-  ],
+, "resources/worker.ts"  ],
   "compilerOptions": {
     "types": ["vite/client"],
     "composite": true,
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
+    "module": "es2022",
+    "lib": ["es2022", "DOM"],
     "baseUrl": ".",
     "allowJs": true,
     "paths": {

@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { baseConfig } from './config'
 import { Message } from '@arco-design/web-vue'
+import { globalStorage } from '@renderer/utils'
 
 type Result<T> = {
   code: number
@@ -15,6 +16,8 @@ class Request {
 
     this.instance.interceptors.request.use(
       (config) => {
+        config['headers'].token = globalStorage.get('token')
+        config['headers'].userId = globalStorage.get('userInfo').id
         return config
       },
       (error) => {

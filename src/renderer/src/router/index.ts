@@ -29,15 +29,20 @@ const routes: Readonly<RouteRecordRaw[]> = [
       }
     ]
   },
-  // /** 加星 */
+  // 加星
   {
     ...generateMenu(menuKey.STAR),
     component: () => import('@renderer/views/star/index.vue')
   },
-  // /** 回收站 */
+  // 回收站
   {
     ...generateMenu(menuKey.TRASH),
     component: () => import('@renderer/views/trash/index.vue')
+  },
+  // 组件库
+  {
+    ...generateMenu(menuKey.COMPONENTS),
+    component: () => import('@renderer/views/expirements/index.vue')
   },
   /** 最新 */
   {

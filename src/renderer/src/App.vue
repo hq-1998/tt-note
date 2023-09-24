@@ -2,7 +2,7 @@
 import Layout from '@renderer/layout/index.vue'
 import { onMounted } from 'vue'
 // Events
-import { globalWebSocket } from '@renderer/websocket'
+// import { globalWebSocket } from '@renderer/websocket'
 import { useUserStore, useAreaStore } from '@renderer/store'
 import { useNoteStore } from './store'
 import { onBeforeMount } from 'vue'
@@ -20,7 +20,7 @@ onBeforeMount(() => {
   const userInfo = globalStorage.get('userInfo')
   if (token && userInfo) {
     userStore.setToken(token)
-    globalWebSocket.connect(userInfo.id)
+    // globalWebSocket.connect(userInfo.id)
     const promises = [user.getUserInfo(userInfo.id), area.getProvince()]
     Promise.all(promises).then((res) => {
       const [userInfo, province] = res

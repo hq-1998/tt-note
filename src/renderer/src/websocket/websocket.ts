@@ -33,10 +33,10 @@ class GlobalWebsocket {
       throw new Error('websocket url is null')
     }
     this.socket = new WebSocket(`${this.url}?userId=${this.userId}`)
-    this.socket.addEventListener('open', this.onOpen)
     /** this指向调用者socket */
+    this.socket.addEventListener('open', () => this.onOpen())
     this.socket.addEventListener('message', (event) => this.onMessage(event))
-    this.socket.addEventListener('error', this.onError)
+    this.socket.addEventListener('error', (event) => this.onError(event))
     this.socket.addEventListener('close', () => this.onClose())
   }
   /** websocket打开 */

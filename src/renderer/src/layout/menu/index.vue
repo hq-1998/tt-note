@@ -220,8 +220,12 @@ const handleClick = async (option: IOption, item?: IBaseNote) => {
             加星
           </a-menu-item>
           <a-menu-item :key="menuKey.TRASH">
-            <template #icon><icon-delete></icon-delete></template>
+            <template #icon><icon-delete /></template>
             回收站
+          </a-menu-item>
+          <a-menu-item :key="menuKey.COMPONENTS">
+            <template #icon><icon-experiment /></template>
+            组件库
           </a-menu-item>
         </a-menu>
       </div>
